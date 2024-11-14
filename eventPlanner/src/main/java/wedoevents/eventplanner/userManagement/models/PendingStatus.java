@@ -1,4 +1,4 @@
-package wedoevents.eventplanner.shared;
+package wedoevents.eventplanner.userManagement.models;
 
 public enum PendingStatus {
     PENDING,
