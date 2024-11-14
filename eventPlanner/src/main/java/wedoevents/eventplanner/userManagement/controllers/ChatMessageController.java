@@ -9,7 +9,7 @@ import wedoevents.eventplanner.userManagement.services.ChatMessageService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/chatMessages")
+@RequestMapping("/api/v1/chatMessages")
 public class ChatMessageController {
 
     private final ChatMessageService chatMessageService;

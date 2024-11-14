@@ -9,7 +9,7 @@ import wedoevents.eventplanner.userManagement.services.ReviewService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/reviews")
+@RequestMapping("/api/v1/reviews")
 public class ReviewController {
 
     private final ReviewService reviewService;

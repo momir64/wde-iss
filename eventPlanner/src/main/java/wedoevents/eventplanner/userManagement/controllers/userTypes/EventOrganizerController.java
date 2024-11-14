@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/eventOrganizers")
+@RequestMapping("/api/v1/eventOrganizers")
 public class EventOrganizerController {
 
     private final EventOrganizerService eventOrganizerService;

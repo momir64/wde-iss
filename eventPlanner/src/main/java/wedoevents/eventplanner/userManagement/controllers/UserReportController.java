@@ -9,7 +9,7 @@ import wedoevents.eventplanner.userManagement.services.UserReportService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/userReports")
+@RequestMapping("/api/v1/userReports")
 public class UserReportController {
 
     private final UserReportService userReportService;

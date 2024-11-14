@@ -9,7 +9,7 @@ import wedoevents.eventplanner.userManagement.services.RegistrationAttemptServic
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/registrationAttempts")
+@RequestMapping("/api/v1/registrationAttempts")
 public class RegistrationAttemptController {
 
     private final RegistrationAttemptService registrationAttemptService;
