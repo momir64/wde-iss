@@ -1,9 +1,6 @@
 package wedoevents.eventplanner.userManagement.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import wedoevents.eventplanner.productManagement.models.Product;
@@ -22,6 +19,8 @@ public class Review {
 
     private int grade;
     private String comment;
+
+    @Enumerated(EnumType.STRING)
     private PendingStatus pendingStatus;
 
     // one of these two will always be non-null

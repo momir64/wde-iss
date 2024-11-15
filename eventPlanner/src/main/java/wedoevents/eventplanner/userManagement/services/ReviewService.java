@@ -22,7 +22,7 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
-    public Optional<Review> getReviewById(Long id) {
+    public Optional<Review> getReviewById(UUID id) {
         return reviewRepository.findById(id);
     }
 
@@ -30,7 +30,7 @@ public class ReviewService {
         return reviewRepository.findAll();
     }
 
-    public void deleteReview(Long id) {
+    public void deleteReview(UUID id) {
         reviewRepository.deleteById(id);
     }
 }

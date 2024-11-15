@@ -26,7 +26,7 @@ public class UserReportController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserReport> getUserReportById(@PathVariable Long id) {
+    public ResponseEntity<UserReport> getUserReportById(@PathVariable UUID id) {
         return userReportService.getUserReportById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -38,7 +38,7 @@ public class UserReportController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserReport(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUserReport(@PathVariable UUID id) {
         userReportService.deleteUserReport(id);
         return ResponseEntity.noContent().build();
     }
