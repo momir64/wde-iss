@@ -17,15 +17,48 @@
             text-decoration: none;
             border-radius: 5px;
             margin-top: 20px;
+            cursor: pointer;
         }
+        .message {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
     </style>
+    <script>
+        function verifyRegistration(email) {
+            const button = document.getElementById('verifyButton');
+            fetch('{{verificationUrl}}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const messageContainer = document.getElementById('message');
+                    if (data.success) {
+                        messageContainer.innerHTML = "<p class='success'>Successful verification!</p>";
+                        button.classList.add('disabled');
+                        button.onclick = null;
+                    } else {
+                        messageContainer.innerHTML = "<p class='error'>Verification failed. Please try again.</p>";
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('message').innerHTML = "<p class='error'>An error occurred. Please try again later.</p>";
+                });
+        }
+    </script>
 </head>
 <body>
 <div class="container">
     <h2>Please verify your registration</h2>
-    <p>Dear {{name}} {{surname}},</p>
-    <p>Please click the button below to verify your registration associated with this email: {{email}}.</p>
-    <a href="{{verificationUrl}}" class="button">Verify Registration</a>
+    <p style="color: white">Dear {{name}} {{surname}},</p>
+    <p style="color: white">Please click the button below to verify your registration associated with this email: {{email}}.</p>
+    <p>Your link is active for 48 hours. After that, you will need to resend the verification email.  </p>
+    <div class="button" onclick="verifyRegistration('{{email}}')">Verify Registration</div>
+    <div id="message" class="message"></div>
 </div>
 </body>
 </html>

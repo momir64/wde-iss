@@ -9,6 +9,7 @@ import wedoevents.eventplanner.productManagement.models.Product;
 import wedoevents.eventplanner.serviceManagement.models.ServiceEntity;
 
 import java.util.List;
+import java.util.UUID;
 
 @Setter
 @Getter
@@ -17,7 +18,7 @@ public class Profile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     private String email;
 
@@ -60,4 +61,14 @@ public class Profile {
             inverseJoinColumns = @JoinColumn(name = "service_id")
     )
     private List<ServiceEntity> favouriteServices;
+
+
+    public void BuildProfile(String email, String password, boolean isActive, boolean areNotificationsMuted, boolean isVerified) {
+        this.email = email;
+        this.password = password;
+        this.isActive = isActive;
+        this.areNotificationsMuted = areNotificationsMuted;
+        this.isVerified = isVerified;
+    }
+
 }

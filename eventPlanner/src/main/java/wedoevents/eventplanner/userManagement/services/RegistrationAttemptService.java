@@ -7,6 +7,7 @@ import wedoevents.eventplanner.userManagement.repositories.RegistrationAttemptRe
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class RegistrationAttemptService {
@@ -32,5 +33,8 @@ public class RegistrationAttemptService {
 
     public void deleteRegistrationAttempt(Long id) {
         registrationAttemptRepository.deleteById(id);
+    }
+    public Optional<RegistrationAttempt> getMostRecentRegistrationAttemptByProfileId(UUID profileId) {
+        return registrationAttemptRepository.findTopByProfileIdOrderByTimeDesc(profileId);
     }
 }
