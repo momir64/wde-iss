@@ -9,6 +9,7 @@ import wedoevents.eventplanner.productManagement.models.Product;
 import wedoevents.eventplanner.serviceManagement.models.ServiceEntity;
 
 import java.util.List;
+import java.util.UUID;
 
 @Setter
 @Getter
@@ -16,7 +17,7 @@ import java.util.List;
 public class Profile {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue()
     private UUID id;
 
     private String email;

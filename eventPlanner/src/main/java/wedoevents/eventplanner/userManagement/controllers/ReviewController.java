@@ -7,6 +7,7 @@ import wedoevents.eventplanner.userManagement.models.Review;
 import wedoevents.eventplanner.userManagement.services.ReviewService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/reviews")

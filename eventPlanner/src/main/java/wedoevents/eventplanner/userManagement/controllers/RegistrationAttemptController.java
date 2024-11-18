@@ -7,6 +7,7 @@ import wedoevents.eventplanner.userManagement.models.RegistrationAttempt;
 import wedoevents.eventplanner.userManagement.services.RegistrationAttemptService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/registrationAttempts")

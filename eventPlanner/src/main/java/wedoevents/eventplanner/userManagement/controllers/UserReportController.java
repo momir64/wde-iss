@@ -7,6 +7,7 @@ import wedoevents.eventplanner.userManagement.models.UserReport;
 import wedoevents.eventplanner.userManagement.services.UserReportService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/userReports")
