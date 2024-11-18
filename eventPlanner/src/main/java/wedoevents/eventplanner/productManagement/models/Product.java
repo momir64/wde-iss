@@ -19,7 +19,7 @@ public class Product {
 
     private String name;
 
-    private long price;
+    private UUID price;
 
     @ElementCollection
     private List<String> images;

@@ -5,7 +5,7 @@ import wedoevents.eventplanner.userManagement.models.ChatMessage;
 
 import java.util.List;
 
-public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
-    List<ChatMessage> findByToId(Long toProfileId);
-    List<ChatMessage> findByFromId(Long fromProfileId);
+public interface ChatMessageRepository extends JpaRepository<ChatMessage, UUID> {
+    List<ChatMessage> findByToId(UUID toProfileId);
+    List<ChatMessage> findByFromId(UUID fromProfileId);
 }

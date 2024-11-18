@@ -22,7 +22,7 @@ public class UserReportService {
         return userReportRepository.save(userReport);
     }
 
-    public Optional<UserReport> getUserReportById(Long id) {
+    public Optional<UserReport> getUserReportById(UUID id) {
         return userReportRepository.findById(id);
     }
 
@@ -30,7 +30,7 @@ public class UserReportService {
         return userReportRepository.findAll();
     }
 
-    public void deleteUserReport(Long id) {
+    public void deleteUserReport(UUID id) {
         userReportRepository.deleteById(id);
     }
 }

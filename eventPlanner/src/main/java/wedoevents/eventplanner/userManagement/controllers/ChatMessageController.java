@@ -26,24 +26,24 @@ public class ChatMessageController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ChatMessage> getChatMessageById(@PathVariable Long id) {
+    public ResponseEntity<ChatMessage> getChatMessageById(@PathVariable UUID id) {
         return chatMessageService.getChatMessageById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/to/{toProfileId}")
-    public ResponseEntity<List<ChatMessage>> getMessagesToProfile(@PathVariable Long toProfileId) {
+    public ResponseEntity<List<ChatMessage>> getMessagesToProfile(@PathVariable UUID toProfileId) {
         return ResponseEntity.ok(chatMessageService.getMessagesToProfile(toProfileId));
     }
 
     @GetMapping("/from/{fromProfileId}")
-    public ResponseEntity<List<ChatMessage>> getMessagesFromProfile(@PathVariable Long fromProfileId) {
+    public ResponseEntity<List<ChatMessage>> getMessagesFromProfile(@PathVariable UUID fromProfileId) {
         return ResponseEntity.ok(chatMessageService.getMessagesFromProfile(fromProfileId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteChatMessage(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteChatMessage(@PathVariable UUID id) {
         chatMessageService.deleteChatMessage(id);
         return ResponseEntity.noContent().build();
     }

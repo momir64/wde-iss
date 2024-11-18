@@ -13,7 +13,7 @@ public class UserReport {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     private LocalDateTime reportDateTime;
 

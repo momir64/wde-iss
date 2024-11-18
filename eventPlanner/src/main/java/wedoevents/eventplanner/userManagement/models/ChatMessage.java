@@ -13,7 +13,7 @@ public class ChatMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     private LocalDateTime time;
 
@@ -28,5 +28,4 @@ public class ChatMessage {
     @ManyToOne
     @JoinColumn(name = "from_profile_id", nullable = false)
     private Profile from;
-
 }
