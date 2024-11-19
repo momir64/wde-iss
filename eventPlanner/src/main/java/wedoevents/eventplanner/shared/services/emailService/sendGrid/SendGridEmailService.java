@@ -1,4 +1,4 @@
-package wedoevents.eventplanner.shared.services.sendGrid;
+package wedoevents.eventplanner.shared.services.emailService.sendGrid;
 
 import com.sendgrid.Method;
 import com.sendgrid.Request;
@@ -9,6 +9,7 @@ import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import wedoevents.eventplanner.shared.services.emailService.IEmailService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class SendGridEmailService {
+public class SendGridEmailService implements IEmailService {
     private final SendGrid sendGrid;
 
     @Autowired

@@ -1,4 +1,4 @@
-package wedoevents.eventplanner.shared.services.sendGrid;
+package wedoevents.eventplanner.shared.services.emailService.sendGrid;
 
 import com.sendgrid.SendGrid;
 import org.springframework.beans.factory.annotation.Value;

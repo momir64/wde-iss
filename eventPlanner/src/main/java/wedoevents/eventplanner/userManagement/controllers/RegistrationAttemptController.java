@@ -10,9 +10,11 @@ import wedoevents.eventplanner.userManagement.models.RegistrationAttemptDTO;
 import wedoevents.eventplanner.userManagement.services.ProfileService;
 import wedoevents.eventplanner.userManagement.services.RegistrationAttemptService;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/registrationAttempts")
@@ -35,11 +37,11 @@ public class RegistrationAttemptController {
     }
 
 
-    @PutMapping()
-    public ResponseEntity<?> verifyRegistration(@RequestBody RegistrationAttemptDTO registrationAttemptDTO) {
+    @PutMapping("/verify/{id}/{profileId}")
+    public ResponseEntity<?> verifyRegistration(@PathVariable Long id, @PathVariable UUID profileId) {
 
         // Step 1: Get the profile associated with the profileId from the RegistrationAttemptDTO
-        Profile profile = profileService.findProfileById(registrationAttemptDTO.getProfileId())
+        Profile profile = profileService.findProfileById(profileId)
                 .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
 
         // Step 2: Check if the profile is already verified
@@ -49,7 +51,7 @@ public class RegistrationAttemptController {
         }
 
         // Step 3: Get the most recent registration attempt for the profile
-        Optional<RegistrationAttempt> mostRecentAttempt = registrationAttemptService.getMostRecentRegistrationAttemptByProfileId(registrationAttemptDTO.getProfileId());
+        Optional<RegistrationAttempt> mostRecentAttempt = registrationAttemptService.getMostRecentRegistrationAttemptByProfileId(profileId);
 
         if (mostRecentAttempt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -59,13 +61,17 @@ public class RegistrationAttemptController {
         // Step 4: Check if the most recent registration attempt matches the one in the request
         RegistrationAttempt recentAttempt = mostRecentAttempt.get();
 
-        if (!recentAttempt.getId().equals(registrationAttemptDTO.getId())) {
+        if (!recentAttempt.getId().equals(id)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("The registration attempt does not match the most recent one.");
         }
 
+        // Step 5: Make sure the verification is not late
+        if (Duration.between(recentAttempt.getTime(), LocalDateTime.now()).toHours() > 24) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Verification too late");
+        }
 
-        // Step 5: Verify the profile (set the profile as verified)
+        // Step 6: Verify the profile (set the profile as verified)
         profile.setVerified(true);
         profileService.createProfile(profile);
 

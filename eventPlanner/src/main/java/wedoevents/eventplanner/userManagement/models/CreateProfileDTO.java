@@ -20,7 +20,7 @@ public class CreateProfileDTO {
     private String address;
     private String postalNumber;
     private String telephoneNumber;
-    private List<String> images;
+    private String image;
 
     public Object createUserEntity(Profile profile) {
         switch (userType) {
@@ -36,7 +36,7 @@ public class CreateProfileDTO {
                 eventOrganizer.setAddress(this.address);
                 eventOrganizer.setPostalNumber(this.postalNumber);
                 eventOrganizer.setTelephoneNumber(this.telephoneNumber);
-                eventOrganizer.setImages(this.images);
+                eventOrganizer.setImage(this.image);
                 eventOrganizer.setProfile(profile);
                 return eventOrganizer;
             case GUEST:
@@ -51,7 +51,7 @@ public class CreateProfileDTO {
                 seller.setAddress(this.address);
                 seller.setPostalNumber(this.postalNumber);
                 seller.setTelephoneNumber(this.telephoneNumber);
-                seller.setImages(this.images);
+                seller.setImage(this.image);
                 seller.setProfile(profile);
                 return seller;
             default:

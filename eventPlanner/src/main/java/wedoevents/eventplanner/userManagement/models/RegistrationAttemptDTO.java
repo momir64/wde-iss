@@ -11,7 +11,5 @@ import java.util.UUID;
 public class RegistrationAttemptDTO {
     private Long id;
 
-    private LocalDateTime time;
-
     private UUID profileId;
 }

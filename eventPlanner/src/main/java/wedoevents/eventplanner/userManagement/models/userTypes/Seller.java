@@ -26,6 +26,5 @@ public class Seller {
     @OneToOne(optional = false)
     private Profile profile;
 
-    @ElementCollection
-    private List<String> images;
+    private String image;
 }

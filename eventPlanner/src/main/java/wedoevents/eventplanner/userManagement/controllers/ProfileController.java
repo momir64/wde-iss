@@ -5,8 +5,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.userManagement.models.CreateProfileDTO;
 import wedoevents.eventplanner.userManagement.models.Profile;
+import wedoevents.eventplanner.userManagement.models.RegistrationAttempt;
+import wedoevents.eventplanner.userManagement.models.userTypes.Admin;
+import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
+import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
 import wedoevents.eventplanner.userManagement.services.ProfileService;
+import wedoevents.eventplanner.userManagement.services.RegistrationAttemptService;
+import wedoevents.eventplanner.userManagement.services.userTypes.AdminService;
+import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
+import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
+import wedoevents.eventplanner.userManagement.services.userTypes.SellerService;
+import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,13 +27,21 @@ import java.util.UUID;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final EventOrganizerService eventOrganizerService;
+    private final GuestService guestService;
+    private final SellerService sellerService;
+    private final RegistrationAttemptService registrationAttemptService;
 
     @Autowired
-    public ProfileController(ProfileService profileService) {
+    public ProfileController(ProfileService profileService, EventOrganizerService eventOrganizerService, SellerService sellerService, GuestService guestService, RegistrationAttemptService registrationAttemptService) {
         this.profileService = profileService;
+        this.eventOrganizerService = eventOrganizerService;
+        this.sellerService = sellerService;
+        this.guestService = guestService;
+        this.registrationAttemptService = registrationAttemptService;
     }
 
-    @PostMapping
+    @PostMapping("/registration")
     public ResponseEntity<Profile> createProfile(@RequestBody CreateProfileDTO createProfileDTO) {
 
         //check if there is already a verified profile with the same email
@@ -34,17 +53,31 @@ public class ProfileController {
         // add/update the profile
         Profile profile = new Profile();
         profile.BuildProfile(createProfileDTO.getEmail(),createProfileDTO.getPassword(),createProfileDTO.isActive(),createProfileDTO.isAreNotificationsMuted(),false);
-        profile = profileService.createProfile(profile);
+        profile = profileService.createOrUpdateProfile(profile);
 
-        // create a user based on the userType
+        // create/update a user based on the userType
 
+        Object userEntity = createProfileDTO.createUserEntity(profile);
+        if (userEntity instanceof EventOrganizer) {
+            eventOrganizerService.createOrUpdateEventOrganizer((EventOrganizer) userEntity);
+        } else if (userEntity instanceof Guest) {
+            guestService.createOrUpdateGuest((Guest) userEntity);
+        } else if (userEntity instanceof Seller) {
+            sellerService.createOrUpdateSeller((Seller) userEntity);
+        } else {
+            return ResponseEntity.badRequest().body(null); // Unknown user type
+        }
 
         // call registrationAttemptService to create another attempt
-        Profile createdProfile = profileService.createProfile(profile);
+        RegistrationAttempt registrationAttempt = new RegistrationAttempt();
+        registrationAttempt.setProfile(profile);
+        registrationAttempt.setTime(LocalDateTime.now());
+        registrationAttemptService.saveRegistrationAttempt(registrationAttempt);
+
 
         // send email for verification
 
-        return ResponseEntity.ok(createdProfile);
+        return ResponseEntity.ok(profile);
     }
 
     @GetMapping("/{id}")

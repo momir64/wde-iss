@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.userManagement.services.userTypes;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
@@ -33,5 +34,17 @@ public class SellerService {
 
     public void deleteSeller(UUID id) {
         sellerRepository.deleteById(id);
+    }
+
+    public Seller createOrUpdateSeller(Seller seller) {
+        if (seller.getId() != null && sellerRepository.existsById(seller.getId())) {
+            Seller existingSeller = sellerRepository.findById(seller.getId()).orElse(null);
+            if (existingSeller != null) {
+                BeanUtils.copyProperties(seller, existingSeller, "id");
+                return sellerRepository.save(existingSeller);
+            }
+        }
+        // Create new
+        return sellerRepository.save(seller);
     }
 }

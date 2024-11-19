@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.userManagement.services.userTypes;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
@@ -33,5 +34,18 @@ public class EventOrganizerService {
 
     public void deleteEventOrganizer(UUID id) {
         eventOrganizerRepository.deleteById(id);
+    }
+
+    public EventOrganizer createOrUpdateEventOrganizer(EventOrganizer eventOrganizer) {
+        if (eventOrganizer.getId() != null && eventOrganizerRepository.existsById(eventOrganizer.getId())) {
+            EventOrganizer existingOrganizer = eventOrganizerRepository.findById(eventOrganizer.getId()).orElse(null);
+            if (existingOrganizer != null) {
+                // Copy all properties except the ID
+                BeanUtils.copyProperties(eventOrganizer, existingOrganizer, "id");
+                return eventOrganizerRepository.save(existingOrganizer);
+            }
+        }
+        // Create new
+        return eventOrganizerRepository.save(eventOrganizer);
     }
 }

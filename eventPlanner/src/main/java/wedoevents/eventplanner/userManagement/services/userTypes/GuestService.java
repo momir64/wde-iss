@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.userManagement.services.userTypes;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
@@ -33,5 +34,17 @@ public class GuestService {
 
     public void deleteGuest(UUID id) {
         guestRepository.deleteById(id);
+    }
+
+    public Guest createOrUpdateGuest(Guest guest) {
+        if (guest.getId() != null && guestRepository.existsById(guest.getId())) {
+            Guest existingGuest = guestRepository.findById(guest.getId()).orElse(null);
+            if (existingGuest != null) {
+                BeanUtils.copyProperties(guest, existingGuest, "id");
+                return guestRepository.save(existingGuest);
+            }
+        }
+        // Create new
+        return guestRepository.save(guest);
     }
 }
