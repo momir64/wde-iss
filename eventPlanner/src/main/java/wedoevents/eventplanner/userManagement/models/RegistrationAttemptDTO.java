@@ -9,7 +9,7 @@ import java.util.UUID;
 @Setter
 @Getter
 public class RegistrationAttemptDTO {
-    private Long id;
+    private UUID id;
 
     private UUID profileId;
 }

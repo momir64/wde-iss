@@ -35,6 +35,6 @@ public class RegistrationAttemptService {
         registrationAttemptRepository.deleteById(id);
     }
     public Optional<RegistrationAttempt> getMostRecentRegistrationAttemptByProfileId(UUID profileId) {
-        return registrationAttemptRepository.findTopByProfileIdOrderByTimeDesc(profileId);
+        return registrationAttemptRepository.findFirstByProfileIdOrderByTimeDesc(profileId);
     }
 }

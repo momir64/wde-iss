@@ -3,6 +3,7 @@ package wedoevents.eventplanner.userManagement.services.userTypes;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepository;
 
@@ -46,5 +47,8 @@ public class SellerService {
         }
         // Create new
         return sellerRepository.save(seller);
+    }
+    public void deleteByProfile(Profile profile){
+        sellerRepository.deleteByProfile(profile);
     }
 }

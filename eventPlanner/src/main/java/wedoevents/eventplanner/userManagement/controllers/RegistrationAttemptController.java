@@ -38,17 +38,21 @@ public class RegistrationAttemptController {
 
 
     @PutMapping("/verify/{id}/{profileId}")
-    public ResponseEntity<?> verifyRegistration(@PathVariable Long id, @PathVariable UUID profileId) {
+    public ResponseEntity<?> verifyRegistration(@PathVariable UUID id, @PathVariable UUID profileId) {
 
         // Step 1: Get the profile associated with the profileId from the RegistrationAttemptDTO
         Profile profile = profileService.findProfileById(profileId)
                 .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
+
+
 
         // Step 2: Check if the profile is already verified
         if (profile.isVerified()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Profile is already verified.");
         }
+
+
 
         // Step 3: Get the most recent registration attempt for the profile
         Optional<RegistrationAttempt> mostRecentAttempt = registrationAttemptService.getMostRecentRegistrationAttemptByProfileId(profileId);

@@ -14,7 +14,8 @@ import java.util.UUID;
 @Setter
 public class Review {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "UUID")
     private UUID id;
 
     private int grade;

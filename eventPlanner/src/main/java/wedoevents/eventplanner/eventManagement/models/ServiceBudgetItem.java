@@ -1,9 +1,6 @@
 package wedoevents.eventplanner.eventManagement.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import wedoevents.eventplanner.serviceManagement.models.ServiceCategory;
@@ -18,7 +15,8 @@ import java.util.UUID;
 public class ServiceBudgetItem {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "UUID")
     private UUID id;
 
     private double maxPrice;

@@ -13,7 +13,8 @@ import java.util.UUID;
 @Entity
 public class EventOrganizer {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "UUID")
     private UUID id;
 
     private String name;

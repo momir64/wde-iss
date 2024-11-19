@@ -8,6 +8,7 @@ import wedoevents.eventplanner.userManagement.repositories.ChatMessageRepository
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ChatMessageService {

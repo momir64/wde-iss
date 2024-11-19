@@ -9,6 +9,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface RegistrationAttemptRepository extends JpaRepository<RegistrationAttempt, UUID> {
-    @Query("SELECT r FROM RegistrationAttempt r WHERE r.profile.id = :profileId ORDER BY r.time DESC")
-    Optional<RegistrationAttempt> findTopByProfileIdOrderByTimeDesc(UUID profileId);
+    Optional<RegistrationAttempt> findFirstByProfileIdOrderByTimeDesc(UUID profileId);
 }

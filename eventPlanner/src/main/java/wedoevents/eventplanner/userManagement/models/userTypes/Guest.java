@@ -1,9 +1,6 @@
 package wedoevents.eventplanner.userManagement.models.userTypes;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import wedoevents.eventplanner.userManagement.models.Profile;
@@ -15,7 +12,8 @@ import java.util.UUID;
 @Entity
 public class Guest {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "UUID")
     private UUID id;
 
     @OneToOne(optional = false)
