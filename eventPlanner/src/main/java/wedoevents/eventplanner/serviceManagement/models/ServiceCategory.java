@@ -20,5 +20,4 @@ public class ServiceCategory {
     private Boolean isPending;
     private String description;
     private Boolean isDeleted;
-
 }

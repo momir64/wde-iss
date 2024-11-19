@@ -13,12 +13,11 @@ public class RegistrationAttempt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     private LocalDateTime time;
 
     @ManyToOne
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
-
 }

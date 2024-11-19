@@ -23,19 +23,19 @@ public class ChatMessageService {
         return chatMessageRepository.save(chatMessage);
     }
 
-    public Optional<ChatMessage> getChatMessageById(Long id) {
+    public Optional<ChatMessage> getChatMessageById(UUID id) {
         return chatMessageRepository.findById(id);
     }
 
-    public List<ChatMessage> getMessagesToProfile(Long toProfileId) {
+    public List<ChatMessage> getMessagesToProfile(UUID toProfileId) {
         return chatMessageRepository.findByToId(toProfileId);
     }
 
-    public List<ChatMessage> getMessagesFromProfile(Long fromProfileId) {
+    public List<ChatMessage> getMessagesFromProfile(UUID fromProfileId) {
         return chatMessageRepository.findByFromId(fromProfileId);
     }
 
-    public void deleteChatMessage(Long id) {
+    public void deleteChatMessage(UUID id) {
         chatMessageRepository.deleteById(id);
     }
 }

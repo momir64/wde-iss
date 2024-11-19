@@ -23,7 +23,7 @@ public class RegistrationAttemptService {
         return registrationAttemptRepository.save(registrationAttempt);
     }
 
-    public Optional<RegistrationAttempt> getRegistrationAttemptById(Long id) {
+    public Optional<RegistrationAttempt> getRegistrationAttemptById(UUID id) {
         return registrationAttemptRepository.findById(id);
     }
 
@@ -31,7 +31,7 @@ public class RegistrationAttemptService {
         return registrationAttemptRepository.findAll();
     }
 
-    public void deleteRegistrationAttempt(Long id) {
+    public void deleteRegistrationAttempt(UUID id) {
         registrationAttemptRepository.deleteById(id);
     }
     public Optional<RegistrationAttempt> getMostRecentRegistrationAttemptByProfileId(UUID profileId) {

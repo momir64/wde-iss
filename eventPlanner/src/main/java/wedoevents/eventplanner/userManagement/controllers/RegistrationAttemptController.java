@@ -81,7 +81,7 @@ public class RegistrationAttemptController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<RegistrationAttempt> getRegistrationAttemptById(@PathVariable Long id) {
+    public ResponseEntity<RegistrationAttempt> getRegistrationAttemptById(@PathVariable UUID id) {
         return registrationAttemptService.getRegistrationAttemptById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -93,7 +93,7 @@ public class RegistrationAttemptController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRegistrationAttempt(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteRegistrationAttempt(@PathVariable UUID id) {
         registrationAttemptService.deleteRegistrationAttempt(id);
         return ResponseEntity.noContent().build();
     }
