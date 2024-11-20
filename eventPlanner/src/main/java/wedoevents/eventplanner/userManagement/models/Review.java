@@ -3,7 +3,7 @@ package wedoevents.eventplanner.userManagement.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import wedoevents.eventplanner.productManagement.models.Product;
+import wedoevents.eventplanner.productManagement.models.StaticProduct;
 import wedoevents.eventplanner.serviceManagement.models.ServiceEntity;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 
@@ -28,7 +28,7 @@ public class Review {
     @ManyToOne()
     private ServiceEntity service;
     @ManyToOne()
-    private Product product;
+    private StaticProduct product;
 
     @ManyToOne(optional = false)
     private EventOrganizer eventOrganizer;

@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import wedoevents.eventplanner.eventManagement.models.Event;
-import wedoevents.eventplanner.eventManagement.models.EventType;
-import wedoevents.eventplanner.productManagement.models.Product;
+import wedoevents.eventplanner.productManagement.models.StaticProduct;
 import wedoevents.eventplanner.serviceManagement.models.ServiceEntity;
 
 import java.util.List;
@@ -50,9 +49,10 @@ public class Profile {
     @JoinTable(
             name = "profile_favourite_products",
             joinColumns = @JoinColumn(name = "profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
+            inverseJoinColumns = @JoinColumn(name = "static_product_id")
+
     )
-    private List<Product> favouriteProducts;
+    private List<StaticProduct> favouriteProducts;
 
     @ManyToMany
     @JoinTable(
