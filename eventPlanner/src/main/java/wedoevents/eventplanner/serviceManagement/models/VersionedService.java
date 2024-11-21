@@ -6,21 +6,23 @@ import lombok.Setter;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
 @Setter
 @Getter
 @Entity
-public class ServiceEntity {
+@IdClass(VersionedServiceId.class)
+public class VersionedService {
 
     @Id
-    @GeneratedValue
-    private UUID id;
+    private UUID staticServiceId;
+
+    @Id
+    private Integer version;
 
     private String name;
-    private Boolean sale;
+    private Double salePercentage;
 
     @ElementCollection
     private List<String> images;
@@ -37,19 +39,23 @@ public class ServiceEntity {
     private Boolean isConfirmationManual;
 
     private double price;
-    private int version;
 
-    private LocalTime openingTime;
-    private LocalTime closingTime;
-
+    @MapsId("static_service_id")
+    @JoinColumns({
+            @JoinColumn(name = "static_service_id", referencedColumnName = "static_service_id")
+    })
     @ManyToOne
-    private ServiceCategory serviceCategory;
+    private StaticService staticService;
 
     @ManyToMany
     @JoinTable(
-            name = "service_eventtype",
-            joinColumns = @JoinColumn(name = "service_id"),
+            name = "versioned_service_eventtype",
+            joinColumns = {@JoinColumn(name = "versioned_service_static_service_id"), @JoinColumn(name = "versioned_service_version")},
             inverseJoinColumns = @JoinColumn(name = "eventtype_id")
     )
     private List<EventType> availableEventTypes;
+
+    public void incrementVersion() {
+        this.version += 1;
+    }
 }

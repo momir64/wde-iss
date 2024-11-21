@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import wedoevents.eventplanner.productManagement.models.StaticProduct;
-import wedoevents.eventplanner.serviceManagement.models.ServiceEntity;
+import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 
 import java.util.UUID;
@@ -26,7 +26,7 @@ public class Review {
     // one of these two will always be non-null
 
     @ManyToOne()
-    private ServiceEntity service;
+    private VersionedService service;
     @ManyToOne()
     private StaticProduct product;
 

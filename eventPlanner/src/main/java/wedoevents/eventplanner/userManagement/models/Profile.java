@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.productManagement.models.StaticProduct;
-import wedoevents.eventplanner.serviceManagement.models.ServiceEntity;
+import wedoevents.eventplanner.serviceManagement.models.StaticService;
 
 import java.util.List;
 import java.util.UUID;
@@ -58,7 +58,7 @@ public class Profile {
     @JoinTable(
             name = "profile_favourite_services",
             joinColumns = @JoinColumn(name = "profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "service_id")
+            inverseJoinColumns = @JoinColumn(name = "static_service_id")
     )
-    private List<ServiceEntity> favouriteServices;
+    private List<StaticService> favouriteServices;
 }
