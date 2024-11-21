@@ -40,6 +40,8 @@ public class VersionedService {
 
     private double price;
 
+    private Boolean isLastVersion;
+
     @MapsId("static_service_id")
     @JoinColumns({
             @JoinColumn(name = "static_service_id", referencedColumnName = "static_service_id")

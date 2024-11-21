@@ -12,7 +12,6 @@ import java.util.UUID;
 @Setter
 @Entity
 @IdClass(VersionedProductId.class)
-@Table(indexes = {@Index(columnList = "static_product_id"), @Index(columnList = "version")})
 public class VersionedProduct {
     @Id
     private UUID staticProductId;
@@ -31,6 +30,7 @@ public class VersionedProduct {
     private Boolean isActive;
     private Boolean isAvailable;
     private Boolean isPrivate;
+    private Boolean isLastVersion;
 
     @MapsId("static_product_id")
     @JoinColumns({

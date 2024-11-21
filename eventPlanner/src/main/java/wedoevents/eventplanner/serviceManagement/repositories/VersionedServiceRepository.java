@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface VersionedServiceRepository extends JpaRepository<VersionedService, VersionedServiceId> {
     @Query("SELECT vs FROM VersionedService vs WHERE " +
-            "vs.version = (SELECT MAX(version) FROM VersionedService) AND " +
+            "vs.isLastVersion AND " +
             "vs.staticService.staticServiceId = ?1")
     VersionedService getVersionedServiceByStaticServiceIdAndLatestVersion(UUID staticServiceId);
 

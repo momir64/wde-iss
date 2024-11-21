@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface VersionedProductRepository extends JpaRepository<VersionedProduct, VersionedProductId> {
     @Query("SELECT vp FROM VersionedProduct vp WHERE " +
-            "vp.version = (SELECT MAX(version) FROM VersionedProduct) AND " +
+            "vp.isLastVersion AND " +
             "vp.staticProduct.staticProductId = ?1")
     VersionedProduct getVersionedProductByStaticProductIdAndLatestVersion(UUID staticProductId);
 

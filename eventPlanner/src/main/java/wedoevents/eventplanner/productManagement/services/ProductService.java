@@ -62,6 +62,7 @@ public class ProductService {
         newVersionedProduct.setStaticProduct(newMatchingStaticProduct);
         newVersionedProduct.setStaticProductId(newMatchingStaticProduct.getStaticProductId());
         newVersionedProduct.setVersion(1);
+        newVersionedProduct.setIsLastVersion(true);
 
         newVersionedProduct.setName(createProductDTO.getName());
         newVersionedProduct.setImages(createProductDTO.getImages());
@@ -83,9 +84,14 @@ public class ProductService {
 
     public VersionedProductDTO updateVersionedProduct(UpdateVersionedProductDTO updateVersionedProductDTO) {
         // todo backend check if the static product id exists
-        VersionedProduct newVersionedProduct = versionedProductRepository.
+        VersionedProduct oldVersionOfVersionedProduct = versionedProductRepository.
                 getVersionedProductByStaticProductIdAndLatestVersion(updateVersionedProductDTO.getStaticProductId());
 
+        oldVersionOfVersionedProduct.setIsLastVersion(false);
+
+        VersionedProduct newVersionedProduct = versionedProductRepository.save(oldVersionOfVersionedProduct);
+
+        newVersionedProduct.setIsLastVersion(true);
         newVersionedProduct.setName(updateVersionedProductDTO.getName());
         newVersionedProduct.setImages(updateVersionedProductDTO.getImages());
         newVersionedProduct.setSalePercentage(updateVersionedProductDTO.getSalePercentage());

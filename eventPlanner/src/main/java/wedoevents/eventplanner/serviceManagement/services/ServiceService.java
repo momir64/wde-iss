@@ -63,6 +63,7 @@ public class ServiceService {
         newVersionedService.setStaticService(newMatchingStaticService);
         newVersionedService.setStaticServiceId(newMatchingStaticService.getStaticServiceId());
         newVersionedService.setVersion(1);
+        newVersionedService.setIsLastVersion(true);
 
         newVersionedService.setName(createVersionedServiceDTO.getName());
         newVersionedService.setSalePercentage(createVersionedServiceDTO.getSalePercentage());
@@ -89,9 +90,14 @@ public class ServiceService {
 
     public VersionedServiceDTO updateVersionedService(UpdateVersionedServiceDTO updateVersionedServiceDTO) {
         // todo backend check if the static service id exists
-        VersionedService newVersionedService = versionedServiceRepository.
+        VersionedService oldVersionOfVersionedService = versionedServiceRepository.
                 getVersionedServiceByStaticServiceIdAndLatestVersion(updateVersionedServiceDTO.getStaticServiceId());
 
+        oldVersionOfVersionedService.setIsLastVersion(false);
+
+        VersionedService newVersionedService = versionedServiceRepository.save(oldVersionOfVersionedService);
+
+        newVersionedService.setIsLastVersion(true);
         newVersionedService.setName(updateVersionedServiceDTO.getName());
         newVersionedService.setSalePercentage(updateVersionedServiceDTO.getSalePercentage());
         newVersionedService.setImages(updateVersionedServiceDTO.getImages());
