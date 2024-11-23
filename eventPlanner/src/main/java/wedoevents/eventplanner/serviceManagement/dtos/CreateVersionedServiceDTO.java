@@ -19,8 +19,8 @@ public class CreateVersionedServiceDTO {
     private Boolean isPrivate;
     private Boolean isAvailable;
     private Integer duration;
-    private LocalDate cancellationDeadline;
-    private LocalDate reservationDeadline;
+    private Integer cancellationDeadline;
+    private Integer reservationDeadline;
     private Boolean isActive;
     private Boolean isConfirmationManual;
     private Double price;

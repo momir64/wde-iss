@@ -32,8 +32,8 @@ public class VersionedService {
     private Boolean isAvailable;
     private int duration;
 
-    private LocalDate cancellationDeadline;
-    private LocalDate reservationDeadline;
+    private Integer cancellationDeadline;
+    private Integer reservationDeadline;
 
     private Boolean isActive;
     private Boolean isConfirmationManual;
