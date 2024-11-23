@@ -38,7 +38,7 @@ public class VersionedService {
     private Boolean isActive;
     private Boolean isConfirmationManual;
 
-    private double price;
+    private Double price;
 
     private Boolean isLastVersion;
 

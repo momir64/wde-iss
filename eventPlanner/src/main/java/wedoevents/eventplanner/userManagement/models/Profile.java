@@ -36,29 +36,4 @@ public class Profile {
             inverseJoinColumns = @JoinColumn(name = "blocked_user_id")
     )
     private List<Profile> blockedUsers;
-
-    @ManyToMany
-    @JoinTable(
-            name = "profile_favourite_events",
-            joinColumns = @JoinColumn(name = "profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "event_id")
-    )
-    private List<Event> favouriteEvents;
-
-    @ManyToMany
-    @JoinTable(
-            name = "profile_favourite_products",
-            joinColumns = @JoinColumn(name = "profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "static_product_id")
-
-    )
-    private List<StaticProduct> favouriteProducts;
-
-    @ManyToMany
-    @JoinTable(
-            name = "profile_favourite_services",
-            joinColumns = @JoinColumn(name = "profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "static_service_id")
-    )
-    private List<StaticService> favouriteServices;
 }

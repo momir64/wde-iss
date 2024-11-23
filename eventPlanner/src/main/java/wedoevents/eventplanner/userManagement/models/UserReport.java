@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.userManagement.models;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class UserReport {
 
     private LocalDateTime reportDateTime;
 
+    @Nullable
     private LocalDateTime banStartDateTime;
 
     @Enumerated(EnumType.STRING)
