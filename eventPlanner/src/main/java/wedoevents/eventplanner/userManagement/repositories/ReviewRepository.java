@@ -1,7 +1,9 @@
 package wedoevents.eventplanner.userManagement.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import wedoevents.eventplanner.userManagement.models.Review;
+import wedoevents.eventplanner.userManagement.models.ListingReview;
 
-public interface ReviewRepository extends JpaRepository<Review, UUID> {
+import java.util.UUID;
+
+public interface ReviewRepository extends JpaRepository<ListingReview, UUID> {
 }

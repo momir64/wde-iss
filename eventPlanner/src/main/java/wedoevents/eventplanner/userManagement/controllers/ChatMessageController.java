@@ -7,6 +7,7 @@ import wedoevents.eventplanner.userManagement.models.ChatMessage;
 import wedoevents.eventplanner.userManagement.services.ChatMessageService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/chatMessages")

@@ -8,19 +8,14 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class ProductDTO {
-    private UUID id;
-
+public class UpdateVersionedProductDTO {
+    private UUID staticProductId;
     private String name;
-    private UUID price;
     private List<String> images;
-    private double sale;
+    private Double price;
+    private Double salePercentage;
     private Boolean isActive;
     private Boolean isAvailable;
     private Boolean isPrivate;
-    private int version;
-
-    private UUID productCategoryId;
-
-    private List<UUID> availableEventTypesIds;
+    private List<UUID> availableEventTypeIds;
 }

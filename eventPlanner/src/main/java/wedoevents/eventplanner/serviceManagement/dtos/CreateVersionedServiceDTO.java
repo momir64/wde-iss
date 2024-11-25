@@ -4,31 +4,26 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Setter
-public class ServiceEntityDTO {
-    private UUID id;
+public class CreateVersionedServiceDTO {
+    private UUID serviceCategoryId;
 
     private String name;
-    private Boolean sale;
+    private Double salePercentage;
     private List<String> images;
     private String description;
     private Boolean isPrivate;
     private Boolean isAvailable;
-    private int duration;
-    private LocalDate cancellationDeadline;
-    private LocalDate reservationDeadline;
+    private Integer duration;
+    private Integer cancellationDeadline;
+    private Integer reservationDeadline;
     private Boolean isActive;
     private Boolean isConfirmationManual;
-    private double price;
-    private int version;
-    private LocalTime openingTime;
-    private LocalTime closingTime;
+    private Double price;
 
-    private UUID serviceCategoryId;
     private List<UUID> availableEventTypeIds;
 }

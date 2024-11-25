@@ -1,13 +1,10 @@
 package wedoevents.eventplanner.eventManagement.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import wedoevents.eventplanner.productManagement.models.Product;
 import wedoevents.eventplanner.productManagement.models.ProductCategory;
+import wedoevents.eventplanner.productManagement.models.VersionedProduct;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -22,7 +19,6 @@ public class ProductBudgetItem {
     private UUID id;
 
     private double maxPrice;
-    private int productVersion;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
@@ -30,5 +26,9 @@ public class ProductBudgetItem {
     private ProductCategory productCategory;
 
     @ManyToOne
-    private Product product; // nullable product
+    @JoinColumns({
+            @JoinColumn(name = "versioned_product_static_product_id"),
+            @JoinColumn(name = "versioned_product_version")
+    })
+    private VersionedProduct product; // nullable product
 }

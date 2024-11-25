@@ -3,6 +3,8 @@ package wedoevents.eventplanner.userManagement.models.userTypes;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import wedoevents.eventplanner.productManagement.models.StaticProduct;
+import wedoevents.eventplanner.serviceManagement.models.StaticService;
 import wedoevents.eventplanner.userManagement.models.Profile;
 
 import java.util.List;
@@ -28,4 +30,21 @@ public class EventOrganizer {
 
     @ElementCollection
     private List<String> images;
+
+    @ManyToMany
+    @JoinTable(
+            name = "event_organizer_favourite_products",
+            joinColumns = @JoinColumn(name = "id"),
+            inverseJoinColumns = @JoinColumn(name = "static_product_id")
+
+    )
+    private List<StaticProduct> favouriteProducts;
+
+    @ManyToMany
+    @JoinTable(
+            name = "event_organizer_favourite_services",
+            joinColumns = @JoinColumn(name = "id"),
+            inverseJoinColumns = @JoinColumn(name = "static_service_id")
+    )
+    private List<StaticService> favouriteServices;
 }

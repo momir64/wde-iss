@@ -5,6 +5,7 @@ import lombok.Setter;
 import wedoevents.eventplanner.userManagement.models.PendingStatus;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter

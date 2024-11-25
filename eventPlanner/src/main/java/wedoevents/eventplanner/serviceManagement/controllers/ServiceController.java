@@ -2,36 +2,49 @@ package wedoevents.eventplanner.serviceManagement.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import wedoevents.eventplanner.serviceManagement.models.ServiceEntity;
+import wedoevents.eventplanner.serviceManagement.dtos.CreateVersionedServiceDTO;
+import wedoevents.eventplanner.serviceManagement.dtos.UpdateVersionedServiceDTO;
+import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceDTO;
 import wedoevents.eventplanner.serviceManagement.services.ServiceService;
 
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/services")
+@RequestMapping("/api/v1/service")
 public class ServiceController {
 
     @Autowired
     private ServiceService serviceService;
-
-    @GetMapping
-    public List<ServiceEntity> getAllServices() {
-        return serviceService.getAllServices();
+    
+    @GetMapping(path = "allLatestVersions")
+    public List<VersionedServiceDTO> getAllServicesWithLatestVersions() {
+        return serviceService.getAllServicesWithLatestVersions();
     }
 
     @PostMapping
-    public ServiceEntity createService(@RequestBody ServiceEntity service) {
-        return serviceService.saveService(service);
+    public VersionedServiceDTO createService(@RequestBody CreateVersionedServiceDTO createVersionedServiceEntityDTO) {
+        return serviceService.createService(createVersionedServiceEntityDTO);
     }
 
-    @GetMapping("/{id}")
-    public ServiceEntity getServiceById(@PathVariable UUID id) {
-        return serviceService.getServiceById(id);
+    @PutMapping
+    public VersionedServiceDTO updateService(@RequestBody UpdateVersionedServiceDTO updateVersionedServiceEntityDTO) {
+        return serviceService.updateVersionedService(updateVersionedServiceEntityDTO);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteService(@PathVariable UUID id) {
-        serviceService.deleteService(id);
+    @GetMapping("/{staticServiceId}/latestVersion")
+    public VersionedServiceDTO getServiceLatestVersionById(@PathVariable UUID staticServiceId) {
+        return serviceService.getVersionedServiceById(staticServiceId);
+    }
+
+    @GetMapping("/{staticServiceId}/{version}")
+    public VersionedServiceDTO getServiceLatestVersionById(@PathVariable Integer version,
+                                                           @PathVariable UUID staticServiceId) {
+        return serviceService.getVersionedServiceByStaticServiceIdAndVersion(version, staticServiceId);
+    }
+
+    @DeleteMapping("/{staticServiceId}")
+    public void deleteService(@PathVariable UUID staticServiceId) {
+        serviceService.deactivateService(staticServiceId);
     }
 }
