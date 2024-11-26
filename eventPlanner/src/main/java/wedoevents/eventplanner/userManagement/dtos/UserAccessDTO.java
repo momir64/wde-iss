@@ -2,6 +2,7 @@ package wedoevents.eventplanner.userManagement.dtos;
 
 import lombok.Getter;
 import lombok.Setter;
+import wedoevents.eventplanner.userManagement.models.UserType;
 
 import java.util.UUID;
 
@@ -10,5 +11,5 @@ import java.util.UUID;
 public class UserAccessDTO {
     private UUID profileId;
     private String jwt;
-    //TODO user type
+    private UserType userType;
 }

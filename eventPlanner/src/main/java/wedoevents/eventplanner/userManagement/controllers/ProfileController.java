@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.userManagement.dtos.ExtendedProfileDTO;
+import wedoevents.eventplanner.userManagement.models.UserType;
 
 import java.util.UUID;
 
@@ -17,14 +18,14 @@ public class ProfileController {
         try {
             // call get profile service
 
-            ExtendedProfileDTO profile = new ExtendedProfileDTO(); // Placeholder for actual profile data
+            ExtendedProfileDTO profile = buildDummyProfile();
             return ResponseEntity.ok(profile);
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to view this profile");
 //        } catch (ProfileNotFoundException e) {
 //            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Profile not found");
         } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_EXTENDED).body("Exception");
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
 
@@ -39,7 +40,7 @@ public class ProfileController {
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to edit this profile");
         } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_EXTENDED).body("Exception");
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
 
@@ -54,7 +55,32 @@ public class ProfileController {
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to deactivate this account");
         } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_EXTENDED).body("Exception");
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
+
+
+    public ExtendedProfileDTO buildDummyProfile() {
+        ExtendedProfileDTO profile = new ExtendedProfileDTO();
+
+        profile.setProfileId(UUID.randomUUID());
+        profile.setUserId(UUID.randomUUID());
+        profile.setEmail("example@example.com");
+        profile.setPassword("securePassword123");
+        profile.setActive(true);
+        profile.setAreNotificationsMuted(false);
+        profile.setVerified(true);
+        profile.setName("John");
+        profile.setSurname("Doe");
+        profile.setCity("New York");
+        profile.setAddress("123 Main St");
+        profile.setPostalNumber("10001");
+        profile.setTelephoneNumber("+1-555-1234");
+        profile.setProfileImage("profile_image_url.jpg");
+        profile.setUserType(UserType.GUEST);
+
+        return profile;
+    }
+
+
 }

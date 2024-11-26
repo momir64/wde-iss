@@ -5,8 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.userManagement.dtos.ExtendedProfileDTO;
 import wedoevents.eventplanner.userManagement.dtos.LoginDTO;
+import wedoevents.eventplanner.userManagement.dtos.RegistrationDTO;
 import wedoevents.eventplanner.userManagement.dtos.UserAccessDTO;
 import wedoevents.eventplanner.userManagement.models.ChatMessage;
+import wedoevents.eventplanner.userManagement.models.UserType;
 
 import java.util.UUID;
 
@@ -14,7 +16,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     @PostMapping("/register")
-    public ResponseEntity<?> createChatMessage(@RequestBody ExtendedProfileDTO request) {
+    public ResponseEntity<?> createChatMessage(@RequestBody RegistrationDTO request) {
         try {
             //call service for registration
 
@@ -24,7 +26,7 @@ public class AuthController {
 //        } catch (ConflictException e) {
 //            return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists");
         } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_EXTENDED).body("Exception");
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
     @PostMapping("/verify")
@@ -39,7 +41,7 @@ public class AuthController {
 //        } catch (ConflictException e) {
 //            return ResponseEntity.status(HttpStatus.CONFLICT).body("Verification already processed");
         } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_EXTENDED).body("Exception");
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
 
@@ -51,14 +53,14 @@ public class AuthController {
             UserAccessDTO access = new UserAccessDTO();
             access.setJwt("afafafsafasfa");
             access.setProfileId(UUID.randomUUID());
-
+            access.setUserType(UserType.SELLER);
             return ResponseEntity.ok(access);
 //        } catch (IllegalArgumentException e) {
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid login data");
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_EXTENDED).body("Exception");
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
 
@@ -66,13 +68,13 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody UserAccessDTO request) {
         try {
-            // logout service
+            // call logout service
 
             return ResponseEntity.ok("Logout successful");
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or missing token");
         } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_EXTENDED).body("Exception");
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
 }
