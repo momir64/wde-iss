@@ -17,5 +17,5 @@ public class SellerDTO {
     private String address;
     private String postalNumber;
     private String telephoneNumber;
-    private List<String> images;
+    private String ProfileImage;
 }
