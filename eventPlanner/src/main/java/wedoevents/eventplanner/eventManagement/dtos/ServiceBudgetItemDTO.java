@@ -12,8 +12,8 @@ public class ServiceBudgetItemDTO {
     private UUID eventId;
 
     private UUID serviceCategoryId;
-    private double maxPrice;
+    private Double maxPrice;
 
     private UUID serviceId;
-    private int serviceVersion;
+    private Double serviceVersion;
 }

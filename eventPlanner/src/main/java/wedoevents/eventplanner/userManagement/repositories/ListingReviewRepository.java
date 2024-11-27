@@ -5,5 +5,5 @@ import wedoevents.eventplanner.userManagement.models.ListingReview;
 
 import java.util.UUID;
 
-public interface ReviewRepository extends JpaRepository<ListingReview, UUID> {
+public interface ListingReviewRepository extends JpaRepository<ListingReview, UUID> {
 }

@@ -17,6 +17,8 @@ public class UserReport {
     @GeneratedValue()
     private UUID id;
 
+    private String reason;
+
     private LocalDateTime reportDateTime;
 
     @Nullable
