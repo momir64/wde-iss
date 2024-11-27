@@ -19,8 +19,6 @@ public class ProductBudgetItem {
     private UUID id;
 
     private double maxPrice;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
 
     @ManyToOne(optional = false)
     private ProductCategory productCategory;

@@ -1,8 +1,10 @@
 package wedoevents.eventplanner.userManagement.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wedoevents.eventplanner.userManagement.dtos.ReviewDTO;
 import wedoevents.eventplanner.userManagement.models.ListingReview;
 import wedoevents.eventplanner.userManagement.services.ReviewService;
 
@@ -26,11 +28,25 @@ public class ReviewController {
         return ResponseEntity.ok(savedAttempt);
     }
 
+    @PutMapping
+    public ResponseEntity<?> processReview(@RequestBody ReviewDTO reviewDTO) {
+        try {
+            // call process review service
+            return ResponseEntity.ok("Review processed successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid review data");
+//        } catch (UnauthorizedException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to process this review");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ListingReview> getReviewById(@PathVariable UUID id) {
         return reviewService.getReviewById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                            .map(ResponseEntity::ok)
+                            .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping

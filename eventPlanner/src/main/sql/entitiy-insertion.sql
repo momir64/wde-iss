@@ -408,54 +408,54 @@ VALUES
     ('a37de399-5404-4afb-b722-07b790f49ecc', '3d0107f7-2cfa-4e95-b5b1-0136034602b6'),
     ('9495a42f-fd67-44cf-8de8-1bc4b6df81c1', '3d0107f7-2cfa-4e95-b5b1-0136034602b6');
 
-INSERT INTO versioned_service (static_service_id, version, cancellation_deadline, description, duration, is_active, is_available, is_confirmation_manual, is_private, name, price, reservation_deadline, sale_percentage)
+INSERT INTO versioned_service (static_service_id, version, cancellation_deadline, description, duration, is_active, is_available, is_last_version, is_confirmation_manual, is_private, name, price, reservation_deadline, sale_percentage)
 VALUES
     -- MUSIC
-    ('daa22294-5377-487a-aa3f-7cd5a42cc568', 1, 15, 'A classic jazz band providing smooth live music perfect for cocktail hours or dinner events.', 120, true, true, false, false, 'Classic Jazz Band', 800, 20, 0.05),
-    ('195eb1c5-6fd6-4139-a697-8cd906219525', 1, 25, 'Solo pianist performing a repertoire of contemporary and classical music for upscale events.', 90, true, true, false, false, 'Solo Pianist', 500, 15, 0.03),
-    ('c3210396-e7f0-445a-9c26-9b1aec7a3c4a', 1, 19, 'Cover band playing hits from the 80s, 90s, and today for weddings, parties, and corporate events.', 180, true, true, false, false, 'Cover Band', 1300, 20, 0.04),
-    ('e30780b8-b7a8-4737-ae5e-cd11a9ad29fa', 1, 18, 'Upbeat DJ with a wide selection of genres including EDM, pop, and hip-hop for weddings and parties.', 180, true, true, false, false, 'Party DJ', 1500, 20, 0.04),
-    ('a43f5588-d452-4723-a1a1-f5fae353aaab', 1, 10, 'Acoustic duo providing live folk and indie music, ideal for intimate gatherings.', 75, true, true, false, false, 'Acoustic Duo', 600, 12, 0.02),
-    ('7e0477b8-ae16-4bd1-9596-e4e4372d8c7e', 1, 30, 'Rock band with high-energy performances, perfect for corporate events or large parties.', 120, true, true, false, false, 'Rock Band', 2000, 30, 0.07),
-    ('3ed7c6fd-155e-48a9-a376-52b9b3b43ad8', 1, 20, 'Solo violinist performing classical pieces for formal events and ceremonies.', 60, true, true, false, false, 'Solo Violinist', 400, 18, 0.01),
-    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 1, 14, 'DJ specializing in house and techno music, suitable for nightclubs and high-energy events.', 180, true, true, false, false, 'House DJ', 1800, 15, 0.06),
-    ('f501fea8-7903-4ff0-a3d3-49493282a69e', 1, 16, 'Jazz ensemble with a variety of instruments for high-class receptions and dinner events.', 150, true, true, false, false, 'Jazz Ensemble', 1200, 25, 0.05),
-    ('fe2e0eb8-29fa-448b-aace-8af9ccb101f9', 1, 22, 'Solo guitarist offering a mix of classical and contemporary acoustic guitar for elegant gatherings.', 90, true, true, false, false, 'Solo Guitarist', 550, 20, 0.03),
+    ('daa22294-5377-487a-aa3f-7cd5a42cc568', 1, 15, 'A classic jazz band providing smooth live music perfect for cocktail hours or dinner events.', 120, true, true, true, false, false, 'Classic Jazz Band', 800, 20, 0.05),
+    ('195eb1c5-6fd6-4139-a697-8cd906219525', 1, 25, 'Solo pianist performing a repertoire of contemporary and classical music for upscale events.', 90, true, true, true, false, false, 'Solo Pianist', 500, 15, 0.03),
+    ('c3210396-e7f0-445a-9c26-9b1aec7a3c4a', 1, 19, 'Cover band playing hits from the 80s, 90s, and today for weddings, parties, and corporate events.', 180, true, true, true, false, false, 'Cover Band', 1300, 20, 0.04),
+    ('e30780b8-b7a8-4737-ae5e-cd11a9ad29fa', 1, 18, 'Upbeat DJ with a wide selection of genres including EDM, pop, and hip-hop for weddings and parties.', 180, true, true, true, false, false, 'Party DJ', 1500, 20, 0.04),
+    ('a43f5588-d452-4723-a1a1-f5fae353aaab', 1, 10, 'Acoustic duo providing live folk and indie music, ideal for intimate gatherings.', 75, true, true, true, false, false, 'Acoustic Duo', 600, 12, 0.02),
+    ('7e0477b8-ae16-4bd1-9596-e4e4372d8c7e', 1, 30, 'Rock band with high-energy performances, perfect for corporate events or large parties.', 120, true, true, true, false, false, 'Rock Band', 2000, 30, 0.07),
+    ('3ed7c6fd-155e-48a9-a376-52b9b3b43ad8', 1, 20, 'Solo violinist performing classical pieces for formal events and ceremonies.', 60, true, true, true, false, false, 'Solo Violinist', 400, 18, 0.01),
+    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 1, 14, 'DJ specializing in house and techno music, suitable for nightclubs and high-energy events.', 180, true, true, true, false, false, 'House DJ', 1800, 15, 0.06),
+    ('f501fea8-7903-4ff0-a3d3-49493282a69e', 1, 16, 'Jazz ensemble with a variety of instruments for high-class receptions and dinner events.', 150, true, true, true, false, false, 'Jazz Ensemble', 1200, 25, 0.05),
+    ('fe2e0eb8-29fa-448b-aace-8af9ccb101f9', 1, 22, 'Solo guitarist offering a mix of classical and contemporary acoustic guitar for elegant gatherings.', 90, true, true, true, false, false, 'Solo Guitarist', 550, 20, 0.03),
 
     -- CATERING
-    ('deca359b-9bfb-4b6f-bc24-3e509f595da4', 1, 25, 'Elegant plated dinner service for weddings and formal events.', 120, true, true, false, false, 'Plated Dinner Service', 2000, 15, 0.03),
-    ('8ec60ce2-d646-43bf-abf1-01e2d6c5c202', 1, 18, 'Casual BBQ catering, perfect for outdoor events and summer parties.', 180, true, true, false, false, 'BBQ Catering', 1200, 20, 0.04),
-    ('b965d715-d2f9-4471-a7f3-5dfb592cfe3d', 1, 19, 'Breakfast and brunch catering, perfect for morning events and meetings.', 150, true, true, false, false, 'Brunch Catering', 1100, 20, 0.04),
+    ('deca359b-9bfb-4b6f-bc24-3e509f595da4', 1, 25, 'Elegant plated dinner service for weddings and formal events.', 120, true, true, true, false, false, 'Plated Dinner Service', 2000, 15, 0.03),
+    ('8ec60ce2-d646-43bf-abf1-01e2d6c5c202', 1, 18, 'Casual BBQ catering, perfect for outdoor events and summer parties.', 180, true, true, true, false, false, 'BBQ Catering', 1200, 20, 0.04),
+    ('b965d715-d2f9-4471-a7f3-5dfb592cfe3d', 1, 19, 'Breakfast and brunch catering, perfect for morning events and meetings.', 150, true, true, true, false, false, 'Brunch Catering', 1100, 20, 0.04),
 
     -- PHOTOGRAPHY
-    ('82828d99-3ed9-4a71-8c91-ecfe040411a5', 1, 15, 'Wedding photography service capturing candid and posed moments throughout the entire day, including pre-ceremony and reception.', 480, true, true, false, false, 'Wedding Photography', 2500, 20, 0.05),
-    ('ef1c7659-9bad-4225-b28e-f4b5c133ecbf', 1, 25, 'Corporate event photography, including keynote speeches, networking sessions, and group photos.', 300, true, true, false, false, 'Corporate Event Photography', 1500, 15, 0.03),
-    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', 1, 18, 'Outdoor portrait photography session, offering a mix of natural lighting and candid poses in scenic locations.', 120, true, true, false, false, 'Outdoor Portrait Photography', 600, 20, 0.04),
-    ('9447c5d5-3a82-44e2-8fe3-5d836f0eda63', 1, 30, 'Family photography with customized themes and settings for large family gatherings and reunions.', 180, true, true, false, false, 'Family Photography', 1200, 30, 0.07),
-    ('9ee88634-aa10-48d1-b2c4-98556eac1684', 1, 20, 'Event photography for private parties, birthdays, and celebrations, capturing key moments and group shots.', 240, true, true, false, false, 'Event Photography', 800, 18, 0.01),
-    ('10c348f9-e96c-4073-8704-7012f2daa220', 1, 16, 'Engagement photography with a mix of romantic portraits and candid shots to celebrate the couple.', 120, true, true, false, false, 'Engagement Photography', 700, 25, 0.05),
-    ('1dfcfba8-1b39-4a38-8ff3-a3ec5b409ca2', 1, 22, 'Newborn and maternity photography to capture beautiful moments for families during pregnancy and the early days of life.', 120, true, true, false, false, 'Newborn & Maternity Photography', 900, 20, 0.03),
+    ('82828d99-3ed9-4a71-8c91-ecfe040411a5', 1, 15, 'Wedding photography service capturing candid and posed moments throughout the entire day, including pre-ceremony and reception.', 480, true, true, true, false, false, 'Wedding Photography', 2500, 20, 0.05),
+    ('ef1c7659-9bad-4225-b28e-f4b5c133ecbf', 1, 25, 'Corporate event photography, including keynote speeches, networking sessions, and group photos.', 300, true, true, true, false, false, 'Corporate Event Photography', 1500, 15, 0.03),
+    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', 1, 18, 'Outdoor portrait photography session, offering a mix of natural lighting and candid poses in scenic locations.', 120, true, true, true, false, false, 'Outdoor Portrait Photography', 600, 20, 0.04),
+    ('9447c5d5-3a82-44e2-8fe3-5d836f0eda63', 1, 30, 'Family photography with customized themes and settings for large family gatherings and reunions.', 180, true, true, true, false, false, 'Family Photography', 1200, 30, 0.07),
+    ('9ee88634-aa10-48d1-b2c4-98556eac1684', 1, 20, 'Event photography for private parties, birthdays, and celebrations, capturing key moments and group shots.', 240, true, true, true, false, false, 'Event Photography', 800, 18, 0.01),
+    ('10c348f9-e96c-4073-8704-7012f2daa220', 1, 16, 'Engagement photography with a mix of romantic portraits and candid shots to celebrate the couple.', 120, true, true, true, false, false, 'Engagement Photography', 700, 25, 0.05),
+    ('1dfcfba8-1b39-4a38-8ff3-a3ec5b409ca2', 1, 22, 'Newborn and maternity photography to capture beautiful moments for families during pregnancy and the early days of life.', 120, true, true, true, false, false, 'Newborn & Maternity Photography', 900, 20, 0.03),
 
     -- VIDEOGRAPHY
-    ('26f74471-8c03-44a0-b200-8796b351f8aa', 1, 15, 'Full-day wedding videography capturing every moment from preparations to the reception, including drone footage.', 480, true, true, false, false, 'Wedding Videography', 3000, 20, 0.05),
-    ('888f99a9-a0e5-469c-bc21-2d6bd429b777', 1, 25, 'Corporate event videography, covering keynotes, interviews, and networking sessions with professional editing and highlights.', 300, true, true, false, false, 'Corporate Event Videography', 1800, 15, 0.03),
-    ('2c358e12-19f2-4a16-a198-ece7c11f7863', 1, 18, 'Highlight reel video for birthdays and private parties, showcasing the best moments with a cinematic touch.', 180, true, true, false, false, 'Event Highlight Videography', 1200, 20, 0.04),
-    ('8fb67698-2344-4b1d-950e-478c14f477cd', 1, 10, 'Live streaming videography for events, including weddings, conferences, or other occasions, with multi-camera setup.', 240, true, true, false, false, 'Live Streaming Videography', 1500, 12, 0.02),
-    ('f38ad3b7-2b26-4762-9f64-892953ba5207', 1, 22, 'Maternity and baby shower videography, documenting key moments and emotional speeches during the event.', 120, true, true, false, false, 'Maternity & Baby Shower Videography', 750, 20, 0.03),
+    ('26f74471-8c03-44a0-b200-8796b351f8aa', 1, 15, 'Full-day wedding videography capturing every moment from preparations to the reception, including drone footage.', 480, true, true, true, false, false, 'Wedding Videography', 3000, 20, 0.05),
+    ('888f99a9-a0e5-469c-bc21-2d6bd429b777', 1, 25, 'Corporate event videography, covering keynotes, interviews, and networking sessions with professional editing and highlights.', 300, true, true, true, false, false, 'Corporate Event Videography', 1800, 15, 0.03),
+    ('2c358e12-19f2-4a16-a198-ece7c11f7863', 1, 18, 'Highlight reel video for birthdays and private parties, showcasing the best moments with a cinematic touch.', 180, true, true, true, false, false, 'Event Highlight Videography', 1200, 20, 0.04),
+    ('8fb67698-2344-4b1d-950e-478c14f477cd', 1, 10, 'Live streaming videography for events, including weddings, conferences, or other occasions, with multi-camera setup.', 240, true, true, true, false, false, 'Live Streaming Videography', 1500, 12, 0.02),
+    ('f38ad3b7-2b26-4762-9f64-892953ba5207', 1, 22, 'Maternity and baby shower videography, documenting key moments and emotional speeches during the event.', 120, true, true, true, false, false, 'Maternity & Baby Shower Videography', 750, 20, 0.03),
 
     -- GUEST TRANSPORTATION
-    ('8d92004c-ce17-4248-ac60-e0a3750bf083', 1, 15, 'Luxury limousine service for weddings, including red carpet, drinks, and personalized decor.', 180, true, true, false, false, 'Wedding Limousine', 1500, 20, 0.05),
-    ('38db314c-ce21-4f96-a2b5-5a6284b1b7b1', 1, 25, 'Shuttle bus service for corporate events, transporting attendees between venues or from hotels to event sites.', 240, true, true, false, false, 'Corporate Shuttle Service', 1200, 15, 0.03),
-    ('b008b01e-4f96-4233-873e-77617645c371', 1, 18, 'Private car service for VIP guests at events, offering comfortable and discreet transportation in luxury vehicles.', 120, true, true, false, false, 'VIP Car Service', 1000, 20, 0.04),
-    ('f43f3ffe-66cb-431b-a88a-fe1b41dbbf22', 1, 22, 'Helicopter transport service for exclusive events, offering quick and luxurious travel to venues with a scenic view.', 60, true, true, false, false, 'Helicopter Transport Service', 5000, 20, 0.03),
-    ('fb6845b5-78c6-495f-b550-c043c9372dee', 1, 19, 'Luxury van rental for private parties, ensuring that guests are comfortably transported in style between event locations.', 180, true, true, false, false, 'Luxury Van Rental', 1500, 20, 0.04),
+    ('8d92004c-ce17-4248-ac60-e0a3750bf083', 1, 15, 'Luxury limousine service for weddings, including red carpet, drinks, and personalized decor.', 180, true, true, true, false, false, 'Wedding Limousine', 1500, 20, 0.05),
+    ('38db314c-ce21-4f96-a2b5-5a6284b1b7b1', 1, 25, 'Shuttle bus service for corporate events, transporting attendees between venues or from hotels to event sites.', 240, true, true, true, false, false, 'Corporate Shuttle Service', 1200, 15, 0.03),
+    ('b008b01e-4f96-4233-873e-77617645c371', 1, 18, 'Private car service for VIP guests at events, offering comfortable and discreet transportation in luxury vehicles.', 120, true, true, true, false, false, 'VIP Car Service', 1000, 20, 0.04),
+    ('f43f3ffe-66cb-431b-a88a-fe1b41dbbf22', 1, 22, 'Helicopter transport service for exclusive events, offering quick and luxurious travel to venues with a scenic view.', 60, true, true, true, false, false, 'Helicopter Transport Service', 5000, 20, 0.03),
+    ('fb6845b5-78c6-495f-b550-c043c9372dee', 1, 19, 'Luxury van rental for private parties, ensuring that guests are comfortably transported in style between event locations.', 180, true, true, true, false, false, 'Luxury Van Rental', 1500, 20, 0.04),
 
     -- EVENT SECURITY
-    ('faa74e7e-797a-44f8-8c80-31c0f7964e78', 1, 15, 'Professional security personnel for weddings, ensuring guest safety and managing crowd control during the event.', 480, true, true, false, false, 'Wedding Security', 1200, 20, 0.05),
-    ('0792d0dd-044d-43df-8031-5f9377522502', 1, 25, 'Event security for corporate conferences and expos, providing entry control, monitoring, and incident response.', 600, true, true, false, false, 'Corporate Event Security', 2500, 15, 0.03),
-    ('9affc3a2-6ad9-4677-ae6f-dcc8c77d878b', 1, 10, 'Crowd management and security for concerts and festivals, ensuring smooth entry, exits, and maintaining order throughout the event.', 600, true, true, false, false, 'Concert & Festival Security', 1800, 12, 0.02),
-    ('a37de399-5404-4afb-b722-07b790f49ecc', 1, 16, 'Security for luxury events and gala dinners, offering discreet yet effective protection for high-profile venues and attendees.', 180, true, true, false, false, 'Gala Event Security', 1200, 25, 0.05),
-    ('9495a42f-fd67-44cf-8de8-1bc4b6df81c1', 1, 19, 'Bouncer services for clubs, bars, and private events, ensuring safety and managing entrance to maintain a secure atmosphere.', 300, true, true, false, false, 'Bouncer Security', 900, 20, 0.04);
+    ('faa74e7e-797a-44f8-8c80-31c0f7964e78', 1, 15, 'Professional security personnel for weddings, ensuring guest safety and managing crowd control during the event.', 480, true, true, true, false, false, 'Wedding Security', 1200, 20, 0.05),
+    ('0792d0dd-044d-43df-8031-5f9377522502', 1, 25, 'Event security for corporate conferences and expos, providing entry control, monitoring, and incident response.', 600, true, true, true, false, false, 'Corporate Event Security', 2500, 15, 0.03),
+    ('9affc3a2-6ad9-4677-ae6f-dcc8c77d878b', 1, 10, 'Crowd management and security for concerts and festivals, ensuring smooth entry, exits, and maintaining order throughout the event.', 600, true, true, true, false, false, 'Concert & Festival Security', 1800, 12, 0.02),
+    ('a37de399-5404-4afb-b722-07b790f49ecc', 1, 16, 'Security for luxury events and gala dinners, offering discreet yet effective protection for high-profile venues and attendees.', 180, true, true, true, false, false, 'Gala Event Security', 1200, 25, 0.05),
+    ('9495a42f-fd67-44cf-8de8-1bc4b6df81c1', 1, 19, 'Bouncer services for clubs, bars, and private events, ensuring safety and managing entrance to maintain a secure atmosphere.', 300, true, true, true, false, false, 'Bouncer Security', 900, 20, 0.04);
 
 INSERT INTO event_organizer_favourite_services (id, static_service_id)
 VALUES
