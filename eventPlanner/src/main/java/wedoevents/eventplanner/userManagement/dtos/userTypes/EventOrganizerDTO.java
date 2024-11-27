@@ -17,5 +17,5 @@ public class EventOrganizerDTO {
     private String address;
     private String postalNumber;
     private String telephoneNumber;
-    private List<String> images;
+    private String profileImage;
 }
