@@ -15,6 +15,7 @@ import wedoevents.eventplanner.productManagement.repositories.VersionedProductRe
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -128,5 +129,12 @@ public class ProductService {
         newVersionedProduct.setIsAvailable(false);
 
         incrementProductVersionAndSave(newVersionedProduct);
+    }
+
+    public List<VersionedProductDTO> updateVersionedProducts(List<UpdateVersionedProductDTO> updateVersionedProductDTOs) {
+        if (updateVersionedProductDTOs == null || updateVersionedProductDTOs.isEmpty()) {
+            throw new IllegalArgumentException("No products provided for update");
+        }
+        return updateVersionedProductDTOs.stream().map(this::updateVersionedProduct).collect(Collectors.toList());
     }
 }

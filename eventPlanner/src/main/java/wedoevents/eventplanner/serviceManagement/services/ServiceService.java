@@ -16,6 +16,7 @@ import wedoevents.eventplanner.serviceManagement.repositories.VersionedServiceRe
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ServiceService {
@@ -139,5 +140,12 @@ public class ServiceService {
         newVersionedService.setIsAvailable(false);
 
         incrementServiceVersionAndSave(newVersionedService);
+    }
+
+    public List<VersionedServiceDTO> updateVersionedServices(List<UpdateVersionedServiceDTO> updateVersionedServiceDTOs) {
+        if (updateVersionedServiceDTOs == null || updateVersionedServiceDTOs.isEmpty()) {
+            throw new IllegalArgumentException("No services provided for update");
+        }
+        return updateVersionedServiceDTOs.stream().map(this::updateVersionedService).collect(Collectors.toList());
     }
 }

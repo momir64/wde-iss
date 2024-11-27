@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
-import org.webjars.NotFoundException;
 import wedoevents.eventplanner.productManagement.dtos.CreateVersionedProductDTO;
 import wedoevents.eventplanner.productManagement.dtos.UpdateVersionedProductDTO;
 import wedoevents.eventplanner.productManagement.dtos.VersionedProductDTO;
@@ -175,5 +174,32 @@ public class ProductController {
         return products;
     }
 
+    @GetMapping(path = "/catalogue/{id}")
+    public ResponseEntity<?> getSellersProducts(@PathVariable UUID id) {
+        try {
+            // will later change to only return products of a given seller
+            List<VersionedProductDTO> products = productService.getAllProductsWithLatestVersions();
+            return ResponseEntity.ok(products);
+//        } catch (UnauthorizedException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized products access");
+//        }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
 
+    @PutMapping(path = "/catalogue")
+    public ResponseEntity<?> updateProducts(@RequestBody List<UpdateVersionedProductDTO> updateVersionedProductDTOs) {
+        try {
+            List<VersionedProductDTO> updatedProducts = productService.updateVersionedProducts(updateVersionedProductDTOs);
+            return ResponseEntity.ok(updatedProducts);
+//        } catch (UnauthorizedException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized products access");
+//        }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("An unexpected error occurred");
+        }
+    }
 }
