@@ -110,7 +110,7 @@ public class ProfileController {
 
         // add/update the profile
         Profile profile = new Profile();
-        profile.BuildProfile(createProfileDTO.getEmail(),createProfileDTO.getPassword(),createProfileDTO.isActive(),createProfileDTO.isAreNotificationsMuted(),false);
+        profile.BuildProfile(createProfileDTO.getEmail(),createProfileDTO.getPassword(),true,createProfileDTO.isAreNotificationsMuted(),false);
         profile = profileService.createOrUpdateProfile(profile);
 
         //delete all users that reference the same profile (edge case)
@@ -143,9 +143,9 @@ public class ProfileController {
         try{
             String response = emailService.sendVerificationEmail(email,createProfileDTO.getName(),createProfileDTO.getSurname(),
                     registrationAttempt.getId().toString(),profile.getId().toString());
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(null);
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("sendgrid se usrao u gace fr on god no cap");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("sendgrid se usro u gace i umro");
         }
     }
 
@@ -159,12 +159,6 @@ public class ProfileController {
     public ResponseEntity<List<Profile>> getAllProfiles() {
         List<Profile> profiles = profileService.getAllProfiles();
         return ResponseEntity.ok(profiles);
-    }
-
-    @PostMapping("/{id}/verify")
-    public ResponseEntity<Profile> verifyProfile(@PathVariable UUID id) {
-        Profile verifiedProfile = profileService.verifyProfile(id);
-        return ResponseEntity.ok(verifiedProfile);
     }
 
     public ExtendedProfileDTO buildDummyProfile() {

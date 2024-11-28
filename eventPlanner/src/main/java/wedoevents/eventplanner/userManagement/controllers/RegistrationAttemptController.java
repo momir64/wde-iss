@@ -40,16 +40,25 @@ public class RegistrationAttemptController {
     @GetMapping("/verify/{id}/{profileId}")
     public ResponseEntity<?> verifyRegistration(@PathVariable UUID id, @PathVariable UUID profileId) {
 
+        String errorUrl = "http://localhost:4200/error/";
+
         // Step 1: Get the profile associated with the profileId from the RegistrationAttemptDTO
-        Profile profile = profileService.findProfileById(profileId)
-                .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
+        Optional<Profile> profileOptional = profileService.findProfileById(profileId);
+
+        // Check if the profile exists
+        if (profileOptional.isEmpty()) {
+            String message = "Profile%20not%20found";
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location", errorUrl+message).build();
+        }
+
+        Profile profile = profileOptional.get();
 
 
 
         // Step 2: Check if the profile is already verified
         if (profile.isVerified()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Profile is already verified.");
+            String message = "Profile%20is%20already%20verified";
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location", errorUrl+message).build();
         }
 
 
@@ -58,21 +67,22 @@ public class RegistrationAttemptController {
         Optional<RegistrationAttempt> mostRecentAttempt = registrationAttemptService.getMostRecentRegistrationAttemptByProfileId(profileId);
 
         if (mostRecentAttempt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("No registration attempts found for this profile.");
+            String message = "No%20registration%20attempts%20found%20for%20this%20profile";
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location", errorUrl+message).build();
         }
 
         // Step 4: Check if the most recent registration attempt matches the one in the request
         RegistrationAttempt recentAttempt = mostRecentAttempt.get();
 
         if (!recentAttempt.getId().equals(id)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("The registration attempt does not match the most recent one.");
+            String message = "The%20registration%20attempt%20does%20not%20match%20the%20most%20recent%20one";
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location", errorUrl+message).build();
         }
 
         // Step 5: Make sure the verification is not late
-        if (Duration.between(recentAttempt.getTime(), LocalDateTime.now()).toHours() > 24) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Verification too late");
+        if (Duration.between(recentAttempt.getTime(), LocalDateTime.now()).toHours() > 48) {
+            String message = "Verification%20too%20late";
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location", errorUrl+message).build();
         }
 
         // Step 6: Verify the profile (set the profile as verified)
