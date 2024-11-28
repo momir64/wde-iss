@@ -13,7 +13,8 @@ import java.util.UUID;
 @Entity
 public class Seller {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "UUID")
     private UUID id;
 
     private String name;
@@ -26,6 +27,5 @@ public class Seller {
 
     @OneToOne(optional = false)
     private Profile profile;
-
     private String profileImage;
 }

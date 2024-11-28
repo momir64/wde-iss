@@ -14,7 +14,8 @@ import java.util.UUID;
 @Entity
 public class Guest {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "UUID")
     private UUID id;
 
     @OneToOne(optional = false)

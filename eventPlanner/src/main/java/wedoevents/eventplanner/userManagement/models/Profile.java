@@ -36,4 +36,13 @@ public class Profile {
             inverseJoinColumns = @JoinColumn(name = "blocked_user_id")
     )
     private List<Profile> blockedUsers;
+
+    public void BuildProfile(String email, String password, boolean isActive, boolean areNotificationsMuted, boolean isVerified) {
+        this.email = email;
+        this.password = password;
+        this.isActive = isActive;
+        this.areNotificationsMuted = areNotificationsMuted;
+        this.isVerified = isVerified;
+    }
+
 }

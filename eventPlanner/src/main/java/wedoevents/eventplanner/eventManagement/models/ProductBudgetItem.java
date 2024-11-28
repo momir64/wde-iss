@@ -15,7 +15,8 @@ import java.util.UUID;
 public class ProductBudgetItem {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "UUID")
     private UUID id;
 
     private double maxPrice;
