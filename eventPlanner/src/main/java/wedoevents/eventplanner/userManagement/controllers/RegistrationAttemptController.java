@@ -37,7 +37,7 @@ public class RegistrationAttemptController {
     }
 
 
-    @PutMapping("/verify/{id}/{profileId}")
+    @GetMapping("/verify/{id}/{profileId}")
     public ResponseEntity<?> verifyRegistration(@PathVariable UUID id, @PathVariable UUID profileId) {
 
         // Step 1: Get the profile associated with the profileId from the RegistrationAttemptDTO
@@ -79,8 +79,9 @@ public class RegistrationAttemptController {
         profile.setVerified(true);
         profileService.createProfile(profile);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body("Profile successfully verified.");
+        return ResponseEntity.status(HttpStatus.FOUND).header("Location", "http://localhost:4200/login").build();
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body("Profile successfully verified.");
     }
 
 

@@ -49,7 +49,7 @@ public class SendGridEmailService implements IEmailService {
 
     public String sendVerificationEmail(String email, String name, String surname, String registrationAttemptId, String profileId) throws IOException {
         String templatePath = "src/main/resources/templates/VerificationView.html";
-        String verificationUrl = "/api/v1/registrationAttempts/verify/" + registrationAttemptId + "/" + profileId; // Generate unique link5
+        String verificationUrl = "http://localhost:8080/api/v1/registrationAttempts/verify/" + registrationAttemptId + "/" + profileId; // Generate unique link5
 
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("email", email);

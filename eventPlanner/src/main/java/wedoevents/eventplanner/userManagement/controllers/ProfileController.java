@@ -93,7 +93,7 @@ public class ProfileController {
 
 
         // send email for verification
-        //for development purposes send to the same email all of the time
+        //for development purposes send to the same email all the time
         try{
             String response = emailService.sendVerificationEmail(email,createProfileDTO.getName(),createProfileDTO.getSurname(),
                     registrationAttempt.getId().toString(),profile.getId().toString());
@@ -101,8 +101,6 @@ public class ProfileController {
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("sendgrid se usrao u gace fr on god no cap");
         }
-
-        //return ResponseEntity.ok(res);
     }
 
     @GetMapping("/{id}")
