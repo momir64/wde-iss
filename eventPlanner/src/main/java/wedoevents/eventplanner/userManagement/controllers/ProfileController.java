@@ -1,8 +1,12 @@
 package wedoevents.eventplanner.userManagement.controllers;
 
+import org.springdoc.core.service.GenericResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wedoevents.eventplanner.shared.services.emailService.IEmailService;
 import wedoevents.eventplanner.userManagement.models.CreateProfileDTO;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.RegistrationAttempt;
@@ -26,22 +30,27 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/profiles")
 public class ProfileController {
-
+    private final String email = "uvoduvod1@gmail.com";
     private final ProfileService profileService;
     private final EventOrganizerService eventOrganizerService;
     private final GuestService guestService;
     private final SellerService sellerService;
     private final RegistrationAttemptService registrationAttemptService;
     private final UserService userService;
+    private final IEmailService emailService;
+    private final GenericResponseService responseBuilder;
 
     @Autowired
-    public ProfileController(ProfileService profileService, EventOrganizerService eventOrganizerService, SellerService sellerService, GuestService guestService, RegistrationAttemptService registrationAttemptService, UserService userService) {
+    public ProfileController(ProfileService profileService, EventOrganizerService eventOrganizerService, SellerService sellerService, GuestService guestService,
+                             RegistrationAttemptService registrationAttemptService, UserService userService, @Qualifier("sendGridEmailService") IEmailService emailService, GenericResponseService responseBuilder) {
         this.profileService = profileService;
         this.eventOrganizerService = eventOrganizerService;
         this.sellerService = sellerService;
         this.guestService = guestService;
         this.registrationAttemptService = registrationAttemptService;
         this.userService = userService;
+        this.emailService = emailService;
+        this.responseBuilder = responseBuilder;
     }
 
     @PostMapping("/registration")
@@ -84,8 +93,16 @@ public class ProfileController {
 
 
         // send email for verification
+        //for development purposes send to the same email all of the time
+        try{
+            String response = emailService.sendVerificationEmail(email,createProfileDTO.getName(),createProfileDTO.getSurname(),
+                    registrationAttempt.getId().toString(),profile.getId().toString());
+            return ResponseEntity.ok(response);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("sendgrid se usrao u gace fr on god no cap");
+        }
 
-        return ResponseEntity.ok(profile);
+        //return ResponseEntity.ok(res);
     }
 
     @GetMapping("/{id}")
