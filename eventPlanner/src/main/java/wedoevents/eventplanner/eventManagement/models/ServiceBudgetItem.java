@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import wedoevents.eventplanner.serviceManagement.models.ServiceCategory;
-import wedoevents.eventplanner.serviceManagement.models.ServiceEntity;
+import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -28,5 +28,9 @@ public class ServiceBudgetItem {
     private ServiceCategory serviceCategory;
 
     @ManyToOne
-    private ServiceEntity service; // nullable Service
+    @JoinColumns({
+            @JoinColumn(name = "versioned_service_static_service_id"),
+            @JoinColumn(name = "versioned_service_version")
+    })
+    private VersionedService service; // nullable Service
 }

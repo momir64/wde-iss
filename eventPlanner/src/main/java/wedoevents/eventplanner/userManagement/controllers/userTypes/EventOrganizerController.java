@@ -1,8 +1,10 @@
 package wedoevents.eventplanner.userManagement.controllers.userTypes;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wedoevents.eventplanner.userManagement.dtos.FavoriteListingDTO;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
 
@@ -18,6 +20,20 @@ public class EventOrganizerController {
     @Autowired
     public EventOrganizerController(EventOrganizerService eventOrganizerService) {
         this.eventOrganizerService = eventOrganizerService;
+    }
+
+    @PutMapping("/{id}/favorite-listings")
+    public ResponseEntity<?> processUuid(@RequestBody FavoriteListingDTO request) {
+        try {
+            // call update event organizer
+            return ResponseEntity.ok("Listing favorited successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request");
+//        } catch (UnauthorizedException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to favorite listing");
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
     }
 
     @PostMapping

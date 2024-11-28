@@ -36,7 +36,7 @@ public class Event {
     @JoinColumn(name = "event_id")
     private List<ServiceBudgetItem> serviceBudgetItems;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
+    @Embedded
     private Location location;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

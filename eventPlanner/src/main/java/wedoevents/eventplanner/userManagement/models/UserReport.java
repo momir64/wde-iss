@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.userManagement.models;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,12 +14,14 @@ import java.util.UUID;
 public class UserReport {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "UUID")
+    @GeneratedValue()
     private UUID id;
+
+    private String reason;
 
     private LocalDateTime reportDateTime;
 
+    @Nullable
     private LocalDateTime banStartDateTime;
 
     @Enumerated(EnumType.STRING)

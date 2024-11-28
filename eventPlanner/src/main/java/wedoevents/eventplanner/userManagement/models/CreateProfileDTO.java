@@ -36,7 +36,7 @@ public class CreateProfileDTO {
                 eventOrganizer.setAddress(this.address);
                 eventOrganizer.setPostalNumber(this.postalNumber);
                 eventOrganizer.setTelephoneNumber(this.telephoneNumber);
-                eventOrganizer.setImage(this.image);
+                eventOrganizer.setProfileImage(image);
                 eventOrganizer.setProfile(profile);
                 return eventOrganizer;
             case GUEST:
@@ -51,7 +51,7 @@ public class CreateProfileDTO {
                 seller.setAddress(this.address);
                 seller.setPostalNumber(this.postalNumber);
                 seller.setTelephoneNumber(this.telephoneNumber);
-                seller.setImage(this.image);
+                seller.setProfileImage(this.image);
                 seller.setProfile(profile);
                 return seller;
             default:

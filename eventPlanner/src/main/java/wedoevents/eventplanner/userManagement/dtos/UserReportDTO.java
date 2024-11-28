@@ -12,6 +12,7 @@ import java.util.UUID;
 public class UserReportDTO {
     private UUID id;
 
+    private String reason;
     private LocalDateTime reportDateTime;
     private LocalDateTime banStartDateTime;
     private PendingStatus status;

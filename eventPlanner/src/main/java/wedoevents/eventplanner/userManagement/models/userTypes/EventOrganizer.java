@@ -3,6 +3,8 @@ package wedoevents.eventplanner.userManagement.models.userTypes;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import wedoevents.eventplanner.productManagement.models.StaticProduct;
+import wedoevents.eventplanner.serviceManagement.models.StaticService;
 import wedoevents.eventplanner.userManagement.models.Profile;
 
 import java.util.List;
@@ -13,8 +15,7 @@ import java.util.UUID;
 @Entity
 public class EventOrganizer {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "UUID")
+    @GeneratedValue
     private UUID id;
 
     private String name;
@@ -27,5 +28,22 @@ public class EventOrganizer {
     @OneToOne(optional = false)
     private Profile profile;
 
-    private String image;
+    private String profileImage;
+
+    @ManyToMany
+    @JoinTable(
+            name = "event_organizer_favourite_products",
+            joinColumns = @JoinColumn(name = "id"),
+            inverseJoinColumns = @JoinColumn(name = "static_product_id")
+
+    )
+    private List<StaticProduct> favouriteProducts;
+
+    @ManyToMany
+    @JoinTable(
+            name = "event_organizer_favourite_services",
+            joinColumns = @JoinColumn(name = "id"),
+            inverseJoinColumns = @JoinColumn(name = "static_service_id")
+    )
+    private List<StaticService> favouriteServices;
 }

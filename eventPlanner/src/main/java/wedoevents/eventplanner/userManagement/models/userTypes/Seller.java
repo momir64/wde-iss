@@ -23,9 +23,9 @@ public class Seller {
     private String address;
     private String postalNumber;
     private String telephoneNumber;
+    private String description;
 
     @OneToOne(optional = false)
     private Profile profile;
-
-    private String image;
+    private String profileImage;
 }

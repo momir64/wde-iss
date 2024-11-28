@@ -1,5 +1,4 @@
 package wedoevents.eventplanner.userManagement.controllers;
-
 import org.springdoc.core.service.GenericResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -10,25 +9,26 @@ import wedoevents.eventplanner.shared.services.emailService.IEmailService;
 import wedoevents.eventplanner.userManagement.models.CreateProfileDTO;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.RegistrationAttempt;
-import wedoevents.eventplanner.userManagement.models.userTypes.Admin;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
 import wedoevents.eventplanner.userManagement.services.ProfileService;
 import wedoevents.eventplanner.userManagement.services.RegistrationAttemptService;
 import wedoevents.eventplanner.userManagement.services.UserService;
-import wedoevents.eventplanner.userManagement.services.userTypes.AdminService;
 import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
 import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
 import wedoevents.eventplanner.userManagement.services.userTypes.SellerService;
 import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.web.bind.annotation.*;
+import wedoevents.eventplanner.userManagement.dtos.ExtendedProfileDTO;
+import wedoevents.eventplanner.userManagement.models.UserType;
+
 
 @RestController
-@RequestMapping("/api/profiles")
+@RequestMapping("/api/v1/profiles")
 public class ProfileController {
     private final String email = "uvoduvod1@gmail.com";
     private final ProfileService profileService;
@@ -53,6 +53,52 @@ public class ProfileController {
         this.responseBuilder = responseBuilder;
     }
 
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> viewProfile(@PathVariable("id") UUID profileId) {
+        try {
+            // call get profile service
+
+            ExtendedProfileDTO profile = buildDummyProfile();
+            return ResponseEntity.ok(profile);
+//        } catch (UnauthorizedException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to view this profile");
+//        } catch (ProfileNotFoundException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Profile not found");
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
+
+    @PutMapping
+    public ResponseEntity<?> editProfile(@RequestBody ExtendedProfileDTO profileDto) {
+        try {
+            // call update profile service
+
+            return ResponseEntity.ok("Profile updated successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid profile data");
+//        } catch (UnauthorizedException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to edit this profile");
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deactivateAccount(@PathVariable("id") UUID profileId) {
+        try {
+            // call deactivate account service
+
+            return ResponseEntity.ok("Account deactivated successfully");
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request to deactivate account");
+//        } catch (UnauthorizedException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to deactivate this account");
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
     @PostMapping("/registration")
     public ResponseEntity<?> createProfile(@RequestBody CreateProfileDTO createProfileDTO) {
 
@@ -103,12 +149,6 @@ public class ProfileController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Profile> getProfileById(@PathVariable UUID id) {
-        Optional<Profile> profile = profileService.findProfileById(id);
-        return profile.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-    }
-
     @GetMapping("/email/{email}")
     public ResponseEntity<Profile> getProfileByEmail(@PathVariable String email) {
         Optional<Profile> profile = profileService.findProfileByEmail(email);
@@ -127,9 +167,26 @@ public class ProfileController {
         return ResponseEntity.ok(verifiedProfile);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProfile(@PathVariable UUID id) {
-        profileService.deleteProfile(id);
-        return ResponseEntity.noContent().build();
+    public ExtendedProfileDTO buildDummyProfile() {
+        ExtendedProfileDTO profile = new ExtendedProfileDTO();
+
+        profile.setProfileId(UUID.randomUUID());
+        profile.setUserId(UUID.randomUUID());
+        profile.setEmail("example@example.com");
+        profile.setPassword("securePassword123");
+        profile.setActive(true);
+        profile.setAreNotificationsMuted(false);
+        profile.setVerified(true);
+        profile.setName("John");
+        profile.setSurname("Doe");
+        profile.setCity("New York");
+        profile.setAddress("123 Main St");
+        profile.setPostalNumber("10001");
+        profile.setTelephoneNumber("+1-555-1234");
+        profile.setProfileImage("profile_image_url.jpg");
+        profile.setUserType(UserType.GUEST);
+
+        return profile;
     }
+
 }

@@ -4,9 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import wedoevents.eventplanner.eventManagement.models.Event;
-import wedoevents.eventplanner.eventManagement.models.EventType;
-import wedoevents.eventplanner.productManagement.models.Product;
-import wedoevents.eventplanner.serviceManagement.models.ServiceEntity;
+import wedoevents.eventplanner.productManagement.models.StaticProduct;
+import wedoevents.eventplanner.serviceManagement.models.StaticService;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,8 +16,7 @@ import java.util.UUID;
 public class Profile {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "UUID")
+    @GeneratedValue()
     private UUID id;
 
     private String email;
@@ -38,31 +36,6 @@ public class Profile {
             inverseJoinColumns = @JoinColumn(name = "blocked_user_id")
     )
     private List<Profile> blockedUsers;
-
-    @ManyToMany
-    @JoinTable(
-            name = "profile_favourite_events",
-            joinColumns = @JoinColumn(name = "profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "event_id")
-    )
-    private List<Event> favouriteEvents;
-
-    @ManyToMany
-    @JoinTable(
-            name = "profile_favourite_products",
-            joinColumns = @JoinColumn(name = "profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
-    private List<Product> favouriteProducts;
-
-    @ManyToMany
-    @JoinTable(
-            name = "profile_favourite_services",
-            joinColumns = @JoinColumn(name = "profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "service_id")
-    )
-    private List<ServiceEntity> favouriteServices;
-
 
     public void BuildProfile(String email, String password, boolean isActive, boolean areNotificationsMuted, boolean isVerified) {
         this.email = email;

@@ -13,8 +13,7 @@ import java.util.UUID;
 public class RegistrationAttempt {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "UUID")
+    @GeneratedValue()
     private UUID id;
 
     private LocalDateTime time;

@@ -3,8 +3,8 @@ package wedoevents.eventplanner.userManagement.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import wedoevents.eventplanner.productManagement.models.Product;
-import wedoevents.eventplanner.serviceManagement.models.ServiceEntity;
+import wedoevents.eventplanner.productManagement.models.StaticProduct;
+import wedoevents.eventplanner.serviceManagement.models.StaticService;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 
 import java.util.UUID;
@@ -12,13 +12,13 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-public class Review {
+public class ListingReview {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "UUID")
     private UUID id;
 
-    private int grade;
+    private Integer grade;
     private String comment;
 
     @Enumerated(EnumType.STRING)
@@ -27,9 +27,9 @@ public class Review {
     // one of these two will always be non-null
 
     @ManyToOne()
-    private ServiceEntity service;
+    private StaticService service;
     @ManyToOne()
-    private Product product;
+    private StaticProduct product;
 
     @ManyToOne(optional = false)
     private EventOrganizer eventOrganizer;

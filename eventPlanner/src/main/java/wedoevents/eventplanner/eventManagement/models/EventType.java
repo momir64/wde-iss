@@ -39,6 +39,4 @@ public class EventType {
             inverseJoinColumns = @JoinColumn(name = "servicecategory_id")
     )
     private List<ServiceCategory> recommendedServiceCategories;
-
-
 }

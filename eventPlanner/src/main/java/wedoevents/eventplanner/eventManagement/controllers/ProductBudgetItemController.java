@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wedoevents.eventplanner.eventManagement.dtos.ProductBudgetItemDTO;
 import wedoevents.eventplanner.eventManagement.models.ProductBudgetItem;
 import wedoevents.eventplanner.eventManagement.services.ProductBudgetItemService;
 
@@ -23,9 +24,22 @@ public class ProductBudgetItemController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductBudgetItem> createOrUpdateProductBudgetItem(@RequestBody ProductBudgetItem productBudgetItem) {
-        ProductBudgetItem savedProductBudgetItem = productBudgetItemService.saveProductBudgetItem(productBudgetItem);
-        return new ResponseEntity<>(savedProductBudgetItem, HttpStatus.CREATED);
+    public ResponseEntity<ProductBudgetItemDTO> createOrUpdateProductBudgetItem(@RequestBody ProductBudgetItemDTO productBudgetItem) {
+//  if (adding new budget item - event doesn't have item with that category) {
+        return new ResponseEntity<>(productBudgetItem, HttpStatus.CREATED);
+//  } else if (error - some id isn't null but doesn't exist) {
+//      return new ResponseEntity<>(productBudgetItem, HttpStatus.NOT_FOUND);
+//  } else if (error - user doesn't have necessary permissions) {
+//      return new ResponseEntity<>(productBudgetItem, HttpStatus.FORBIDDEN);
+//  } else if (changing budget item max price, category or product - item id isn't null and exists) {
+//      return new ResponseEntity<>(productBudgetItem, HttpStatus.OK);
+//  } else if (buying product - product id isn't null, event has item with that category and without product id) {
+//      return new ResponseEntity<>(productBudgetItem, HttpStatus.OK);
+//  } else if (buying product - product id isn't null, event doesn't have item with that category) {
+//      return new ResponseEntity<>(productBudgetItem, HttpStatus.CREATED);
+//  } else if (buying product error - product id isn't null, event has item with that category and with product id) {
+//      return new ResponseEntity<>(productBudgetItem, HttpStatus.BAD_REQUEST);
+//  }
     }
 
     @GetMapping

@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.eventManagement.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class EventDTO {
     private UUID id;
     private String city;
