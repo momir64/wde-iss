@@ -1,7 +1,10 @@
 package wedoevents.eventplanner.eventManagement.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wedoevents.eventplanner.eventManagement.dtos.EventTypeResponseDTO;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.eventManagement.services.EventTypeService;
 
@@ -16,8 +19,9 @@ public class EventTypeController {
     private EventTypeService eventTypeService;
 
     @GetMapping
-    public List<EventType> getAllEventTypes() {
-        return eventTypeService.getAllEventTypes();
+    public ResponseEntity<?> getAllEventTypes() {
+        List<EventTypeResponseDTO> eventTypes = eventTypeService.getAllEventTypes();
+        return new ResponseEntity<>(eventTypes, HttpStatus.OK);
     }
 
     @PostMapping
