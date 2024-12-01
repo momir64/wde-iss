@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.eventManagement.services;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.eventManagement.dtos.EventTypeResponseDTO;
@@ -13,6 +14,7 @@ import wedoevents.eventplanner.serviceManagement.dtos.ServiceCategoryDTO;
 import wedoevents.eventplanner.serviceManagement.models.ServiceCategory;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,10 +41,11 @@ public class EventTypeService {
         List<EventType> eventTypes = eventTypeRepository.findAll();
         return eventTypes.stream()
                 .map(this::mapToResponseDTO)
+                .sorted(Comparator.comparing(EventTypeResponseDTO::getName))
                 .collect(Collectors.toList());
     }
 
-    private EventTypeResponseDTO mapToResponseDTO(EventType eventType) {
+    public EventTypeResponseDTO mapToResponseDTO(EventType eventType) {
         EventTypeResponseDTO dto = new EventTypeResponseDTO();
         dto.setId(eventType.getId());
         dto.setName(eventType.getName());
@@ -93,6 +96,65 @@ public class EventTypeService {
         }
         return dto;
     }
+    public EventTypeResponseDTO updateEventType(UUID id, EventTypeResponseDTO updatedEventTypeDTO) {
+        EventType existingEventType = getEventTypeById(id);
 
+        if (existingEventType == null) {
+            throw new EntityNotFoundException("EventType not found with id: " + id);
+        }
+
+        // Map DTO fields to the existing entity
+        existingEventType.setName(updatedEventTypeDTO.getName());
+        existingEventType.setDescription(updatedEventTypeDTO.getDescription());
+        existingEventType.setIsActive(updatedEventTypeDTO.getIsActive());
+
+        // Map recommended categories if applicable
+        if (updatedEventTypeDTO.getListingCategories() != null) {
+            existingEventType.setRecommendedProductCategories(
+                    updatedEventTypeDTO.getListingCategories().stream()
+                            .filter(c -> c.getListingType() == ListingType.PRODUCT)
+                            .map(c -> new ProductCategory(c.getId(), c.getName())) // Simplified mapping
+                            .collect(Collectors.toList())
+            );
+
+            existingEventType.setRecommendedServiceCategories(
+                    updatedEventTypeDTO.getListingCategories().stream()
+                            .filter(c -> c.getListingType() == ListingType.SERVICE)
+                            .map(c -> new ServiceCategory(c.getId(), c.getName())) // Simplified mapping
+                            .collect(Collectors.toList())
+            );
+        }
+
+        // Save updated entity
+        EventType savedEventType = saveEventType(existingEventType);
+
+        // Map entity back to DTO for response
+        return mapToResponseDTO(savedEventType);
+    }
+    public EventType mapToEntity(EventTypeResponseDTO eventTypeDTO) {
+        EventType eventType = new EventType();
+        eventType.setName(eventTypeDTO.getName());
+        eventType.setDescription(eventTypeDTO.getDescription());
+        eventType.setIsActive(eventTypeDTO.getIsActive());
+
+        // Map recommended categories if applicable
+        if (eventTypeDTO.getListingCategories() != null) {
+            eventType.setRecommendedProductCategories(
+                    eventTypeDTO.getListingCategories().stream()
+                            .filter(c -> c.getListingType() == ListingType.PRODUCT)
+                            .map(c -> new ProductCategory(c.getId(), c.getName())) // Simplified mapping
+                            .collect(Collectors.toList())
+            );
+
+            eventType.setRecommendedServiceCategories(
+                    eventTypeDTO.getListingCategories().stream()
+                            .filter(c -> c.getListingType() == ListingType.SERVICE)
+                            .map(c -> new ServiceCategory(c.getId(), c.getName())) // Simplified mapping
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return eventType;
+    }
 }
 

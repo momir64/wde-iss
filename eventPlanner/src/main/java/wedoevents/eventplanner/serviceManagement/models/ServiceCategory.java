@@ -19,4 +19,11 @@ public class ServiceCategory {
     private Boolean isPending;
     private String description;
     private Boolean isDeleted;
+
+    public ServiceCategory(UUID id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public ServiceCategory() {}
 }

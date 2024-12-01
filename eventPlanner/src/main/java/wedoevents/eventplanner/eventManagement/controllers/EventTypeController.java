@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.eventManagement.controllers;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +26,26 @@ public class EventTypeController {
     }
 
     @PostMapping
-    public EventType createEventType(@RequestBody EventType eventType) {
-        return eventTypeService.saveEventType(eventType);
+    public ResponseEntity<EventTypeResponseDTO> createEventType(@RequestBody EventTypeResponseDTO eventTypeDTO) {
+        EventType eventType = eventTypeService.mapToEntity(eventTypeDTO);
+
+        EventType savedEventType = eventTypeService.saveEventType(eventType);
+
+        EventTypeResponseDTO savedEventTypeDTO = eventTypeService.mapToResponseDTO(savedEventType);
+
+        return new ResponseEntity<>(savedEventTypeDTO, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EventTypeResponseDTO> updateEventType(
+            @PathVariable UUID id,
+            @RequestBody EventTypeResponseDTO updatedEventTypeDTO) {
+        try {
+            EventTypeResponseDTO savedEventTypeDTO = eventTypeService.updateEventType(id, updatedEventTypeDTO);
+            return new ResponseEntity<>(savedEventTypeDTO, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/{id}")
