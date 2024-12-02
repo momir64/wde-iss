@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.notificationManagement.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class NotificationDTO {
     private UUID id;
 
@@ -17,8 +19,6 @@ public class NotificationDTO {
     private String title;
     private String webRedirect;
     private String mobileRedirect;
-
-    private UUID userProfileId;
 
     // one of these three will be -1 or null
 
