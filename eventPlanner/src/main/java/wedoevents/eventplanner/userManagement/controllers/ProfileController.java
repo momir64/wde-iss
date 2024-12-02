@@ -145,7 +145,7 @@ public class ProfileController {
                     registrationAttempt.getId().toString(),profile.getId().toString());
             return ResponseEntity.ok(null);
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("sendgrid se usro u gace i umro");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Sendgrid error");
         }
     }
 

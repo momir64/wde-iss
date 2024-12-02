@@ -19,4 +19,11 @@ public class ProductCategory {
     private Boolean isPending;
     private String description;
     private Boolean isDeleted;
+
+    public ProductCategory(UUID id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public ProductCategory(){}
 }

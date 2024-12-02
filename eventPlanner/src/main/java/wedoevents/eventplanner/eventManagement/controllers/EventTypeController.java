@@ -1,7 +1,11 @@
 package wedoevents.eventplanner.eventManagement.controllers;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wedoevents.eventplanner.eventManagement.dtos.ExtendedEventTypeDTO;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.eventManagement.services.EventTypeService;
 
@@ -16,13 +20,32 @@ public class EventTypeController {
     private EventTypeService eventTypeService;
 
     @GetMapping
-    public List<EventType> getAllEventTypes() {
-        return eventTypeService.getAllEventTypes();
+    public ResponseEntity<?> getAllEventTypes() {
+        List<ExtendedEventTypeDTO> eventTypes = eventTypeService.getAllEventTypes();
+        return new ResponseEntity<>(eventTypes, HttpStatus.OK);
     }
 
     @PostMapping
-    public EventType createEventType(@RequestBody EventType eventType) {
-        return eventTypeService.saveEventType(eventType);
+    public ResponseEntity<ExtendedEventTypeDTO> createEventType(@RequestBody ExtendedEventTypeDTO eventTypeDTO) {
+        EventType eventType = eventTypeService.mapToEntity(eventTypeDTO);
+
+        EventType savedEventType = eventTypeService.saveEventType(eventType);
+
+        ExtendedEventTypeDTO savedEventTypeDTO = eventTypeService.mapToResponseDTO(savedEventType);
+
+        return new ResponseEntity<>(savedEventTypeDTO, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ExtendedEventTypeDTO> updateEventType(
+            @PathVariable UUID id,
+            @RequestBody ExtendedEventTypeDTO updatedEventTypeDTO) {
+        try {
+            ExtendedEventTypeDTO savedEventTypeDTO = eventTypeService.updateEventType(id, updatedEventTypeDTO);
+            return new ResponseEntity<>(savedEventTypeDTO, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/{id}")
