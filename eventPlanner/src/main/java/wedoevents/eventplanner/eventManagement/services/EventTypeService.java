@@ -3,14 +3,12 @@ package wedoevents.eventplanner.eventManagement.services;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import wedoevents.eventplanner.eventManagement.dtos.EventTypeResponseDTO;
+import wedoevents.eventplanner.eventManagement.dtos.ExtendedEventTypeDTO;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.eventManagement.repositories.EventTypeRepository;
 import wedoevents.eventplanner.listingManagement.dtos.ListingCategoryDTO;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
-import wedoevents.eventplanner.productManagement.dtos.ProductCategoryDTO;
 import wedoevents.eventplanner.productManagement.models.ProductCategory;
-import wedoevents.eventplanner.serviceManagement.dtos.ServiceCategoryDTO;
 import wedoevents.eventplanner.serviceManagement.models.ServiceCategory;
 
 import java.util.ArrayList;
@@ -37,16 +35,16 @@ public class EventTypeService {
         eventTypeRepository.deleteById(id);
     }
 
-    public List<EventTypeResponseDTO> getAllEventTypes() {
+    public List<ExtendedEventTypeDTO> getAllEventTypes() {
         List<EventType> eventTypes = eventTypeRepository.findAll();
         return eventTypes.stream()
                 .map(this::mapToResponseDTO)
-                .sorted(Comparator.comparing(EventTypeResponseDTO::getName))
+                .sorted(Comparator.comparing(ExtendedEventTypeDTO::getName))
                 .collect(Collectors.toList());
     }
 
-    public EventTypeResponseDTO mapToResponseDTO(EventType eventType) {
-        EventTypeResponseDTO dto = new EventTypeResponseDTO();
+    public ExtendedEventTypeDTO mapToResponseDTO(EventType eventType) {
+        ExtendedEventTypeDTO dto = new ExtendedEventTypeDTO();
         dto.setId(eventType.getId());
         dto.setName(eventType.getName());
         dto.setDescription(eventType.getDescription());
@@ -54,7 +52,6 @@ public class EventTypeService {
 
         List<ListingCategoryDTO> listingCategories = new ArrayList<>();
 
-        // Add product categories to the combined list
         if (eventType.getRecommendedProductCategories() != null) {
             listingCategories.addAll(
                     eventType.getRecommendedProductCategories().stream()
@@ -63,7 +60,6 @@ public class EventTypeService {
             );
         }
 
-        // Add service categories to the combined list
         if (eventType.getRecommendedServiceCategories() != null) {
             listingCategories.addAll(
                     eventType.getRecommendedServiceCategories().stream()
@@ -96,19 +92,17 @@ public class EventTypeService {
         }
         return dto;
     }
-    public EventTypeResponseDTO updateEventType(UUID id, EventTypeResponseDTO updatedEventTypeDTO) {
+    public ExtendedEventTypeDTO updateEventType(UUID id, ExtendedEventTypeDTO updatedEventTypeDTO) {
         EventType existingEventType = getEventTypeById(id);
 
         if (existingEventType == null) {
             throw new EntityNotFoundException("EventType not found with id: " + id);
         }
 
-        // Map DTO fields to the existing entity
         existingEventType.setName(updatedEventTypeDTO.getName());
         existingEventType.setDescription(updatedEventTypeDTO.getDescription());
         existingEventType.setIsActive(updatedEventTypeDTO.getIsActive());
 
-        // Map recommended categories if applicable
         if (updatedEventTypeDTO.getListingCategories() != null) {
             existingEventType.setRecommendedProductCategories(
                     updatedEventTypeDTO.getListingCategories().stream()
@@ -125,19 +119,16 @@ public class EventTypeService {
             );
         }
 
-        // Save updated entity
         EventType savedEventType = saveEventType(existingEventType);
 
-        // Map entity back to DTO for response
         return mapToResponseDTO(savedEventType);
     }
-    public EventType mapToEntity(EventTypeResponseDTO eventTypeDTO) {
+    public EventType mapToEntity(ExtendedEventTypeDTO eventTypeDTO) {
         EventType eventType = new EventType();
         eventType.setName(eventTypeDTO.getName());
         eventType.setDescription(eventTypeDTO.getDescription());
         eventType.setIsActive(eventTypeDTO.getIsActive());
 
-        // Map recommended categories if applicable
         if (eventTypeDTO.getListingCategories() != null) {
             eventType.setRecommendedProductCategories(
                     eventTypeDTO.getListingCategories().stream()

@@ -23,14 +23,13 @@ public class ListingCategoryService {
     public List<ListingCategoryDTO> getAllListingCategories() {
         List<ListingCategoryDTO> listingCategories = new ArrayList<>();
 
-        // Fetch product categories and map them to ListingCategoryDTO
+
         List<ProductCategory> productCategories = productCategoryRepository.findAll();
         for (ProductCategory productCategory : productCategories) {
             ListingCategoryDTO dto = mapToListingCategoryDTO(productCategory, ListingType.PRODUCT);
             listingCategories.add(dto);
         }
 
-        // Fetch service categories and map them to ListingCategoryDTO
         List<ServiceCategory> serviceCategories = serviceCategoryRepository.findAll();
         for (ServiceCategory serviceCategory : serviceCategories) {
             ListingCategoryDTO dto = mapToListingCategoryDTO(serviceCategory, ListingType.SERVICE);
