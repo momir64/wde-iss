@@ -17,4 +17,6 @@ public class StaticProduct {
 
     @ManyToOne
     private ProductCategory productCategory;
+
+    private Boolean pending;
 }

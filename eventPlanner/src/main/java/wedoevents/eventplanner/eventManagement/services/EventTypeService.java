@@ -55,16 +55,16 @@ public class EventTypeService {
         if (eventType.getRecommendedProductCategories() != null) {
             listingCategories.addAll(
                     eventType.getRecommendedProductCategories().stream()
-                            .map(this::mapToListingCategoryDTO)
-                            .collect(Collectors.toList())
+                            .map(ListingCategoryDTO::fromProductCategory)
+                            .toList()
             );
         }
 
         if (eventType.getRecommendedServiceCategories() != null) {
             listingCategories.addAll(
                     eventType.getRecommendedServiceCategories().stream()
-                            .map(this::mapToListingCategoryDTO)
-                            .collect(Collectors.toList())
+                            .map(ListingCategoryDTO::fromServiceCategory)
+                            .toList()
             );
         }
 
@@ -72,26 +72,6 @@ public class EventTypeService {
         return dto;
     }
 
-    private ListingCategoryDTO mapToListingCategoryDTO(Object category) {
-        ListingCategoryDTO dto = new ListingCategoryDTO();
-        if (category instanceof ProductCategory) {
-            ProductCategory productCategory = (ProductCategory) category;
-            dto.setId(productCategory.getId());
-            dto.setName(productCategory.getName());
-            dto.setIsPending(productCategory.getIsPending());
-            dto.setDescription(productCategory.getDescription());
-            dto.setIsDeleted(productCategory.getIsDeleted());
-            dto.setListingType(ListingType.PRODUCT); // Add appropriate type
-        } else if (category instanceof ServiceCategory) {
-            ServiceCategory serviceCategory = (ServiceCategory) category;
-            dto.setId(serviceCategory.getId());
-            dto.setName(serviceCategory.getName());
-            dto.setDescription(serviceCategory.getDescription());
-            dto.setIsDeleted(serviceCategory.getIsDeleted());
-            dto.setListingType(ListingType.SERVICE); // Add appropriate type
-        }
-        return dto;
-    }
     public ExtendedEventTypeDTO updateEventType(UUID id, ExtendedEventTypeDTO updatedEventTypeDTO) {
         EventType existingEventType = getEventTypeById(id);
 
