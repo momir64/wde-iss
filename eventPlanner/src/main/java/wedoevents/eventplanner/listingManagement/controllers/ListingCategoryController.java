@@ -2,12 +2,15 @@ package wedoevents.eventplanner.listingManagement.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.listingManagement.dtos.CreateListingCategoryDTO;
 import wedoevents.eventplanner.listingManagement.dtos.ListingCategoryDTO;
+import wedoevents.eventplanner.listingManagement.dtos.ReplacingListingCategoryDTO;
 import wedoevents.eventplanner.listingManagement.dtos.UpdateListingCategoryDTO;
 import wedoevents.eventplanner.listingManagement.services.ListingCategoryService;
+import wedoevents.eventplanner.shared.Exceptions.EntityCannotBeDeletedException;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,18 +27,19 @@ public class ListingCategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllActiveListingCategories() {
+    public ResponseEntity<List<ListingCategoryDTO>> getAllActiveListingCategories() {
         List<ListingCategoryDTO> listingCategories = listingCategoryService.getAllActiveListingCategories();
         return ResponseEntity.ok(listingCategories);
     }
 
+    // only used by admin
     @PostMapping
-    public ResponseEntity<?> createListingCategory(@RequestBody CreateListingCategoryDTO createListingCategoryDTO) {
+    public ResponseEntity<ListingCategoryDTO> createListingCategory(@RequestBody CreateListingCategoryDTO createListingCategoryDTO) {
         return ResponseEntity.ok(listingCategoryService.createListingCategory(createListingCategoryDTO));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateListingCategory(@PathVariable UUID id, @RequestBody UpdateListingCategoryDTO updateListingCategoryDTO) {
+    public ResponseEntity<ListingCategoryDTO> updateListingCategory(@PathVariable UUID id, @RequestBody UpdateListingCategoryDTO updateListingCategoryDTO) {
         try {
             ListingCategoryDTO updatedListingDTO = listingCategoryService.updateListingCategory(id, updateListingCategoryDTO);
             return ResponseEntity.ok(updatedListingDTO);
@@ -46,21 +50,45 @@ public class ListingCategoryController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteListingCategory(@PathVariable UUID id) {
-        return ResponseEntity.ok().build();
+        try {
+            listingCategoryService.deleteListingCategory(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (EntityCannotBeDeletedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Listing category is used by listings");
+        }
     }
 
     @GetMapping("/pending")
-    public ResponseEntity<?> getAllPendingListingCategories() {
+    public ResponseEntity<List<ListingCategoryDTO>> getAllPendingListingCategories() {
         return ResponseEntity.ok(listingCategoryService.getAllPendingListingCategories());
     }
 
-    @PutMapping("/pending/replace/{toBeReplacedId}/{replacingId}")
-    public ResponseEntity<?> replaceListingCategory(@PathVariable UUID toBeReplacedId, @PathVariable UUID replacingId) {
-        return ResponseEntity.ok("temp");
+    @PutMapping("/pending/replace")
+    public ResponseEntity<HttpStatus> replaceListingCategory(@RequestBody ReplacingListingCategoryDTO replacingListingCategoryDTO) {
+        try {
+            listingCategoryService.replaceListingCategory(replacingListingCategoryDTO);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PutMapping("/pending/{id}")
-    public ResponseEntity<?> approveListingCategory(@PathVariable UUID id) {
-        return ResponseEntity.ok("temp");
+    public ResponseEntity<ListingCategoryDTO> approveListingCategory(@PathVariable UUID id) {
+        try {
+            return ResponseEntity.ok(listingCategoryService.approveListingCategory(id));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // used by the seller
+    @PostMapping("/pending")
+    public ResponseEntity<ListingCategoryDTO> createPendingListingCategory(@RequestBody CreateListingCategoryDTO createListingCategoryDTO) {
+        // no matter what the seller sends, the pending flag must be true
+        createListingCategoryDTO.setIsPending(true);
+        return ResponseEntity.ok(listingCategoryService.createListingCategory(createListingCategoryDTO));
     }
 }

@@ -18,4 +18,6 @@ public class StaticService {
 
     @ManyToOne
     private ServiceCategory serviceCategory;
+
+    private Boolean pending;
 }
