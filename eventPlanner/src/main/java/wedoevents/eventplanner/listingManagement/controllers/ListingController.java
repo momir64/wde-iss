@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/product")
+@RequestMapping("/api/v1/listings")
 public class ListingController {
     private final ProductService productService;
     private final ServiceService serviceService;
@@ -72,11 +72,13 @@ public class ListingController {
                     ListingType.values()[i % 2],
                     UUID.randomUUID(),
                     i,
-                    String.format("Listing %d", i),
+                    String.format("Best listing ever %d", i),
                     String.format("This is the best listing ever %d!", i),
                     100 * i + 99.,
-                    i * 0.9 % 5,
-                    Arrays.asList("image url 1", "image url 2", "image url 3"),
+                    2 + i * 0.9 % 5,
+                    Arrays.asList(String.format("https://picsum.photos/300/20%d", i),
+                                  String.format("https://picsum.photos/301/20%d", i),
+                                  String.format("https://picsum.photos/302/20%d", i)),
                     0.1 * i,
                     true
             ));

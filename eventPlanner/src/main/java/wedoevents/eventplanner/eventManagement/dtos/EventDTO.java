@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,15 +12,17 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 public class EventDTO {
-    private UUID id;
-    private String city;
-    private String name;
-    private String description;
-    private LocalDate date;
-    private int guestCount;
-    private UUID eventTypeId;
-    private List<UUID> productBudgetItemIds;
-    private List<UUID> serviceBudgetItemIds;
-    private UUID locationId;
-    private List<UUID> eventActivityIds;
+    private UUID          id;
+    private String        city;
+    private String        name;
+    private String        description;
+    private LocalDateTime date;
+    private Double        rating;
+    private int           guestCount;
+    private List<String>  images;
+    private UUID          eventTypeId;
+    private List<UUID>    productBudgetItemIds;
+    private List<UUID>    serviceBudgetItemIds;
+    private UUID          locationId;
+    private List<UUID>    eventActivityIds;
 }

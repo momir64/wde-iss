@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ListingDTO {
     private ListingType  type;
-    private UUID         staticId;
+    private UUID         id;
     private Integer      version;
     private String       name;
     private String       description;

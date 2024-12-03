@@ -12,6 +12,7 @@ import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.services.EventService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -99,8 +100,12 @@ public class EventController {
                                     String.format("London %d", i),
                                     String.format("Best party ever %d", i),
                                     String.format("This will be the best party ever %d!", i),
-                                    LocalDate.now(),
+                                    LocalDateTime.now(),
+                                    2 + i * 0.9 % 5,
                                     100 * i,
+                                    Arrays.asList(String.format("https://picsum.photos/303/20%d", i),
+                                                  String.format("https://picsum.photos/304/20%d", i),
+                                                  String.format("https://picsum.photos/305/20%d", i)),
                                     UUID.randomUUID(),
                                     buildMockUUIDs(3),
                                     buildMockUUIDs(3),
