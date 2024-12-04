@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import wedoevents.eventplanner.serviceManagement.dtos.CreateVersionedServiceDTO;
+import wedoevents.eventplanner.serviceManagement.dtos.TemporaryMockServiceDTO;
 import wedoevents.eventplanner.serviceManagement.dtos.UpdateVersionedServiceDTO;
 import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceDTO;
 import wedoevents.eventplanner.serviceManagement.services.ServiceService;
@@ -32,7 +33,7 @@ public class ServiceController {
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized service access");
 //        }
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
@@ -42,9 +43,9 @@ public class ServiceController {
         try {
             VersionedServiceDTO newService = serviceService.createService(createVersionedServiceEntityDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(newService);
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
@@ -56,7 +57,7 @@ public class ServiceController {
             return ResponseEntity.ok(updatedService);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
@@ -88,16 +89,17 @@ public class ServiceController {
 
     @GetMapping("/{staticServiceId}/latest-version")
     public ResponseEntity<?> getServiceLatestVersionById(@PathVariable UUID staticServiceId) {
-        try {
-            VersionedServiceDTO service = serviceService.getVersionedServiceById(staticServiceId);
-            return ResponseEntity.ok(service);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
-//        } catch (ProductNotFoundException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Service not found");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
-        }
+        return ResponseEntity.ok(new TemporaryMockServiceDTO("Best service sever", "Best company ever", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 199.99, 4.2, Arrays.asList("https://picsum.photos/300/200", "https://picsum.photos/300/201"), 0.2));
+//        try {
+//            VersionedServiceDTO service = serviceService.getVersionedServiceById(staticServiceId);
+//            return ResponseEntity.ok(service);
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+////        } catch (ProductNotFoundException e) {
+////            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Service not found");
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+//        }
     }
 
     @GetMapping("/{staticServiceId}/{version}")
@@ -110,7 +112,7 @@ public class ServiceController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
 //        } catch (ProductNotFoundException e) {
 //            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Service not found");
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
@@ -122,7 +124,7 @@ public class ServiceController {
             return ResponseEntity.ok("Service archived successfully");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
-        } catch (HttpClientErrorException e){
+        } catch (HttpClientErrorException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to archive service");
 //        } catch (ProductNotFoundException e){
 //            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Service not found");
