@@ -11,7 +11,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
-public class EventDTO {
+public class GetEventDTO {
     private UUID          id;
     private String        city;
     private String        name;
