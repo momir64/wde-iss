@@ -196,6 +196,9 @@ VALUES
 
 INSERT INTO product_category (id, description, is_deleted, is_pending, name)
 VALUES
+    ('e5ad2f36-0d76-43dc-9645-531381c5d29c', 'Pending product category 1, associated with Pending Product 1', false, true, 'Associated pending product category 1'),
+    ('28db7e87-9d76-4ba7-be6e-1bb91e30228b', 'Pending product category 2', false, true, 'Pending product category 2'),
+    ('befeb37b-49b3-4a3f-8055-731db9fbfef4', 'Pending product category 3', false, true, 'Pending product category 3'),
     ('fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b', 'Fireworks and pyrotechnic displays for events and celebrations.', false, false, 'Fireworks'),
     ('d13a78bc-9256-4e7f-90b5-354e3f7ab5db', 'Variety of alcoholic and non-alcoholic drinks for events and gatherings.', false, false, 'Drinks'),
     ('ae2a31d5-c7d1-4c30-b268-82d129edb3f6', 'Food and snack options for event guests and parties.', false, false, 'Food'),
@@ -203,69 +206,72 @@ VALUES
     ('1e3939e7-6822-432a-b322-0ab107f8d582', 'Lighting solutions for events, concerts, and outdoor gatherings.', false, false, 'Lighting'),
     ('72ecfc89-6745-4f5b-a7f2-97fd9ad3f890', 'Stage and tent rentals for outdoor and indoor events.', false, false, 'Stage & Tents');
 
-INSERT INTO static_product (static_product_id, product_category_id)
+INSERT INTO static_product (static_product_id, product_category_id, pending)
 VALUES
     -- FIREWORKS CATEGORY
-    ('5a1b07b8-e918-4b0f-bcd2-7f1fd04dbb26', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b'),
-    ('b19a7c35-3d60-4fe2-a8b2-e8a2c2741b3b', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b'),
-    ('ca97b729-3035-4170-b5f7-83f1e63e9b8a', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b'),
-    ('cefe62ba-b263-4db8-8f4f-3b93ebff25cf', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b'),
-    ('9271b6be-64bc-4cfe-bf57-dfa4a0cdad44', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b'),
+    ('5a1b07b8-e918-4b0f-bcd2-7f1fd04dbb26', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b', false),
+    ('b19a7c35-3d60-4fe2-a8b2-e8a2c2741b3b', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b', false),
+    ('ca97b729-3035-4170-b5f7-83f1e63e9b8a', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b', false),
+    ('cefe62ba-b263-4db8-8f4f-3b93ebff25cf', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b', false),
+    ('9271b6be-64bc-4cfe-bf57-dfa4a0cdad44', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b', false),
 
     -- DRINKS CATEGORY
-    ('763b0d82-81de-4a8c-8bba-45c19e688b31', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('04fe2f92-7732-43c9-b9d6-2d801f47b0e0', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('7b95be87-e4fd-4a04-b58d-8297c99a4cd1', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('ee3c6987-dfd9-4375-930f-cf14c55126a7', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('b2f0b7fe-803a-4219-8663-5c93c63e3073', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('462f2b19-45ff-4d91-92bc-8f95cfb78f88', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('ab9f56c0-4379-4b8c-9673-5355b4de07ca', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('e8f5c5fa-3963-4f1a-bb0f-bcd9e803625a', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('f6988288-c4d6-4b3a-bae4-1b6b81a4b02f', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('24a7cf0a-8a8b-46ad-bb23-f4c8be7b154d', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('b94869d7-c5cf-4ff2-8b9a-2d26cd722ba7', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('1c74e529-d8fc-4fbd-b99a-09b1229b4f59', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('3c2ef35b-6e5d-429b-9bbf-62c9b7a4ab3b', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('9d463d25-660a-4202-81e4-9d4ea4e64ab9', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
-    ('5ff14d28-e07b-4f98-a63e-1397243a15b0', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db'),
+    ('763b0d82-81de-4a8c-8bba-45c19e688b31', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('04fe2f92-7732-43c9-b9d6-2d801f47b0e0', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('7b95be87-e4fd-4a04-b58d-8297c99a4cd1', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('ee3c6987-dfd9-4375-930f-cf14c55126a7', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('b2f0b7fe-803a-4219-8663-5c93c63e3073', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('462f2b19-45ff-4d91-92bc-8f95cfb78f88', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('ab9f56c0-4379-4b8c-9673-5355b4de07ca', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('e8f5c5fa-3963-4f1a-bb0f-bcd9e803625a', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('f6988288-c4d6-4b3a-bae4-1b6b81a4b02f', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('24a7cf0a-8a8b-46ad-bb23-f4c8be7b154d', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('b94869d7-c5cf-4ff2-8b9a-2d26cd722ba7', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('1c74e529-d8fc-4fbd-b99a-09b1229b4f59', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('3c2ef35b-6e5d-429b-9bbf-62c9b7a4ab3b', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('9d463d25-660a-4202-81e4-9d4ea4e64ab9', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
+    ('5ff14d28-e07b-4f98-a63e-1397243a15b0', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false),
 
     -- FOOD CATEGORY
-    ('e4042b8b-1a71-46fc-a4ca-289d39a9b575', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('11a3de8c-7a9b-43d7-bbc0-b5d3a62fe59e', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('ef58edcf-2fe7-4595-bdf6-9ef029ff4a98', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('327b9456-b9da-42e1-86c3-f4b25f38a0e9', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('ae8fd23a-1347-4f16-9295-d3cba2721db1', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('15d6c5fa-f00e-41e3-8cc2-84b05ed9bcb5', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('72dbf31f-e7bb-43d5-890d-bde5c83ef03e', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('cb64a27b-28d0-4b99-8241-cedfe014a635', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('b42d2a1a-b118-49ea-b83a-b1aee1b67e2e', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('a39fc8ad-becf-4d18-b79e-074fa9d6201a', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('6f2fd5b4-69de-4c95-92f2-02d67d81c204', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('d57c1395-694b-4e69-8f01-f6a5b062502b', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('74aee64e-e8e5-490a-90c0-991d76c76752', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('7ffdb1b9-36a7-4d5c-a1d4-d37a4cfa9282', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
-    ('9ea67f4b-50fd-4b4b-b0cc-693e35d5dbb5', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6'),
+    ('e4042b8b-1a71-46fc-a4ca-289d39a9b575', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('11a3de8c-7a9b-43d7-bbc0-b5d3a62fe59e', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('ef58edcf-2fe7-4595-bdf6-9ef029ff4a98', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('327b9456-b9da-42e1-86c3-f4b25f38a0e9', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('ae8fd23a-1347-4f16-9295-d3cba2721db1', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('15d6c5fa-f00e-41e3-8cc2-84b05ed9bcb5', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('72dbf31f-e7bb-43d5-890d-bde5c83ef03e', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('cb64a27b-28d0-4b99-8241-cedfe014a635', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('b42d2a1a-b118-49ea-b83a-b1aee1b67e2e', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('a39fc8ad-becf-4d18-b79e-074fa9d6201a', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('6f2fd5b4-69de-4c95-92f2-02d67d81c204', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('d57c1395-694b-4e69-8f01-f6a5b062502b', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('74aee64e-e8e5-490a-90c0-991d76c76752', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('7ffdb1b9-36a7-4d5c-a1d4-d37a4cfa9282', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
+    ('9ea67f4b-50fd-4b4b-b0cc-693e35d5dbb5', 'ae2a31d5-c7d1-4c30-b268-82d129edb3f6', false),
 
     -- DECORATION CATEGORY
-    ('a3f5b299-1bc5-45ec-bb6e-b564e0d11c94', 'f3b6fdeb-c684-47ac-b0be-b4173f36d3b7'),
-    ('bf00b4b0-b3d9-4660-87c5-97f2b4159be0', 'f3b6fdeb-c684-47ac-b0be-b4173f36d3b7'),
-    ('c78d7030-5204-4734-b92f-62c9e7040b33', 'f3b6fdeb-c684-47ac-b0be-b4173f36d3b7'),
-    ('36d5e0a5-e3ea-4604-bf3c-467d62b35ec6', 'f3b6fdeb-c684-47ac-b0be-b4173f36d3b7'),
-    ('1b74c3b4-12fc-48ea-b7b3-55600d1f5c78', 'f3b6fdeb-c684-47ac-b0be-b4173f36d3b7'),
+    ('a3f5b299-1bc5-45ec-bb6e-b564e0d11c94', 'f3b6fdeb-c684-47ac-b0be-b4173f36d3b7', false),
+    ('bf00b4b0-b3d9-4660-87c5-97f2b4159be0', 'f3b6fdeb-c684-47ac-b0be-b4173f36d3b7', false),
+    ('c78d7030-5204-4734-b92f-62c9e7040b33', 'f3b6fdeb-c684-47ac-b0be-b4173f36d3b7', false),
+    ('36d5e0a5-e3ea-4604-bf3c-467d62b35ec6', 'f3b6fdeb-c684-47ac-b0be-b4173f36d3b7', false),
+    ('1b74c3b4-12fc-48ea-b7b3-55600d1f5c78', 'f3b6fdeb-c684-47ac-b0be-b4173f36d3b7', false),
 
     -- LIGHTNING CATEGORY
-    ('13b86db3-3e28-4f01-bb8b-97d9d0a7d5c1', '1e3939e7-6822-432a-b322-0ab107f8d582'),
-    ('3c4a95b6-f13e-4a1a-b37e-dba49f72c9f6', '1e3939e7-6822-432a-b322-0ab107f8d582'),
-    ('6a9cd799-4de1-4d3f-a70e-70f5157029b3', '1e3939e7-6822-432a-b322-0ab107f8d582'),
-    ('8c829577-d7d1-4ea5-b983-e21a41307947', '1e3939e7-6822-432a-b322-0ab107f8d582'),
-    ('7b5912f7-d29a-4f60-a9c9-9e8d8acbadae', '1e3939e7-6822-432a-b322-0ab107f8d582'),
+    ('13b86db3-3e28-4f01-bb8b-97d9d0a7d5c1', '1e3939e7-6822-432a-b322-0ab107f8d582', false),
+    ('3c4a95b6-f13e-4a1a-b37e-dba49f72c9f6', '1e3939e7-6822-432a-b322-0ab107f8d582', false),
+    ('6a9cd799-4de1-4d3f-a70e-70f5157029b3', '1e3939e7-6822-432a-b322-0ab107f8d582', false),
+    ('8c829577-d7d1-4ea5-b983-e21a41307947', '1e3939e7-6822-432a-b322-0ab107f8d582', false),
+    ('7b5912f7-d29a-4f60-a9c9-9e8d8acbadae', '1e3939e7-6822-432a-b322-0ab107f8d582', false),
 
     -- STAGE & TENTS CATEGORY
-    ('7e9d4ad7-b82c-43b5-9a4c-9e343f038779', '72ecfc89-6745-4f5b-a7f2-97fd9ad3f890'),
-    ('e1c82607-b99a-41c4-8cd0-e09e4cc9f93d', '72ecfc89-6745-4f5b-a7f2-97fd9ad3f890'),
-    ('ac53c13a-d9cf-46b4-bdf9-3f9a4477e1ed', '72ecfc89-6745-4f5b-a7f2-97fd9ad3f890'),
-    ('9f0d0870-1f5c-4067-b2f5-fb22a2fe03e3', '72ecfc89-6745-4f5b-a7f2-97fd9ad3f890'),
-    ('c92a9ef9-c5e6-4ac5-b990-1c499f7a9cc3', '72ecfc89-6745-4f5b-a7f2-97fd9ad3f890');
+    ('7e9d4ad7-b82c-43b5-9a4c-9e343f038779', '72ecfc89-6745-4f5b-a7f2-97fd9ad3f890', false),
+    ('e1c82607-b99a-41c4-8cd0-e09e4cc9f93d', '72ecfc89-6745-4f5b-a7f2-97fd9ad3f890', false),
+    ('ac53c13a-d9cf-46b4-bdf9-3f9a4477e1ed', '72ecfc89-6745-4f5b-a7f2-97fd9ad3f890', false),
+    ('9f0d0870-1f5c-4067-b2f5-fb22a2fe03e3', '72ecfc89-6745-4f5b-a7f2-97fd9ad3f890', false),
+    ('c92a9ef9-c5e6-4ac5-b990-1c499f7a9cc3', '72ecfc89-6745-4f5b-a7f2-97fd9ad3f890', false),
+
+    -- PENDING PRODUCT CATEGORY 1
+    ('8abe1d3f-3815-4b7f-a9c4-1ea9a86a703c', 'e5ad2f36-0d76-43dc-9645-531381c5d29c', true);
 
 
 INSERT INTO versioned_product (static_product_id, version, is_active, is_available, is_last_version, is_private, name, price, sale_percentage)
@@ -330,7 +336,10 @@ VALUES
     ('e1c82607-b99a-41c4-8cd0-e09e4cc9f93d', 1, true, true,  true, true, 'Outdoor Canopy Tent', 1200.00, 0.05),
     ('ac53c13a-d9cf-46b4-bdf9-3f9a4477e1ed', 1, true, true,  true, false, 'Portable Stage for Events', 2200.0, 0.1),
     ('9f0d0870-1f5c-4067-b2f5-fb22a2fe03e3', 1, true, true,  true, false, 'Event Tent (Large)', 2500.00, 0.2),
-    ('c92a9ef9-c5e6-4ac5-b990-1c499f7a9cc3', 1, true, true,  true, false, 'Stage Lights & Effects', 600.00, 0.0);
+    ('c92a9ef9-c5e6-4ac5-b990-1c499f7a9cc3', 1, true, true,  true, false, 'Stage Lights & Effects', 600.00, 0.0),
+
+    -- PENDING PRODUCT CATEGORY 1
+    ('8abe1d3f-3815-4b7f-a9c4-1ea9a86a703c', 1, true, true,  true, false, 'Pending Product 1', 600.00, 0.0);
 
 INSERT INTO event_organizer_favourite_products (id, static_product_id)
 VALUES
@@ -352,6 +361,9 @@ VALUES
 
 INSERT INTO service_category (id, description, is_deleted, is_pending, name)
 VALUES
+    ('f9963f95-9f22-4320-905d-5d0641bd3335', 'Pending service category 1, associated to Pending Service 1', false, true, 'Associated pending service category 1'),
+    ('cb03b66c-8ee4-4f4e-be96-e91164ea0f8d', 'Pending service category 2', false, true, 'Pending service category 2'),
+    ('574a6ad5-16d0-4b42-9a4a-e39b0673843c', 'Pending service category 3', false, true, 'Pending service category 3'),
     ('a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', 'Music performance by bands, solo artists or DJ-s for events.', false, false, 'Music'),
     ('d46e1f95-8a90-4745-8000-629f412bdbab', 'Event catering services, including food preparation and serving staff.', false, false, 'Catering'),
     ('6b351a75-3061-4d96-8856-d58f1576a568', 'Photography services for events, including group photos and candid shots.', false, false, 'Photography'),
@@ -359,54 +371,57 @@ VALUES
     ('f9c3bc34-6316-47a1-b61a-85f842f8a76d', 'Transportation service for guests, including buses, shuttles, and private vehicles.', false, false, 'Guest Transportation'),
     ('3d0107f7-2cfa-4e95-b5b1-0136034602b6', 'Security services including crowd control, event access monitoring, and safety personnel.', false, false, 'Event Security');
 
-INSERT INTO static_service (static_service_id, service_category_id)
+INSERT INTO static_service (static_service_id, service_category_id, pending)
 VALUES
     -- MUSIC
-    ('daa22294-5377-487a-aa3f-7cd5a42cc568', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3'),
-    ('195eb1c5-6fd6-4139-a697-8cd906219525', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3'),
-    ('c3210396-e7f0-445a-9c26-9b1aec7a3c4a', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3'),
-    ('e30780b8-b7a8-4737-ae5e-cd11a9ad29fa', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3'),
-    ('a43f5588-d452-4723-a1a1-f5fae353aaab', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3'),
-    ('7e0477b8-ae16-4bd1-9596-e4e4372d8c7e', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3'),
-    ('3ed7c6fd-155e-48a9-a376-52b9b3b43ad8', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3'),
-    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3'),
-    ('f501fea8-7903-4ff0-a3d3-49493282a69e', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3'),
-    ('fe2e0eb8-29fa-448b-aace-8af9ccb101f9', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3'),
+    ('daa22294-5377-487a-aa3f-7cd5a42cc568', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false),
+    ('195eb1c5-6fd6-4139-a697-8cd906219525', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false),
+    ('c3210396-e7f0-445a-9c26-9b1aec7a3c4a', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false),
+    ('e30780b8-b7a8-4737-ae5e-cd11a9ad29fa', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false),
+    ('a43f5588-d452-4723-a1a1-f5fae353aaab', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false),
+    ('7e0477b8-ae16-4bd1-9596-e4e4372d8c7e', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false),
+    ('3ed7c6fd-155e-48a9-a376-52b9b3b43ad8', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false),
+    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false),
+    ('f501fea8-7903-4ff0-a3d3-49493282a69e', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false),
+    ('fe2e0eb8-29fa-448b-aace-8af9ccb101f9', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false),
 
     -- CATERING
-    ('deca359b-9bfb-4b6f-bc24-3e509f595da4', 'd46e1f95-8a90-4745-8000-629f412bdbab'),
-    ('8ec60ce2-d646-43bf-abf1-01e2d6c5c202', 'd46e1f95-8a90-4745-8000-629f412bdbab'),
-    ('b965d715-d2f9-4471-a7f3-5dfb592cfe3d', 'd46e1f95-8a90-4745-8000-629f412bdbab'),
+    ('deca359b-9bfb-4b6f-bc24-3e509f595da4', 'd46e1f95-8a90-4745-8000-629f412bdbab', false),
+    ('8ec60ce2-d646-43bf-abf1-01e2d6c5c202', 'd46e1f95-8a90-4745-8000-629f412bdbab', false),
+    ('b965d715-d2f9-4471-a7f3-5dfb592cfe3d', 'd46e1f95-8a90-4745-8000-629f412bdbab', false),
 
     -- PHOTOGRAPHY
-    ('82828d99-3ed9-4a71-8c91-ecfe040411a5', '6b351a75-3061-4d96-8856-d58f1576a568'),
-    ('ef1c7659-9bad-4225-b28e-f4b5c133ecbf', '6b351a75-3061-4d96-8856-d58f1576a568'),
-    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', '6b351a75-3061-4d96-8856-d58f1576a568'),
-    ('9447c5d5-3a82-44e2-8fe3-5d836f0eda63', '6b351a75-3061-4d96-8856-d58f1576a568'),
-    ('9ee88634-aa10-48d1-b2c4-98556eac1684', '6b351a75-3061-4d96-8856-d58f1576a568'),
-    ('10c348f9-e96c-4073-8704-7012f2daa220', '6b351a75-3061-4d96-8856-d58f1576a568'),
-    ('1dfcfba8-1b39-4a38-8ff3-a3ec5b409ca2', '6b351a75-3061-4d96-8856-d58f1576a568'),
+    ('82828d99-3ed9-4a71-8c91-ecfe040411a5', '6b351a75-3061-4d96-8856-d58f1576a568', false),
+    ('ef1c7659-9bad-4225-b28e-f4b5c133ecbf', '6b351a75-3061-4d96-8856-d58f1576a568', false),
+    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', '6b351a75-3061-4d96-8856-d58f1576a568', false),
+    ('9447c5d5-3a82-44e2-8fe3-5d836f0eda63', '6b351a75-3061-4d96-8856-d58f1576a568', false),
+    ('9ee88634-aa10-48d1-b2c4-98556eac1684', '6b351a75-3061-4d96-8856-d58f1576a568', false),
+    ('10c348f9-e96c-4073-8704-7012f2daa220', '6b351a75-3061-4d96-8856-d58f1576a568', false),
+    ('1dfcfba8-1b39-4a38-8ff3-a3ec5b409ca2', '6b351a75-3061-4d96-8856-d58f1576a568', false),
 
     -- VIDEOGRAPHY
-    ('26f74471-8c03-44a0-b200-8796b351f8aa', '3d5cb7b1-e512-4eae-bcd9-c2954b643b1b'),
-    ('888f99a9-a0e5-469c-bc21-2d6bd429b777', '3d5cb7b1-e512-4eae-bcd9-c2954b643b1b'),
-    ('2c358e12-19f2-4a16-a198-ece7c11f7863', '3d5cb7b1-e512-4eae-bcd9-c2954b643b1b'),
-    ('8fb67698-2344-4b1d-950e-478c14f477cd', '3d5cb7b1-e512-4eae-bcd9-c2954b643b1b'),
-    ('f38ad3b7-2b26-4762-9f64-892953ba5207', '3d5cb7b1-e512-4eae-bcd9-c2954b643b1b'),
+    ('26f74471-8c03-44a0-b200-8796b351f8aa', '3d5cb7b1-e512-4eae-bcd9-c2954b643b1b', false),
+    ('888f99a9-a0e5-469c-bc21-2d6bd429b777', '3d5cb7b1-e512-4eae-bcd9-c2954b643b1b', false),
+    ('2c358e12-19f2-4a16-a198-ece7c11f7863', '3d5cb7b1-e512-4eae-bcd9-c2954b643b1b', false),
+    ('8fb67698-2344-4b1d-950e-478c14f477cd', '3d5cb7b1-e512-4eae-bcd9-c2954b643b1b', false),
+    ('f38ad3b7-2b26-4762-9f64-892953ba5207', '3d5cb7b1-e512-4eae-bcd9-c2954b643b1b', false),
 
     -- GUEST TRANSPORTATION
-    ('8d92004c-ce17-4248-ac60-e0a3750bf083', 'f9c3bc34-6316-47a1-b61a-85f842f8a76d'),
-    ('38db314c-ce21-4f96-a2b5-5a6284b1b7b1', 'f9c3bc34-6316-47a1-b61a-85f842f8a76d'),
-    ('b008b01e-4f96-4233-873e-77617645c371', 'f9c3bc34-6316-47a1-b61a-85f842f8a76d'),
-    ('f43f3ffe-66cb-431b-a88a-fe1b41dbbf22', 'f9c3bc34-6316-47a1-b61a-85f842f8a76d'),
-    ('fb6845b5-78c6-495f-b550-c043c9372dee', 'f9c3bc34-6316-47a1-b61a-85f842f8a76d'),
+    ('8d92004c-ce17-4248-ac60-e0a3750bf083', 'f9c3bc34-6316-47a1-b61a-85f842f8a76d', false),
+    ('38db314c-ce21-4f96-a2b5-5a6284b1b7b1', 'f9c3bc34-6316-47a1-b61a-85f842f8a76d', false),
+    ('b008b01e-4f96-4233-873e-77617645c371', 'f9c3bc34-6316-47a1-b61a-85f842f8a76d', false),
+    ('f43f3ffe-66cb-431b-a88a-fe1b41dbbf22', 'f9c3bc34-6316-47a1-b61a-85f842f8a76d', false),
+    ('fb6845b5-78c6-495f-b550-c043c9372dee', 'f9c3bc34-6316-47a1-b61a-85f842f8a76d', false),
 
     -- EVENT SECURITY
-    ('faa74e7e-797a-44f8-8c80-31c0f7964e78', '3d0107f7-2cfa-4e95-b5b1-0136034602b6'),
-    ('0792d0dd-044d-43df-8031-5f9377522502', '3d0107f7-2cfa-4e95-b5b1-0136034602b6'),
-    ('9affc3a2-6ad9-4677-ae6f-dcc8c77d878b', '3d0107f7-2cfa-4e95-b5b1-0136034602b6'),
-    ('a37de399-5404-4afb-b722-07b790f49ecc', '3d0107f7-2cfa-4e95-b5b1-0136034602b6'),
-    ('9495a42f-fd67-44cf-8de8-1bc4b6df81c1', '3d0107f7-2cfa-4e95-b5b1-0136034602b6');
+    ('faa74e7e-797a-44f8-8c80-31c0f7964e78', '3d0107f7-2cfa-4e95-b5b1-0136034602b6', false),
+    ('0792d0dd-044d-43df-8031-5f9377522502', '3d0107f7-2cfa-4e95-b5b1-0136034602b6', false),
+    ('9affc3a2-6ad9-4677-ae6f-dcc8c77d878b', '3d0107f7-2cfa-4e95-b5b1-0136034602b6', false),
+    ('a37de399-5404-4afb-b722-07b790f49ecc', '3d0107f7-2cfa-4e95-b5b1-0136034602b6', false),
+    ('9495a42f-fd67-44cf-8de8-1bc4b6df81c1', '3d0107f7-2cfa-4e95-b5b1-0136034602b6', false),
+
+    -- PENDING SERVICE CATEGORY 1
+    ('e98baa49-e3b0-49d9-830f-596b87d8fbfe', 'f9963f95-9f22-4320-905d-5d0641bd3335', true);
 
 INSERT INTO versioned_service (static_service_id, version, cancellation_deadline, description, duration, is_active, is_available, is_last_version, is_confirmation_manual, is_private, name, price, reservation_deadline, sale_percentage)
 VALUES
@@ -455,7 +470,10 @@ VALUES
     ('0792d0dd-044d-43df-8031-5f9377522502', 1, 25, 'Event security for corporate conferences and expos, providing entry control, monitoring, and incident response.', 600, true, true, true, false, false, 'Corporate Event Security', 2500, 15, 0.03),
     ('9affc3a2-6ad9-4677-ae6f-dcc8c77d878b', 1, 10, 'Crowd management and security for concerts and festivals, ensuring smooth entry, exits, and maintaining order throughout the event.', 600, true, true, true, false, false, 'Concert & Festival Security', 1800, 12, 0.02),
     ('a37de399-5404-4afb-b722-07b790f49ecc', 1, 16, 'Security for luxury events and gala dinners, offering discreet yet effective protection for high-profile venues and attendees.', 180, true, true, true, false, false, 'Gala Event Security', 1200, 25, 0.05),
-    ('9495a42f-fd67-44cf-8de8-1bc4b6df81c1', 1, 19, 'Bouncer services for clubs, bars, and private events, ensuring safety and managing entrance to maintain a secure atmosphere.', 300, true, true, true, false, false, 'Bouncer Security', 900, 20, 0.04);
+    ('9495a42f-fd67-44cf-8de8-1bc4b6df81c1', 1, 19, 'Bouncer services for clubs, bars, and private events, ensuring safety and managing entrance to maintain a secure atmosphere.', 300, true, true, true, false, false, 'Bouncer Security', 900, 20, 0.04),
+
+    -- PENDING SERVICE CATEGORY 1
+    ('e98baa49-e3b0-49d9-830f-596b87d8fbfe', 1, 19, 'Pending service 1', 300, true, true, true, false, false, 'Pending service 1', 900, 20, 0.04);
 
 INSERT INTO event_organizer_favourite_services (id, static_service_id)
 VALUES
