@@ -89,7 +89,7 @@ public class ServiceController {
 
     @GetMapping("/{staticServiceId}/latest-version")
     public ResponseEntity<?> getServiceLatestVersionById(@PathVariable UUID staticServiceId) {
-        return ResponseEntity.ok(new TemporaryMockServiceDTO("Best service sever", "Best company ever", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 199.99, 4.2, Arrays.asList("https://picsum.photos/300/200", "https://picsum.photos/300/201"), 0.2));
+        return ResponseEntity.ok(new TemporaryMockServiceDTO("Best service sever", "Best company ever", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 199.99, 210.00, 4.2, Arrays.asList("https://picsum.photos/300/200", "https://picsum.photos/300/201")));
 //        try {
 //            VersionedServiceDTO service = serviceService.getVersionedServiceById(staticServiceId);
 //            return ResponseEntity.ok(service);

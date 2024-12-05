@@ -7,7 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wedoevents.eventplanner.eventManagement.dtos.EventDTO;
+import wedoevents.eventplanner.eventManagement.dtos.GetEventDTO;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.services.EventService;
 
@@ -52,7 +52,7 @@ public class EventController {
     @GetMapping("/top")
     public ResponseEntity<?> getTopEvents(@RequestParam(value = "city", required = false) String city) {
         try {
-            List<EventDTO> events = buildMockEvents(5);
+            List<GetEventDTO> events = buildMockEvents(5);
             return ResponseEntity.ok(events);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
@@ -76,7 +76,7 @@ public class EventController {
         try {
             Pageable pageable = PageRequest.of(page, size);
 
-            List<EventDTO> events = buildMockEvents(10);
+            List<GetEventDTO> events = buildMockEvents(10);
             return ResponseEntity.ok(events);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
@@ -92,25 +92,25 @@ public class EventController {
         return uuids;
     }
 
-    private List<EventDTO> buildMockEvents(int n) {
-        List<EventDTO> events = new ArrayList<>();
+    private List<GetEventDTO> buildMockEvents(int n) {
+        List<GetEventDTO> events = new ArrayList<>();
 
         for (int i = 0; i < n; i++) {
-            events.add(new EventDTO(UUID.randomUUID(),
-                                    String.format("London %d", i),
-                                    String.format("Best party ever %d", i),
-                                    String.format("This will be the best party ever %d!", i),
-                                    LocalDateTime.now(),
-                                    2 + i * 0.9 % 5,
-                                    100 * i,
-                                    Arrays.asList(String.format("https://picsum.photos/303/20%d", i),
-                                                  String.format("https://picsum.photos/304/20%d", i),
-                                                  String.format("https://picsum.photos/305/20%d", i)),
-                                    UUID.randomUUID(),
-                                    buildMockUUIDs(3),
-                                    buildMockUUIDs(3),
-                                    UUID.randomUUID(),
-                                    buildMockUUIDs(3)
+            events.add(new GetEventDTO(UUID.randomUUID(),
+                                       String.format("London %d", i),
+                                       String.format("Best party ever %d", i),
+                                       String.format("This will be the best party ever %d!", i),
+                                       LocalDateTime.now(),
+                                       2 + i * 0.9 % 5,
+                                       100 * i,
+                                       Arrays.asList(String.format("https://picsum.photos/303/20%d", i),
+                                                     String.format("https://picsum.photos/304/20%d", i),
+                                                     String.format("https://picsum.photos/305/20%d", i)),
+                                       UUID.randomUUID(),
+                                       buildMockUUIDs(3),
+                                       buildMockUUIDs(3),
+                                       UUID.randomUUID(),
+                                       buildMockUUIDs(3)
             ));
         }
 

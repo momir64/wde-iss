@@ -11,11 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 // Only used for get latest version of some service, delete when proper endpoint implemented
 public class TemporaryMockServiceDTO {
-    private     String       name;
-    private     String       company;
-    private     String       description;
-    private     Double       price;
-    private     Double       rating;
-    private     List<String> images;
-    private     Double       salePercentage;
+    private String       name;
+    private String       company;
+    private String       description;
+    private Double       price;
+    private Double       oldPrice;
+    private Double       rating;
+    private List<String> images;
 }

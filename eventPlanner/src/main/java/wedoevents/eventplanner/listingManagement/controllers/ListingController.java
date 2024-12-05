@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wedoevents.eventplanner.listingManagement.dtos.ListingDTO;
+import wedoevents.eventplanner.listingManagement.dtos.GetListingDTO;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
 import wedoevents.eventplanner.productManagement.services.ProductService;
 import wedoevents.eventplanner.serviceManagement.services.ServiceService;
@@ -31,7 +31,7 @@ public class ListingController {
     @GetMapping("/top")
     public ResponseEntity<?> getTopListings(@RequestParam(value = "city", required = false) String city) {
         try {
-            List<ListingDTO> listings = buildMockListings(5);
+            List<GetListingDTO> listings = buildMockListings(5);
             return ResponseEntity.ok(listings);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
@@ -55,7 +55,7 @@ public class ListingController {
         try {
             Pageable pageable = PageRequest.of(page, size);
 
-            List<ListingDTO> listings = buildMockListings(10);
+            List<GetListingDTO> listings = buildMockListings(10);
             return ResponseEntity.ok(listings);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
@@ -64,26 +64,26 @@ public class ListingController {
         }
     }
 
-    private List<ListingDTO> buildMockListings(int n) {
-        List<ListingDTO> events = new ArrayList<>();
+    private List<GetListingDTO> buildMockListings(int n) {
+        List<GetListingDTO> listings = new ArrayList<>();
 
         for (int i = 0; i < n; i++) {
-            events.add(new ListingDTO(
+            listings.add(new GetListingDTO(
                     ListingType.values()[i % 2],
                     UUID.randomUUID(),
                     i,
                     String.format("Best listing ever %d", i),
                     String.format("This is the best listing ever %d!", i),
                     100 * i + 99.,
+                    i % 3 == 0 ? (100 * i + 99.) * (1.1 + 0.1 * i) : null,
                     2 + i * 0.9 % 5,
                     Arrays.asList(String.format("https://picsum.photos/300/20%d", i),
                                   String.format("https://picsum.photos/301/20%d", i),
                                   String.format("https://picsum.photos/302/20%d", i)),
-                    0.1 * i,
                     true
             ));
         }
 
-        return events;
+        return listings;
     }
 }

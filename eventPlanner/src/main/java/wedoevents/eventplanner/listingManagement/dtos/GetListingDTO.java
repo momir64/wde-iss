@@ -11,15 +11,15 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ListingDTO {
+public class GetListingDTO {
     private ListingType  type;
     private UUID         id;
     private Integer      version;
     private String       name;
     private String       description;
     private Double       price;
+    private Double       oldPrice;
     private Double       rating;
     private List<String> images;
-    private Double       salePercentage;
     private Boolean      isAvailable;
 }
