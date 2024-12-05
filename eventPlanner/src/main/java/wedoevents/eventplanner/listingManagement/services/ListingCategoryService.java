@@ -77,15 +77,21 @@ public class ListingCategoryService {
         ListingCategoryDTO newDTO;
 
         if (foundServiceCategory != null) {
+            if (foundServiceCategory.getIsDeleted()) {
+                throw new EntityNotFoundException();
+            }
+
             foundServiceCategory.setDescription(updateListingCategoryDTO.getDescription());
             foundServiceCategory.setName(updateListingCategoryDTO.getName());
-            foundServiceCategory.setIsPending(updateListingCategoryDTO.getIsPending());
 
             newDTO = ListingCategoryDTO.fromServiceCategory(serviceCategoryRepository.save(foundServiceCategory));
         } else if (foundProductCategory != null) {
+            if (foundProductCategory.getIsDeleted()) {
+                throw new EntityNotFoundException();
+            }
+
             foundProductCategory.setDescription(updateListingCategoryDTO.getDescription());
             foundProductCategory.setName(updateListingCategoryDTO.getName());
-            foundProductCategory.setIsPending(updateListingCategoryDTO.getIsPending());
 
             newDTO = ListingCategoryDTO.fromProductCategory(productCategoryRepository.save(foundProductCategory));
         } else {

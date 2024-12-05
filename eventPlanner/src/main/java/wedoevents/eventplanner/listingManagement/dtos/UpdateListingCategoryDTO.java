@@ -7,6 +7,5 @@ import lombok.Setter;
 @Setter
 public class UpdateListingCategoryDTO {
     private String name;
-    private Boolean isPending;
     private String description;
 }
