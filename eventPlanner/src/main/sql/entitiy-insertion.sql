@@ -196,9 +196,9 @@ VALUES
 
 INSERT INTO product_category (id, description, is_deleted, is_pending, name)
 VALUES
-    ('e5ad2f36-0d76-43dc-9645-531381c5d29c', 'Pending product category 1, associated with Pending Product 1', false, true, 'Associated pending product category 1'),
-    ('28db7e87-9d76-4ba7-be6e-1bb91e30228b', 'Pending product category 2', false, true, 'Pending product category 2'),
-    ('befeb37b-49b3-4a3f-8055-731db9fbfef4', 'Pending product category 3', false, true, 'Pending product category 3'),
+    ('e5ad2f36-0d76-43dc-9645-531381c5d29c', '', false, true, 'Associated category 1'),
+    ('28db7e87-9d76-4ba7-be6e-1bb91e30228b', '', false, true, 'Pending category 2'),
+    ('befeb37b-49b3-4a3f-8055-731db9fbfef4', '', false, true, 'Pending category 3'),
     ('fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b', 'Fireworks and pyrotechnic displays for events and celebrations.', false, false, 'Fireworks'),
     ('d13a78bc-9256-4e7f-90b5-354e3f7ab5db', 'Variety of alcoholic and non-alcoholic drinks for events and gatherings.', false, false, 'Drinks'),
     ('ae2a31d5-c7d1-4c30-b268-82d129edb3f6', 'Food and snack options for event guests and parties.', false, false, 'Food'),
@@ -361,9 +361,9 @@ VALUES
 
 INSERT INTO service_category (id, description, is_deleted, is_pending, name)
 VALUES
-    ('f9963f95-9f22-4320-905d-5d0641bd3335', 'Pending service category 1, associated to Pending Service 1', false, true, 'Associated pending service category 1'),
-    ('cb03b66c-8ee4-4f4e-be96-e91164ea0f8d', 'Pending service category 2', false, true, 'Pending service category 2'),
-    ('574a6ad5-16d0-4b42-9a4a-e39b0673843c', 'Pending service category 3', false, true, 'Pending service category 3'),
+    ('f9963f95-9f22-4320-905d-5d0641bd3335', '', false, true, 'Associated category 2'),
+    ('cb03b66c-8ee4-4f4e-be96-e91164ea0f8d', '', false, true, 'Service category 2'),
+    ('574a6ad5-16d0-4b42-9a4a-e39b0673843c', '', false, true, 'Service category 3'),
     ('a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', 'Music performance by bands, solo artists or DJ-s for events.', false, false, 'Music'),
     ('d46e1f95-8a90-4745-8000-629f412bdbab', 'Event catering services, including food preparation and serving staff.', false, false, 'Catering'),
     ('6b351a75-3061-4d96-8856-d58f1576a568', 'Photography services for events, including group photos and candid shots.', false, false, 'Photography'),
