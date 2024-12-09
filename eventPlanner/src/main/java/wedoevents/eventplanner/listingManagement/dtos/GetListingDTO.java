@@ -18,8 +18,7 @@ public class GetListingDTO {
     private String       name;
     private String       description;
     private Double       price;
-    private Double       oldPrice;
-    private Double       rating;
+    private Double       salePercentage;
     private List<String> images;
     private Boolean      isAvailable;
 }

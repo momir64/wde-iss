@@ -48,8 +48,8 @@ public class EventComplexViewDTO {
                 event.getEventType().getId(),
                 event.getProductBudgetItems().stream().map(ProductBudgetItemDTO::toDto).toList(),
                 event.getServiceBudgetItems().stream().map(ServiceBudgetItemDTO::toDto).toList(),
-                event.getLocation().getLongitude(),
-                event.getLocation().getLatitude(),
+                null, // todo map event.getLocation().getLongitude()
+                null, // todo map event.getLocation().getLatitude()
                 new ArrayList<>() // todo agenda > event.getEventActivities().stream().map(EventActivity::getId).toList()
         );
     }

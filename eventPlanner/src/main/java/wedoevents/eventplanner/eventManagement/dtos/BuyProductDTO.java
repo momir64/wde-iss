@@ -6,11 +6,12 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-@Setter
 @Getter
+@Setter
 @AllArgsConstructor
-public class CreateProductBudgetItemDTO {
+public class BuyProductDTO {
     private UUID eventId;
-    private UUID productCategoryId;
-    private Double maxPrice;
+    private UUID productBudgetItemId;
+    private UUID productId;
+    // version isn't needed because you can only buy the latest version
 }

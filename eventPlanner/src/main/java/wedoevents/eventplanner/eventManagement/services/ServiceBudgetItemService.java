@@ -9,10 +9,12 @@ import wedoevents.eventplanner.eventManagement.dtos.ProductBudgetItemDTO;
 import wedoevents.eventplanner.eventManagement.dtos.ServiceBudgetItemDTO;
 import wedoevents.eventplanner.eventManagement.models.ProductBudgetItem;
 import wedoevents.eventplanner.eventManagement.models.ServiceBudgetItem;
+import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
 import wedoevents.eventplanner.eventManagement.repositories.ServiceBudgetItemRepository;
 import wedoevents.eventplanner.productManagement.models.ProductCategory;
 import wedoevents.eventplanner.serviceManagement.models.ServiceCategory;
 import wedoevents.eventplanner.serviceManagement.repositories.ServiceCategoryRepository;
+import wedoevents.eventplanner.shared.Exceptions.EntityCannotBeDeletedException;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,37 +25,22 @@ public class ServiceBudgetItemService {
 
     private final ServiceBudgetItemRepository serviceBudgetItemRepository;
     private final ServiceCategoryRepository serviceCategoryRepository;
+    private final EventRepository eventRepository;
 
     @Autowired
-    public ServiceBudgetItemService(ServiceBudgetItemRepository serviceBudgetItemRepository, ServiceCategoryRepository serviceCategoryRepository) {
+    public ServiceBudgetItemService(ServiceBudgetItemRepository serviceBudgetItemRepository, ServiceCategoryRepository serviceCategoryRepository, EventRepository eventRepository) {
         this.serviceCategoryRepository = serviceCategoryRepository;
         this.serviceBudgetItemRepository = serviceBudgetItemRepository;
+        this.eventRepository = eventRepository;
     }
 
-    public ServiceBudgetItemDTO createServiceBudgetItem(CreateServiceBudgetItemDTO createServiceBudgetItemDTO) {
-        ServiceBudgetItem newServiceBudgetItem = new ServiceBudgetItem();
-
-        Optional<ServiceCategory> serviceCategoryMaybe = serviceCategoryRepository.findById(createServiceBudgetItemDTO.getServiceCategoryId());
-
-        if (serviceCategoryMaybe.isEmpty()) {
+    public void deleteEventEmptyServiceCategoryFromBudget(UUID eventId, UUID serviceCategoryId) {
+        if (!eventRepository.existsEventById(eventId)) {
             throw new EntityNotFoundException();
         }
 
-        newServiceBudgetItem.setServiceCategory(serviceCategoryMaybe.get());
-        newServiceBudgetItem.setMaxPrice(createServiceBudgetItemDTO.getMaxPrice());
-
-        return ServiceBudgetItemDTO.toDto(serviceBudgetItemRepository.save(newServiceBudgetItem));
-    }
-
-    public List<ServiceBudgetItem> getAllServiceBudgetItems() {
-        return serviceBudgetItemRepository.findAll();
-    }
-
-    public Optional<ServiceBudgetItem> getServiceBudgetItemById(UUID id) {
-        return serviceBudgetItemRepository.findById(id);
-    }
-
-    public void deleteServiceBudgetItem(UUID id) {
-        serviceBudgetItemRepository.deleteById(id);
+        if (serviceBudgetItemRepository.removeEventEmptyServiceCategory(eventId, serviceCategoryId) != 0) {
+            throw new EntityCannotBeDeletedException();
+        }
     }
 }

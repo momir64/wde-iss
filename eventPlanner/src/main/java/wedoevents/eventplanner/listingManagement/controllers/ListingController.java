@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.listingManagement.controllers;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -76,7 +77,6 @@ public class ListingController {
                     String.format("This is the best listing ever %d!", i),
                     100 * i + 99.,
                     i % 3 == 0 ? (100 * i + 99.) * (1.1 + 0.1 * i) : null,
-                    2 + i * 0.9 % 5,
                     Arrays.asList(String.format("https://picsum.photos/300/20%d", i),
                                   String.format("https://picsum.photos/301/20%d", i),
                                   String.format("https://picsum.photos/302/20%d", i)),

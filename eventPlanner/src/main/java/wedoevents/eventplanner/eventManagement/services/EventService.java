@@ -12,6 +12,8 @@ import wedoevents.eventplanner.eventManagement.repositories.EventTypeRepository;
 import wedoevents.eventplanner.eventManagement.repositories.ProductBudgetItemRepository;
 import wedoevents.eventplanner.eventManagement.repositories.ServiceBudgetItemRepository;
 import wedoevents.eventplanner.shared.Exceptions.EntityCannotBeDeletedException;
+import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
+import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,63 +25,39 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final EventTypeRepository eventTypeRepository;
-    private final ProductBudgetItemService productBudgetItemService;
-    private final ServiceBudgetItemService serviceBudgetItemService;
+    private final EventOrganizerRepository eventOrganizerRepository;
 
     @Autowired
-    public EventService(EventRepository eventRepository, EventTypeRepository eventTypeRepository, ProductBudgetItemService productBudgetItemService, ServiceBudgetItemService serviceBudgetItemService) {
+    public EventService(EventRepository eventRepository, EventTypeRepository eventTypeRepository,
+                        EventOrganizerRepository eventOrganizerRepository) {
         this.eventRepository = eventRepository;
         this.eventTypeRepository = eventTypeRepository;
-        this.productBudgetItemService = productBudgetItemService;
-        this.serviceBudgetItemService = serviceBudgetItemService;
+        this.eventOrganizerRepository = eventOrganizerRepository;
     }
 
-    public void deleteEventEmptyProductCategoryFromBudget(UUID eventId, UUID productCategoryId) {
-        if (!eventRepository.existsEventById(eventId)) {
-            throw new EntityNotFoundException();
-        }
-
-        // TODO SHOULD BE TESTED
-
-        if (eventRepository.removeEventEmptyProductCategory(eventId, productCategoryId) != 0) {
-            throw new EntityCannotBeDeletedException();
-        }
-    }
-
-    public void deleteEventEmptyServiceCategoryFromBudget(UUID eventId, UUID serviceCategoryId) {
-        if (!eventRepository.existsEventById(eventId)) {
-            throw new EntityNotFoundException();
-        }
-
-        // TODO SHOULD BE TESTED
-
-        if (eventRepository.removeEventEmptyServiceCategory(eventId, serviceCategoryId) != 0) {
-            throw new EntityCannotBeDeletedException();
-        }
+    public List<EventComplexViewDTO> getEventsFromOrganizer(UUID eventOrganizerId) {
+        return eventOrganizerRepository.getMyEventsById(eventOrganizerId)
+                .stream()
+                .map(EventComplexViewDTO::toDto)
+                .toList();
     }
 
     public EventComplexViewDTO createEvent(CreateEventDTO createEventDTO) {
-        List<ProductBudgetItem> createdProductBudgetItems = createEventDTO.getProductBudgetItems()
-                .stream()
-                .map(productBudgetItemService::createProductBudgetItem)
-                .map(pbi -> productBudgetItemService.getProductBudgetItemById(pbi.getId()).get())
-                .toList();
-
-        List<ServiceBudgetItem> createdServiceBudgetItems = createEventDTO.getServiceBudgetItems()
-                .stream()
-                .map(serviceBudgetItemService::createServiceBudgetItem)
-                .map(sbi -> serviceBudgetItemService.getServiceBudgetItemById(sbi.getId()).get())
-                .toList();
-
         Optional<EventType> eventTypeMaybe = eventTypeRepository.findById(createEventDTO.getEventTypeId());
 
         if (eventTypeMaybe.isEmpty()) {
             throw new EntityNotFoundException();
         }
 
+        Optional<EventOrganizer> eventOrganizerMaybe = this.eventOrganizerRepository.findById(createEventDTO.getOrganizerId());
+
+        if (eventOrganizerMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        EventOrganizer eventOrganizer = eventOrganizerMaybe.get();
+
         Event newEvent = new Event();
-        newEvent.setProductBudgetItems(createdProductBudgetItems);
-        newEvent.setServiceBudgetItems(createdServiceBudgetItems);
 //        newEvent.setEventActivities(new ArrayList<>()); // todo agenda
 //        newEvent.setImages(new ArrayList<>()); // todo images with image service
         newEvent.setEventType(eventTypeMaybe.get());
@@ -94,6 +72,10 @@ public class EventService {
         newEvent.setLocation(new Location(createEventDTO.getLongitude(), createEventDTO.getLatitude())); // todo map
         newEvent.setGuestCount(createEventDTO.getGuestCount());
 
-        return EventComplexViewDTO.toDto(eventRepository.save(newEvent));
+        Event createdEvent = eventRepository.save(newEvent);
+        eventOrganizer.getMyEvents().add(createdEvent);
+        eventOrganizerRepository.save(eventOrganizer);
+
+        return EventComplexViewDTO.toDto(createdEvent);
     }
 }

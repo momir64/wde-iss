@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.serviceManagement.services;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.eventManagement.models.EventType;
@@ -15,6 +16,7 @@ import wedoevents.eventplanner.serviceManagement.repositories.VersionedServiceRe
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -90,9 +92,14 @@ public class ServiceService {
     }
 
     public VersionedServiceDTO updateVersionedService(UpdateVersionedServiceDTO updateVersionedServiceDTO) {
-        // todo backend check if the static service id exists
-        VersionedService oldVersionOfVersionedService = versionedServiceRepository.
-                getVersionedServiceByStaticServiceIdAndLatestVersion(updateVersionedServiceDTO.getStaticServiceId());
+        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository
+                .getVersionedServiceByStaticServiceIdAndLatestVersion(updateVersionedServiceDTO.getStaticServiceId());
+
+        if (versionedServiceMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        VersionedService oldVersionOfVersionedService = versionedServiceMaybe.get();
 
         oldVersionOfVersionedService.setIsLastVersion(false);
 
@@ -124,7 +131,13 @@ public class ServiceService {
 
     public VersionedServiceDTO getVersionedServiceById(UUID staticServiceId) {
         // todo: null check
-        return VersionedServiceDTO.toDto(versionedServiceRepository.getVersionedServiceByStaticServiceIdAndLatestVersion(staticServiceId));
+        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getVersionedServiceByStaticServiceIdAndLatestVersion(staticServiceId);
+
+        if (versionedServiceMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        return VersionedServiceDTO.toDto(versionedServiceMaybe.get());
     }
 
     public VersionedServiceDTO getVersionedServiceByStaticServiceIdAndVersion(Integer version, UUID staticServiceId) {
@@ -133,9 +146,13 @@ public class ServiceService {
     }
 
     public void deactivateService(UUID staticServiceId) {
-        // todo backend check if the static service id exists
-        VersionedService newVersionedService = versionedServiceRepository.
-                getVersionedServiceByStaticServiceIdAndLatestVersion(staticServiceId);
+        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getVersionedServiceByStaticServiceIdAndLatestVersion(staticServiceId);
+
+        if (versionedServiceMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        VersionedService newVersionedService = versionedServiceMaybe.get();
 
         newVersionedService.setIsAvailable(false);
 

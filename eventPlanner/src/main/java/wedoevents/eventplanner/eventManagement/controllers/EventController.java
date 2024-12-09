@@ -30,9 +30,12 @@ public class EventController {
         this.eventService = eventService;
     }
 
+    // todo when session tracking is enabled, add which organizer created the event
+    // todo for now the organizer id is fixed to "1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236"
     @PostMapping
     public ResponseEntity<EventComplexViewDTO> createEvent(@RequestBody CreateEventDTO createEventDTO) {
         try {
+            createEventDTO.setOrganizerId(UUID.fromString("1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236"));
             EventComplexViewDTO createdEvent = eventService.createEvent(createEventDTO);
             return ResponseEntity.ok(createdEvent);
         } catch (EntityNotFoundException e) {
@@ -40,25 +43,11 @@ public class EventController {
         }
     }
 
-    @DeleteMapping ("/{eventId}/{productCategoryId}")
-    public ResponseEntity<?> deleteEventEmptyProductCategoryFromBudget(@PathVariable UUID eventId, @PathVariable UUID productCategoryId) {
+    @GetMapping("/{eventOrganizerId}/my-events")
+    public ResponseEntity<List<EventComplexViewDTO>> getEventsFromOrganizer(@PathVariable UUID eventOrganizerId) {
         try {
-            eventService.deleteEventEmptyProductCategoryFromBudget(eventId, productCategoryId);
-            return ResponseEntity.noContent().build();
-        } catch (EntityCannotBeDeletedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Product category has purchased products");
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @DeleteMapping ("/{eventId}/{serviceCategoryId}")
-    public ResponseEntity<?> deleteEventEmptyServiceCategoryFromBudget(@PathVariable UUID eventId, @PathVariable UUID serviceCategoryId) {
-        try {
-            eventService.deleteEventEmptyServiceCategoryFromBudget(eventId, serviceCategoryId);
-            return ResponseEntity.noContent().build();
-        } catch (EntityCannotBeDeletedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Service category has reserved services");
+            List<EventComplexViewDTO> events = eventService.getEventsFromOrganizer(eventOrganizerId);
+            return ResponseEntity.ok(events);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
