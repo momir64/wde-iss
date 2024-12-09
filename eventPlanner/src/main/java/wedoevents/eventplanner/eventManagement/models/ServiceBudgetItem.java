@@ -15,8 +15,7 @@ import java.util.UUID;
 public class ServiceBudgetItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "UUID")
+    @GeneratedValue()
     private UUID id;
 
     private double maxPrice;

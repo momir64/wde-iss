@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wedoevents.eventplanner.eventManagement.dtos.ProductBudgetItemDTO;
+import wedoevents.eventplanner.eventManagement.dtos.CreateProductBudgetItemDTO;
 import wedoevents.eventplanner.eventManagement.models.ProductBudgetItem;
 import wedoevents.eventplanner.eventManagement.services.ProductBudgetItemService;
 
@@ -24,7 +24,7 @@ public class ProductBudgetItemController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductBudgetItemDTO> createOrUpdateProductBudgetItem(@RequestBody ProductBudgetItemDTO productBudgetItem) {
+    public ResponseEntity<CreateProductBudgetItemDTO> createOrUpdateProductBudgetItem(@RequestBody CreateProductBudgetItemDTO productBudgetItem) {
 //  if (adding new budget item - event doesn't have item with that category) {
         return new ResponseEntity<>(productBudgetItem, HttpStatus.CREATED);
 //  } else if (error - some id isn't null but doesn't exist) {
@@ -65,3 +65,5 @@ public class ProductBudgetItemController {
         }
     }
 }
+
+// todo za kupovinu proizvoda: dodaj mogucnost da se kupi proizvod koji nema kategoriju (automatski se dodaje kategorija sa budzetom 0 din)

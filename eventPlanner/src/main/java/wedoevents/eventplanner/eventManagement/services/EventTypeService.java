@@ -3,7 +3,9 @@ package wedoevents.eventplanner.eventManagement.services;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import wedoevents.eventplanner.eventManagement.dtos.EventTypeDTO;
 import wedoevents.eventplanner.eventManagement.dtos.ExtendedEventTypeDTO;
+import wedoevents.eventplanner.eventManagement.dtos.RecommendedCategoriesDTO;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.eventManagement.repositories.EventTypeRepository;
 import wedoevents.eventplanner.listingManagement.dtos.ListingCategoryDTO;
@@ -126,6 +128,23 @@ public class EventTypeService {
         }
 
         return eventType;
+    }
+
+    public RecommendedCategoriesDTO getRecommendedCategoriesForType(UUID eventTypeId) {
+        List<ListingCategoryDTO> recommendedServiceCategories =
+                eventTypeRepository
+                        .getRecommendedServiceCategoriesByEventTypeId(eventTypeId)
+                        .stream()
+                        .map(ListingCategoryDTO::fromServiceCategory)
+                        .toList();
+        List<ListingCategoryDTO> recommendedProductCategories =
+                eventTypeRepository
+                        .getRecommendedProductCategoriesByEventTypeId(eventTypeId)
+                        .stream()
+                        .map(ListingCategoryDTO::fromProductCategory)
+                        .toList();
+
+        return new RecommendedCategoriesDTO(recommendedServiceCategories, recommendedProductCategories);
     }
 }
 

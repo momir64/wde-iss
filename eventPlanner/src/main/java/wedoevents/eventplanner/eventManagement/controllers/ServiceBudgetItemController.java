@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wedoevents.eventplanner.eventManagement.dtos.ServiceBudgetItemDTO;
+import wedoevents.eventplanner.eventManagement.dtos.CreateServiceBudgetItemDTO;
 import wedoevents.eventplanner.eventManagement.models.ServiceBudgetItem;
 import wedoevents.eventplanner.eventManagement.services.ServiceBudgetItemService;
 
@@ -24,7 +24,7 @@ public class ServiceBudgetItemController {
     }
 
     @PostMapping
-    public ResponseEntity<ServiceBudgetItemDTO> createOrUpdateServiceBudgetItem(@RequestBody ServiceBudgetItemDTO serviceBudgetItem) {
+    public ResponseEntity<CreateServiceBudgetItemDTO> createOrUpdateServiceBudgetItem(@RequestBody CreateServiceBudgetItemDTO serviceBudgetItem) {
 //  if (adding new budget item - event doesn't have item with that category) {
         return new ResponseEntity<>(serviceBudgetItem, HttpStatus.CREATED);
 //  } else if (error - some id isn't null but doesn't exist) {
