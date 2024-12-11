@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.shared.services.emailService.IEmailService;
-import wedoevents.eventplanner.userManagement.models.CreateProfileDTO;
+import wedoevents.eventplanner.userManagement.dtos.CreateProfileDTO;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.RegistrationAttempt;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;

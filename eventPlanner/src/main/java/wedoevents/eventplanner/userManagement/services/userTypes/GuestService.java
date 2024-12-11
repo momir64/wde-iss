@@ -31,6 +31,10 @@ public class GuestService {
         return guestRepository.findById(id);
     }
 
+    public Optional<Guest> getGuestByEmail(String email) {
+        return guestRepository.findByEmail(email);
+    }
+
     public List<Guest> getAllGuests() {
         return guestRepository.findAll();
     }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wedoevents.eventplanner.userManagement.dtos.BasicGuestDTO;
 import wedoevents.eventplanner.userManagement.dtos.FavoriteEventDTO;
 import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
 import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
@@ -31,9 +32,15 @@ public class GuestController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request");
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to favorite event");
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<BasicGuestDTO> getGuestByEmail(@PathVariable String email) {
+        return guestService.getGuestByEmail(email).map(BasicGuestDTO::from)
+                           .map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -45,8 +52,8 @@ public class GuestController {
     @GetMapping("/{id}")
     public ResponseEntity<Guest> getGuestById(@PathVariable UUID id) {
         return guestService.getGuestById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                           .map(ResponseEntity::ok)
+                           .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping

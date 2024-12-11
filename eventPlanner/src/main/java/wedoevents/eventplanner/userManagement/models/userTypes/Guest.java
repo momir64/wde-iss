@@ -17,6 +17,8 @@ public class Guest {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "UUID")
     private UUID id;
+    private String name;
+    private String surname;
 
     @OneToOne(optional = false)
     private Profile profile;
