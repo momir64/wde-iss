@@ -3,6 +3,7 @@ package wedoevents.eventplanner.userManagement.models.userTypes;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.productManagement.models.StaticProduct;
 import wedoevents.eventplanner.serviceManagement.models.StaticService;
 import wedoevents.eventplanner.userManagement.models.Profile;
@@ -46,4 +47,8 @@ public class EventOrganizer {
             inverseJoinColumns = @JoinColumn(name = "static_service_id")
     )
     private List<StaticService> favouriteServices;
+
+    @OneToMany
+    @JoinColumn(name = "event_organizer_id")
+    private List<Event> myEvents;
 }

@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.eventManagement.controllers;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -7,12 +8,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wedoevents.eventplanner.eventManagement.dtos.GetEventDTO;
-import wedoevents.eventplanner.eventManagement.models.Event;
+import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
+import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
 import wedoevents.eventplanner.eventManagement.services.EventService;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @RestController
@@ -21,38 +22,39 @@ public class EventController {
 
     private final EventService eventService;
 
+
     @Autowired
     public EventController(EventService eventService) {
         this.eventService = eventService;
     }
 
+    // todo when session tracking is enabled, add which organizer created the event
+    // todo for now the organizer id is fixed to "1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236"
     @PostMapping
-    public ResponseEntity<Event> createOrUpdateEvent(@RequestBody Event event) {
-        Event savedEvent = eventService.saveEvent(event);
-        return new ResponseEntity<>(savedEvent, HttpStatus.CREATED);
+    public ResponseEntity<EventComplexViewDTO> createEvent(@RequestBody CreateEventDTO createEventDTO) {
+        try {
+            createEventDTO.setOrganizerId(UUID.fromString("1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236"));
+            EventComplexViewDTO createdEvent = eventService.createEvent(createEventDTO);
+            return ResponseEntity.ok(createdEvent);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Event> getEventById(@PathVariable UUID id) {
-        Optional<Event> event = eventService.getEventById(id);
-        return event.map(ResponseEntity::ok)
-                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEvent(@PathVariable UUID id) {
-        if (eventService.getEventById(id).isPresent()) {
-            eventService.deleteEvent(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @GetMapping("/{eventOrganizerId}/my-events")
+    public ResponseEntity<List<EventComplexViewDTO>> getEventsFromOrganizer(@PathVariable UUID eventOrganizerId) {
+        try {
+            List<EventComplexViewDTO> events = eventService.getEventsFromOrganizer(eventOrganizerId);
+            return ResponseEntity.ok(events);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/top")
     public ResponseEntity<?> getTopEvents(@RequestParam(value = "city", required = false) String city) {
         try {
-            List<GetEventDTO> events = buildMockEvents(5);
+            List<EventComplexViewDTO> events = buildMockEvents(5);
             return ResponseEntity.ok(events);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
@@ -76,7 +78,7 @@ public class EventController {
         try {
             Pageable pageable = PageRequest.of(page, size);
 
-            List<GetEventDTO> events = buildMockEvents(10);
+            List<EventComplexViewDTO> events = buildMockEvents(10);
             return ResponseEntity.ok(events);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
@@ -92,25 +94,29 @@ public class EventController {
         return uuids;
     }
 
-    private List<GetEventDTO> buildMockEvents(int n) {
-        List<GetEventDTO> events = new ArrayList<>();
+    private List<EventComplexViewDTO> buildMockEvents(int n) {
+        List<EventComplexViewDTO> events = new ArrayList<>();
 
         for (int i = 0; i < n; i++) {
-            events.add(new GetEventDTO(UUID.randomUUID(),
-                                       String.format("London %d", i),
-                                       String.format("Best party ever %d", i),
-                                       String.format("This will be the best party ever %d!", i),
-                                       LocalDateTime.now(),
-                                       2 + i * 0.9 % 5,
-                                       100 * i,
-                                       Arrays.asList(String.format("https://picsum.photos/303/20%d", i),
-                                                     String.format("https://picsum.photos/304/20%d", i),
-                                                     String.format("https://picsum.photos/305/20%d", i)),
-                                       UUID.randomUUID(),
-                                       buildMockUUIDs(3),
-                                       buildMockUUIDs(3),
-                                       UUID.randomUUID(),
-                                       buildMockUUIDs(3)
+            events.add(new EventComplexViewDTO(UUID.randomUUID(),
+                                               String.format("Best party ever %d", i),
+                                               String.format("This will be the best party ever %d!", i),
+                                               LocalDate.now(),
+                                               LocalTime.now(),
+                                               String.format("London %d", i),
+                                               String.format("Big Ben %d", i),
+                                               100 * i,
+                                               false,
+                                               Arrays.asList(String.format("https://picsum.photos/303/20%d", i),
+                                                             String.format("https://picsum.photos/304/20%d", i),
+                                                             String.format("https://picsum.photos/305/20%d", i)),
+                                               UUID.randomUUID(),
+                                               new ArrayList<>(),
+                                               new ArrayList<>(),
+                                               0.0,
+                                               0.0,
+                                               buildMockUUIDs(3),
+                                               2 + i * 0.9 % 5
             ));
         }
 

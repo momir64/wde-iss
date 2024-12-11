@@ -1,16 +1,19 @@
 package wedoevents.eventplanner.eventManagement.controllers;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wedoevents.eventplanner.eventManagement.dtos.BuyProductDTO;
+import wedoevents.eventplanner.eventManagement.dtos.CreateProductBudgetItemDTO;
 import wedoevents.eventplanner.eventManagement.dtos.ProductBudgetItemDTO;
-import wedoevents.eventplanner.eventManagement.models.ProductBudgetItem;
 import wedoevents.eventplanner.eventManagement.services.ProductBudgetItemService;
+import wedoevents.eventplanner.shared.Exceptions.BuyProductException;
+import wedoevents.eventplanner.shared.Exceptions.EntityCannotBeDeletedException;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/v1/product-budget-items")
@@ -24,44 +27,51 @@ public class ProductBudgetItemController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductBudgetItemDTO> createOrUpdateProductBudgetItem(@RequestBody ProductBudgetItemDTO productBudgetItem) {
-//  if (adding new budget item - event doesn't have item with that category) {
-        return new ResponseEntity<>(productBudgetItem, HttpStatus.CREATED);
-//  } else if (error - some id isn't null but doesn't exist) {
+    public ResponseEntity<?> createProductBudgetItem(@RequestBody CreateProductBudgetItemDTO productBudgetItem) {
+//  if (adding new budget item - event doesn't have item with that category) { --
+//      return new ResponseEntity<>(productBudgetItem, HttpStatus.CREATED);
+//  } else if (error - some id isn't null but doesn't exist) { --
 //      return new ResponseEntity<>(productBudgetItem, HttpStatus.NOT_FOUND);
-//  } else if (error - user doesn't have necessary permissions) {
+//  } else if (error - user doesn't have necessary permissions) { --
 //      return new ResponseEntity<>(productBudgetItem, HttpStatus.FORBIDDEN);
 //  } else if (changing budget item max price, category or product - item id isn't null and exists) {
 //      return new ResponseEntity<>(productBudgetItem, HttpStatus.OK);
-//  } else if (buying product - product id isn't null, event has item with that category and without product id) {
+//  } else if (buying product - product id isn't null, event has item with that category and without product id) { --
 //      return new ResponseEntity<>(productBudgetItem, HttpStatus.OK);
-//  } else if (buying product - product id isn't null, event doesn't have item with that category) {
+//  } else if (buying product - product id isn't null, event doesn't have item with that category) { --
 //      return new ResponseEntity<>(productBudgetItem, HttpStatus.CREATED);
-//  } else if (buying product error - product id isn't null, event has item with that category and with product id) {
+//  } else if (buying product error - product id isn't null, event has item with that category and with product id) { --
 //      return new ResponseEntity<>(productBudgetItem, HttpStatus.BAD_REQUEST);
 //  }
+        try {
+            return ResponseEntity.ok(productBudgetItemService.createProductBudgetItem(productBudgetItem));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (BuyProductException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
     }
 
-    @GetMapping
-    public ResponseEntity<List<ProductBudgetItem>> getAllProductBudgetItems() {
-        List<ProductBudgetItem> productBudgetItems = productBudgetItemService.getAllProductBudgetItems();
-        return new ResponseEntity<>(productBudgetItems, HttpStatus.OK);
+    @PostMapping("/buy")
+    public ResponseEntity<?> buyProduct(@RequestBody BuyProductDTO buyProductDTO) {
+        try {
+            return ResponseEntity.ok(productBudgetItemService.buyProduct(buyProductDTO));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (BuyProductException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductBudgetItem> getProductBudgetItemById(@PathVariable UUID id) {
-        Optional<ProductBudgetItem> productBudgetItem = productBudgetItemService.getProductBudgetItemById(id);
-        return productBudgetItem.map(ResponseEntity::ok)
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProductBudgetItem(@PathVariable UUID id) {
-        if (productBudgetItemService.getProductBudgetItemById(id).isPresent()) {
-            productBudgetItemService.deleteProductBudgetItem(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @DeleteMapping ("/{eventId}/{productCategoryId}")
+    public ResponseEntity<?> deleteEventEmptyProductCategoryFromBudget(@PathVariable UUID eventId, @PathVariable UUID productCategoryId) {
+        try {
+            productBudgetItemService.deleteEventEmptyProductCategoryFromBudget(eventId, productCategoryId);
+            return ResponseEntity.noContent().build();
+        } catch (EntityCannotBeDeletedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Product category has purchased products");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 }
