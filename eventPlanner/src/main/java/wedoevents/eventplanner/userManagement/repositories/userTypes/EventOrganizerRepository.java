@@ -2,7 +2,6 @@ package wedoevents.eventplanner.userManagement.repositories.userTypes;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;

@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import wedoevents.eventplanner.eventManagement.models.Event;
-import wedoevents.eventplanner.eventManagement.models.EventActivity;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -32,6 +31,7 @@ public class EventComplexViewDTO {
     private Double        longitude;
     private Double        latitude;
     private List<UUID>    eventActivityIds;
+    private Double        rating;
 
     public static EventComplexViewDTO toDto(Event event) {
         return new EventComplexViewDTO(
@@ -50,7 +50,8 @@ public class EventComplexViewDTO {
                 event.getServiceBudgetItems().stream().map(ServiceBudgetItemDTO::toDto).toList(),
                 null, // todo map event.getLocation().getLongitude()
                 null, // todo map event.getLocation().getLatitude()
-                new ArrayList<>() // todo agenda > event.getEventActivities().stream().map(EventActivity::getId).toList()
+                new ArrayList<>(), // todo agenda > event.getEventActivities().stream().map(EventActivity::getId).toList()
+                0.0 // todo izračunati prosečnu ocenu iz reviewova
         );
     }
 }

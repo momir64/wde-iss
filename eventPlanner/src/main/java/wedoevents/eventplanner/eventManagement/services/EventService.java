@@ -5,17 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
-import wedoevents.eventplanner.eventManagement.dtos.ServiceBudgetItemDTO;
 import wedoevents.eventplanner.eventManagement.models.*;
 import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
 import wedoevents.eventplanner.eventManagement.repositories.EventTypeRepository;
-import wedoevents.eventplanner.eventManagement.repositories.ProductBudgetItemRepository;
-import wedoevents.eventplanner.eventManagement.repositories.ServiceBudgetItemRepository;
-import wedoevents.eventplanner.shared.Exceptions.EntityCannotBeDeletedException;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

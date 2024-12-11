@@ -10,9 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
-import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.services.EventService;
-import wedoevents.eventplanner.shared.Exceptions.EntityCannotBeDeletedException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -101,23 +99,24 @@ public class EventController {
 
         for (int i = 0; i < n; i++) {
             events.add(new EventComplexViewDTO(UUID.randomUUID(),
-                    String.format("Best party ever %d", i),
-                    String.format("This will be the best party ever %d!", i),
-                    LocalDate.now(),
-                    LocalTime.now(),
-                    String.format("London %d", i),
-                    String.format("Big Ben %d", i),
-                    100 * i,
-                    false,
-                    Arrays.asList(String.format("https://picsum.photos/303/20%d", i),
-                            String.format("https://picsum.photos/304/20%d", i),
-                            String.format("https://picsum.photos/305/20%d", i)),
-                    UUID.randomUUID(),
-                    new ArrayList<>(),
-                    new ArrayList<>(),
-                    0.0,
-                    0.0,
-                    buildMockUUIDs(3)
+                                               String.format("Best party ever %d", i),
+                                               String.format("This will be the best party ever %d!", i),
+                                               LocalDate.now(),
+                                               LocalTime.now(),
+                                               String.format("London %d", i),
+                                               String.format("Big Ben %d", i),
+                                               100 * i,
+                                               false,
+                                               Arrays.asList(String.format("https://picsum.photos/303/20%d", i),
+                                                             String.format("https://picsum.photos/304/20%d", i),
+                                                             String.format("https://picsum.photos/305/20%d", i)),
+                                               UUID.randomUUID(),
+                                               new ArrayList<>(),
+                                               new ArrayList<>(),
+                                               0.0,
+                                               0.0,
+                                               buildMockUUIDs(3),
+                                               2 + i * 0.9 % 5
             ));
         }
 
