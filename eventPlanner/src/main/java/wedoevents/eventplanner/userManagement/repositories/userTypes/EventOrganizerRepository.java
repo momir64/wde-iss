@@ -6,7 +6,8 @@ import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 
 import java.util.Optional;
 import java.util.UUID;
-
+import wedoevents.eventplanner.userManagement.models.Profile;
+import java.util.Optional;
 public interface EventOrganizerRepository extends JpaRepository<EventOrganizer, UUID> {
     Optional<EventOrganizer> findByProfile(Profile profile);
     void deleteByProfile(Profile profile);

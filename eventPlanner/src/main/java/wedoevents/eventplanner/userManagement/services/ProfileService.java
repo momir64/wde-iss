@@ -3,8 +3,15 @@ package wedoevents.eventplanner.userManagement.services;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import wedoevents.eventplanner.userManagement.dtos.ExtendedProfileDTO;
+import wedoevents.eventplanner.userManagement.dtos.UpdateProfileDTO;
 import wedoevents.eventplanner.userManagement.models.Profile;
+import wedoevents.eventplanner.userManagement.models.UserType;
 import wedoevents.eventplanner.userManagement.repositories.ProfileRepository;
+import wedoevents.eventplanner.userManagement.repositories.userTypes.AdminRepository;
+import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
+import wedoevents.eventplanner.userManagement.repositories.userTypes.GuestRepository;
+import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,9 +22,21 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
 
+    private final SellerRepository sellerRepository;
+    private final GuestRepository guestRepository;
+    private final AdminRepository adminRepository;
+    private final EventOrganizerRepository eventOrganizerRepository;
+
+
+
+
     @Autowired
-    public ProfileService(ProfileRepository profileRepository) {
+    public ProfileService(ProfileRepository profileRepository, EventOrganizerRepository eventOrganizerRepository, SellerRepository sellerRepository, GuestRepository guestRepository, AdminRepository adminRepository) {
         this.profileRepository = profileRepository;
+        this.eventOrganizerRepository = eventOrganizerRepository;
+        this.sellerRepository = sellerRepository;
+        this.guestRepository = guestRepository;
+        this.adminRepository = adminRepository;
     }
 
     public Profile createProfile(Profile profile) {
@@ -57,7 +76,99 @@ public class ProfileService {
         return profileRepository.save(profile);
     }
 
-    public void deleteProfile(UUID profileId) {
-        profileRepository.deleteById(profileId);
+    public boolean deactivateProfile(UUID profileId) {
+        Optional<Profile> profileOpt = profileRepository.findById(profileId);
+
+        if (profileOpt.isEmpty()) {
+            return false;
+        }
+
+        Profile profile = profileOpt.get();
+        profile.setActive(false);
+        profileRepository.save(profile);
+        return true;
     }
+
+    public Optional<ExtendedProfileDTO> getExtendedProfileById(UUID profileId) {
+        Optional<Profile> profileOpt = profileRepository.findById(profileId);
+
+        if (profileOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Profile profile = profileOpt.get();
+        ExtendedProfileDTO dto = new ExtendedProfileDTO();
+        dto.setProfileId(profile.getId());
+        dto.setEmail(profile.getEmail());
+        dto.setAreNotificationsMuted(profile.isAreNotificationsMuted());
+        dto.setPassword(profile.getPassword()); // need hashing later on
+
+        sellerRepository.findByProfile(profile).ifPresent(seller -> {
+            dto.setName(seller.getName());
+            dto.setSurname(seller.getSurname());
+            dto.setCity(seller.getCity());
+            dto.setAddress(seller.getAddress());
+            dto.setTelephoneNumber(seller.getTelephoneNumber());
+            dto.setDescription(seller.getDescription());
+            dto.setUserType(UserType.SELLER);
+        });
+
+        if (dto.getUserType() == null) {
+            eventOrganizerRepository.findByProfile(profile).ifPresent(organizer -> {
+                dto.setName(organizer.getName());
+                dto.setSurname(organizer.getSurname());
+                dto.setCity(organizer.getCity());
+                dto.setAddress(organizer.getAddress());
+                dto.setTelephoneNumber(organizer.getTelephoneNumber());
+                dto.setUserType(UserType.EVENTORGANIZER);
+            });
+        }
+
+        return Optional.of(dto);
+    }
+
+
+
+    public Optional<ExtendedProfileDTO> updateProfile(UUID profileId, UpdateProfileDTO updateDto) {
+        Optional<Profile> profileOpt = profileRepository.findById(profileId);
+
+        if (profileOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Profile profile = profileOpt.get();
+
+        profile.setEmail(updateDto.getEmail());
+        profile.setAreNotificationsMuted(updateDto.isAreNotificationsMuted());
+
+        if (updateDto.getPassword() != null && !updateDto.getPassword().isEmpty()) {
+            String hashedPassword = updateDto.getPassword(); // add hashing later on
+            profile.setPassword(hashedPassword);
+        }
+
+        sellerRepository.findByProfile(profile).ifPresent(seller -> {
+            seller.setName(updateDto.getName());
+            seller.setSurname(updateDto.getSurname());
+            seller.setCity(updateDto.getCity());
+            seller.setAddress(updateDto.getAddress());
+            seller.setTelephoneNumber(updateDto.getTelephoneNumber());
+            seller.setDescription(updateDto.getDescription());
+            sellerRepository.save(seller);
+        });
+
+        eventOrganizerRepository.findByProfile(profile).ifPresent(organizer -> {
+            organizer.setName(updateDto.getName());
+            organizer.setSurname(updateDto.getSurname());
+            organizer.setCity(updateDto.getCity());
+            organizer.setAddress(updateDto.getAddress());
+            organizer.setTelephoneNumber(updateDto.getTelephoneNumber());
+            eventOrganizerRepository.save(organizer);
+        });
+
+        profileRepository.save(profile);
+
+        return getExtendedProfileById(profileId);
+    }
+
+
 }
