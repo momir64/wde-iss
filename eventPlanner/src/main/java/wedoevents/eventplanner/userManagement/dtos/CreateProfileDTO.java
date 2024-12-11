@@ -1,10 +1,10 @@
-package wedoevents.eventplanner.userManagement.models;
+package wedoevents.eventplanner.userManagement.dtos;
 
 import lombok.Getter;
 import lombok.Setter;
+import wedoevents.eventplanner.userManagement.models.Profile;
+import wedoevents.eventplanner.userManagement.models.UserType;
 import wedoevents.eventplanner.userManagement.models.userTypes.*;
-
-import java.util.List;
 
 @Setter
 @Getter

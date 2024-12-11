@@ -17,6 +17,8 @@ public class Guest {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "UUID")
     private UUID id;
+    private String name;
+    private String surname;
 
     @OneToOne(optional = false)
     private Profile profile;
@@ -28,4 +30,20 @@ public class Guest {
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
     private List<Event> favouriteEvents;
+
+    @ManyToMany
+    @JoinTable(
+            name = "guest_invited_events",
+            joinColumns = @JoinColumn(name = "id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
+    private List<Event> invitedEvents;
+
+    @ManyToMany
+    @JoinTable(
+            name = "guest_accepted_events",
+            joinColumns = @JoinColumn(name = "id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
+    private List<Event> acceptedEvents;
 }

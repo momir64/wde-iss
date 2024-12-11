@@ -82,7 +82,7 @@ VALUES
     ('8bc76c7b-fc9d-469b-a7b1-2d2291d9a9b6', true, 'samuel.jackson@example.com', true, true, '123'),
 
     -- PROFILES OF GUESTS
-    ('9a4531e5-2fda-42bc-8355-d7991bfc8ff4', true, 'charles.white@example.com', true, true, '123'),
+    ('9a4531e5-2fda-42bc-8355-d7991bfc8ff4', true, 'john.smith@example.com', true, true, '123'),
     ('0d1f5f7a-6fcf-42d9-82fe-0090a35ea88c', false, 'grace.perez@example.com', true, true, '123'),
     ('679eb520-7b8d-4c3a-b99f-720e6cfb759b', true, 'oliver.harris@example.com', true, true, '123'),
     ('4d7248cb-d5f2-4e9b-9eb2-b8ad1de05bcf', false, 'mia.rodriguez@example.com', true, true, '123'),
@@ -123,18 +123,18 @@ VALUES
     ('6e0c99f4-226f-49fb-bc4b-1f59ff671b95', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', '321 Cedar Ln', 'Boston', 'Lily', '02101', 'Martinez', '+1 617-555-9865'),
     ('c5e2a004-83b0-4f91-9ff2-c235f2166b72', '8bc76c7b-fc9d-469b-a7b1-2d2291d9a9b6', '543 Pinehill St', 'Austin', 'Samuel', '73301', 'Jackson', '+1 512-555-3746');
 
-INSERT INTO guest (id, profile_id)
+INSERT INTO guest (id, profile_id, name, surname)
 VALUES
-    ('634182f1-9a18-433b-82d8-dad5aa4069f8', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('c633e080-fad0-4195-8a52-688c149700a1', '0d1f5f7a-6fcf-42d9-82fe-0090a35ea88c'),
-    ('95a4669b-9ee6-4608-a4d1-ae52da25be36', '679eb520-7b8d-4c3a-b99f-720e6cfb759b'),
-    ('0f0e83c6-6764-4c27-bca6-7369aea6acaa', '4d7248cb-d5f2-4e9b-9eb2-b8ad1de05bcf'),
-    ('4b423147-32cf-4a90-9238-a3a5934aaee9', '27e8a1b2-4d23-4b6f-b5a5-79a76d6b758e'),
-    ('97aaf376-4054-417d-8caf-ecbfecb185c3', '542c3a1b-ffea-421d-b967-7d45968c6506'),
-    ('f4618423-15ac-4772-96ac-7144e240b584', '05fdc5be-d59b-468e-8466-d951a4a8d457'),
-    ('70e77225-b0a3-403c-b900-0f1788c93780', '03b88b74-0797-4f35-b15f-ff2a3c3e5c88'),
-    ('d8413682-21f1-4e35-ba8d-276334c9ffab', '70c7425e-c5f0-44f0-9e9d-44e4087fce62'),
-    ('e078765f-21ee-49c0-90a4-1377fe1386e5', '5a72482a-cd36-46e4-8c09-7b2ff1e22071');
+    ('634182f1-9a18-433b-82d8-dad5aa4069f8', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', 'John', 'Smith'),
+    ('c633e080-fad0-4195-8a52-688c149700a1', '0d1f5f7a-6fcf-42d9-82fe-0090a35ea88c', 'Grace', 'Perez'),
+    ('95a4669b-9ee6-4608-a4d1-ae52da25be36', '679eb520-7b8d-4c3a-b99f-720e6cfb759b', 'Oliver', 'Harris'),
+    ('0f0e83c6-6764-4c27-bca6-7369aea6acaa', '4d7248cb-d5f2-4e9b-9eb2-b8ad1de05bcf', 'Mia', 'Rodriguez'),
+    ('4b423147-32cf-4a90-9238-a3a5934aaee9', '27e8a1b2-4d23-4b6f-b5a5-79a76d6b758e', 'Jason', 'Wilson'),
+    ('97aaf376-4054-417d-8caf-ecbfecb185c3', '542c3a1b-ffea-421d-b967-7d45968c6506', 'Sophia', 'Morris'),
+    ('f4618423-15ac-4772-96ac-7144e240b584', '05fdc5be-d59b-468e-8466-d951a4a8d457', 'Daniel', 'Clark'),
+    ('70e77225-b0a3-403c-b900-0f1788c93780', '03b88b74-0797-4f35-b15f-ff2a3c3e5c88', 'Isabella', 'Wright'),
+    ('d8413682-21f1-4e35-ba8d-276334c9ffab', '70c7425e-c5f0-44f0-9e9d-44e4087fce62', 'Ethan', 'King'),
+    ('e078765f-21ee-49c0-90a4-1377fe1386e5', '5a72482a-cd36-46e4-8c09-7b2ff1e22071', 'Madison', 'Green');
 
 -- CHAT MESSAGES
 

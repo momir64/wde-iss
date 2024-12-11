@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.repositories.ProfileRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -60,4 +61,15 @@ public class ProfileService {
     public void deleteProfile(UUID profileId) {
         profileRepository.deleteById(profileId);
     }
+
+    public Profile createEmptyProfile(String email) {
+        Profile profile = new Profile();
+        profile.BuildProfile(email, "Password123!", true, false, false);
+
+        profile.setBlockedUsers(new ArrayList<>());
+
+        return profileRepository.save(profile);
+    }
+
+
 }
