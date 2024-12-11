@@ -73,4 +73,8 @@ public class EventService {
 
         return EventComplexViewDTO.toDto(createdEvent);
     }
+
+    public Optional<Event> getEventById(UUID id) {
+        return eventRepository.findById(id);
+    }
 }
