@@ -1,4 +1,5 @@
 package wedoevents.eventplanner.userManagement.controllers;
+
 import org.springdoc.core.service.GenericResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,11 +19,12 @@ import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerS
 import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
 import wedoevents.eventplanner.userManagement.services.userTypes.SellerService;
 import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.web.bind.annotation.*;
+
 import wedoevents.eventplanner.userManagement.dtos.ExtendedProfileDTO;
 import wedoevents.eventplanner.userManagement.models.UserType;
 
@@ -65,7 +67,7 @@ public class ProfileController {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to view this profile");
 //        } catch (ProfileNotFoundException e) {
 //            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Profile not found");
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
@@ -80,7 +82,7 @@ public class ProfileController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid profile data");
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to edit this profile");
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
@@ -95,7 +97,7 @@ public class ProfileController {
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request to deactivate account");
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to deactivate this account");
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
@@ -110,7 +112,7 @@ public class ProfileController {
 
         // add/update the profile
         Profile profile = new Profile();
-        profile.BuildProfile(createProfileDTO.getEmail(),createProfileDTO.getPassword(),true,createProfileDTO.isAreNotificationsMuted(),false);
+        profile.BuildProfile(createProfileDTO.getEmail(), createProfileDTO.getPassword(), true, createProfileDTO.isAreNotificationsMuted(), false);
         profile = profileService.createOrUpdateProfile(profile);
 
         //delete all users that reference the same profile (edge case)
@@ -136,15 +138,13 @@ public class ProfileController {
         registrationAttemptService.saveRegistrationAttempt(registrationAttempt);
 
 
-
-
         // send email for verification
         //for development purposes send to the same email all the time
-        try{
-            String response = emailService.sendVerificationEmail(email,createProfileDTO.getName(),createProfileDTO.getSurname(),
-                    registrationAttempt.getId().toString(),profile.getId().toString());
+        try {
+            String response = emailService.sendVerificationEmail(email, createProfileDTO.getEmail(), createProfileDTO.getName(), createProfileDTO.getSurname(),
+                                                                 registrationAttempt.getId().toString(), profile.getId().toString());
             return ResponseEntity.ok(null);
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Sendgrid error");
         }
     }

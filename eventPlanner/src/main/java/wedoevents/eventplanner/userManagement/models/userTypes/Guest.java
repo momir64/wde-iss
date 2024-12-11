@@ -28,4 +28,20 @@ public class Guest {
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
     private List<Event> favouriteEvents;
+
+    @ManyToMany
+    @JoinTable(
+            name = "guest_invited_events",
+            joinColumns = @JoinColumn(name = "id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
+    private List<Event> invitedEvents;
+
+    @ManyToMany
+    @JoinTable(
+            name = "guest_accepted_events",
+            joinColumns = @JoinColumn(name = "id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
+    private List<Event> acceptedEvents;
 }
