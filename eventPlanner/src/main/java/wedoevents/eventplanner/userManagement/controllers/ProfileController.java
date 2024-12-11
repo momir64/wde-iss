@@ -10,8 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.shared.services.emailService.IEmailService;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
+import wedoevents.eventplanner.userManagement.dtos.CreateProfileDTO;
 import wedoevents.eventplanner.userManagement.dtos.UpdateProfileDTO;
-import wedoevents.eventplanner.userManagement.models.CreateProfileDTO;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.RegistrationAttempt;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
@@ -171,7 +171,7 @@ public class ProfileController {
         // send email for verification
         //for development purposes send to the same email all the time
         try{
-            String response = emailService.sendVerificationEmail(email,createProfileDTO.getName(),createProfileDTO.getSurname(),
+            String response = emailService.sendVerificationEmail(email,createProfileDTO.getEmail(),createProfileDTO.getName(),createProfileDTO.getSurname(),
                     registrationAttempt.getId().toString(),profile.getId().toString());
             return ResponseEntity.ok(profile.getId());
         }catch (Exception e){

@@ -1,6 +1,7 @@
 package wedoevents.eventplanner.productManagement.services;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.eventManagement.models.EventType;
@@ -14,6 +15,7 @@ import wedoevents.eventplanner.productManagement.repositories.VersionedProductRe
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -84,9 +86,14 @@ public class ProductService {
     }
 
     public VersionedProductDTO updateVersionedProduct(UpdateVersionedProductDTO updateVersionedProductDTO) {
-        // todo backend check if the static product id exists
-        VersionedProduct oldVersionOfVersionedProduct = versionedProductRepository.
-                getVersionedProductByStaticProductIdAndLatestVersion(updateVersionedProductDTO.getStaticProductId());
+        Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository
+                .getVersionedProductByStaticProductIdAndLatestVersion(updateVersionedProductDTO.getStaticProductId());
+
+        if (versionedProductMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        VersionedProduct oldVersionOfVersionedProduct = versionedProductMaybe.get();
 
         oldVersionOfVersionedProduct.setIsLastVersion(false);
 
@@ -112,8 +119,13 @@ public class ProductService {
     }
 
     public VersionedProductDTO getVersionedProductById(UUID staticProductId) {
-        // todo: null check
-        return VersionedProductDTO.toDto(versionedProductRepository.getVersionedProductByStaticProductIdAndLatestVersion(staticProductId));
+        Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getVersionedProductByStaticProductIdAndLatestVersion(staticProductId);
+
+        if (versionedProductMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        return VersionedProductDTO.toDto(versionedProductMaybe.get());
     }
 
     public VersionedProductDTO getVersionedProductByStaticProductIdAndVersion(Integer version, UUID staticProductId) {
@@ -122,9 +134,13 @@ public class ProductService {
     }
 
     public void deactivateProduct(UUID staticProductId) {
-        // todo backend check if the static product id exists
-        VersionedProduct newVersionedProduct = versionedProductRepository.
-                getVersionedProductByStaticProductIdAndLatestVersion(staticProductId);
+        Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getVersionedProductByStaticProductIdAndLatestVersion(staticProductId);
+
+        if (versionedProductMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        VersionedProduct newVersionedProduct = versionedProductMaybe.get();
 
         newVersionedProduct.setIsAvailable(false);
 

@@ -13,6 +13,7 @@ import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrgani
 import wedoevents.eventplanner.userManagement.repositories.userTypes.GuestRepository;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -168,6 +169,14 @@ public class ProfileService {
         profileRepository.save(profile);
 
         return getExtendedProfileById(profileId);
+    }
+    public Profile createEmptyProfile(String email) {
+        Profile profile = new Profile();
+        profile.BuildProfile(email, "Password123!", true, false, false);
+
+        profile.setBlockedUsers(new ArrayList<>());
+
+        return profileRepository.save(profile);
     }
 
 

@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.dtos.ExtendedEventTypeDTO;
+import wedoevents.eventplanner.eventManagement.dtos.RecommendedCategoriesDTO;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.eventManagement.services.EventTypeService;
 
@@ -45,6 +46,15 @@ public class EventTypeController {
             return new ResponseEntity<>(savedEventTypeDTO, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/recommended/{eventTypeId}")
+    public ResponseEntity<RecommendedCategoriesDTO> getRecommendedListingCategoriesForEventType(@PathVariable UUID eventTypeId) {
+        try {
+            return ResponseEntity.ok(eventTypeService.getRecommendedCategoriesForType(eventTypeId));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 

@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.productManagement.controllers;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -53,6 +54,8 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.CREATED).body(updatedProduct);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
@@ -68,13 +71,15 @@ public class ProductController {
                                              @RequestParam(value = "description", required = false) String description,
                                              @RequestParam(name = "page", defaultValue = "0") int page,
                                              @RequestParam(name = "size", defaultValue = "10") int size) {
-        try{
+        try {
             Pageable pageable = PageRequest.of(page, size);
             //call search latest product versions service
             List<VersionedProductDTO> products = buildMockProducts();
             return ResponseEntity.ok(products);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
@@ -82,15 +87,13 @@ public class ProductController {
 
     @GetMapping("/{staticProductId}/latest-version")
     public ResponseEntity<?> getProductLatestVersionById(@PathVariable UUID staticProductId) {
-        try{
+        try {
             VersionedProductDTO product = productService.getVersionedProductById(staticProductId);
             return ResponseEntity.ok(product);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
-//        } catch (ProductNotFoundException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 

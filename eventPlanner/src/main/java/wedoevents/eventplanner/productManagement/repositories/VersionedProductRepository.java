@@ -7,6 +7,7 @@ import wedoevents.eventplanner.productManagement.models.VersionedProduct;
 import wedoevents.eventplanner.productManagement.models.VersionedProductId;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -14,7 +15,7 @@ public interface VersionedProductRepository extends JpaRepository<VersionedProdu
     @Query("SELECT vp FROM VersionedProduct vp WHERE " +
             "vp.isLastVersion AND " +
             "vp.staticProduct.staticProductId = ?1")
-    VersionedProduct getVersionedProductByStaticProductIdAndLatestVersion(UUID staticProductId);
+    Optional<VersionedProduct> getVersionedProductByStaticProductIdAndLatestVersion(UUID staticProductId);
 
     @Query("SELECT vp FROM VersionedProduct vp INNER JOIN " +
             "(SELECT vp2.staticProductId AS max_version_id, MAX(vp2.version) AS max_version " +
