@@ -23,13 +23,11 @@ public class EventOrganizer {
     private String surname;
     private String city;
     private String address;
-    private String postalNumber;
     private String telephoneNumber;
 
     @OneToOne(optional = false)
     private Profile profile;
 
-    private String profileImage;
 
     @ManyToMany
     @JoinTable(

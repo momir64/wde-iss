@@ -2,17 +2,10 @@ package wedoevents.eventplanner.userManagement.dtos;
 
 import lombok.Getter;
 import lombok.Setter;
-import wedoevents.eventplanner.userManagement.models.UserType;
-
-import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
-public class ExtendedProfileDTO {
-    private UUID profileId;
-    private UUID userId;
-
+public class UpdateProfileDTO {
     private String email;
     private boolean areNotificationsMuted;
     private String name;
@@ -21,6 +14,5 @@ public class ExtendedProfileDTO {
     private String address;
     private String telephoneNumber;
     private String description;
-    private UserType userType;
     private String password;
 }

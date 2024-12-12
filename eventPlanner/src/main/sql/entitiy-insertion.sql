@@ -109,19 +109,19 @@ INSERT INTO admin (id, profile_id) VALUES
     ('3570d6ff-6472-42a5-90fc-9b143db9f778', '7a92c4d7-8742-4a25-aee8-750ca987b42e'),
     ('5a5a94d3-443c-4eda-a263-c541647d7b7c', 'b2d2e1f0-06ae-4b0f-9cd0-7b5b31b1e9fe');
 
-INSERT INTO event_organizer (id, profile_id, address, city, name, postal_number, surname, telephone_number)
+INSERT INTO event_organizer (id, profile_id, address, city, name, surname, telephone_number)
 VALUES
-    ('b38d716b-4d2a-4fd3-b18c-bfa128f24b99', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '123 Main St, Suite 5', 'New York', 'Jane', '10001', 'Smith', '+1 212-555-1234'),
-    ('47c5fa7c-0d12-48e2-a4ed-9e4f441b383f', '91c1e927-9f79-44f4-b12f-bcbf16b16c6f', '456 Oak Ave', 'Los Angeles', 'Mark', '90001', 'Jones', '+1 323-555-5678'),
-    ('9c88f9ab-c2c9-4823-bf51-e3e263dcd5b0', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', '789 Pine Rd', 'Chicago', 'Susan', '60601', 'Brown', '+1 312-555-9101'),
-    ('1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236', '0cd13f4e-f7de-4533-9071-c42b7b3b4d45', '321 Elm Blvd', 'San Francisco', 'Tom', '94101', 'Williams', '+1 415-555-1122');
+    ('b38d716b-4d2a-4fd3-b18c-bfa128f24b99', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '123 Main St, Suite 5', 'New York', 'Jane', 'Smith', '+1 212-555-1234'),
+    ('47c5fa7c-0d12-48e2-a4ed-9e4f441b383f', '91c1e927-9f79-44f4-b12f-bcbf16b16c6f', '456 Oak Ave', 'Los Angeles', 'Mark', 'Jones', '+1 323-555-5678'),
+    ('9c88f9ab-c2c9-4823-bf51-e3e263dcd5b0', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', '789 Pine Rd', 'Chicago', 'Susan', 'Brown', '+1 312-555-9101'),
+    ('1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236', '0cd13f4e-f7de-4533-9071-c42b7b3b4d45', '321 Elm Blvd', 'San Francisco', 'Tom', 'Williams', '+1 415-555-1122');
 
-INSERT INTO seller (id, profile_id, address, city, name, postal_number, surname, telephone_number)
+INSERT INTO seller (id, profile_id, address, city, name, surname, telephone_number)
 VALUES
-    ('2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5', 'e852c4ff-3d2b-47ea-b1fd-e711cf18b1d7', '987 Maple Dr', 'Seattle', 'Emily', '98101', 'Davis', '+1 206-555-3141'),
-    ('a1d764df-9b5c-4f62-b0a1-13d8edfcf4a3', 'fddde66f-9b84-4bb8-b408-eae5b815ae69', '654 Birch Blvd', 'Miami', 'Robert', '33101', 'Martin', '+1 305-555-7282'),
-    ('6e0c99f4-226f-49fb-bc4b-1f59ff671b95', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', '321 Cedar Ln', 'Boston', 'Lily', '02101', 'Martinez', '+1 617-555-9865'),
-    ('c5e2a004-83b0-4f91-9ff2-c235f2166b72', '8bc76c7b-fc9d-469b-a7b1-2d2291d9a9b6', '543 Pinehill St', 'Austin', 'Samuel', '73301', 'Jackson', '+1 512-555-3746');
+    ('2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5', 'e852c4ff-3d2b-47ea-b1fd-e711cf18b1d7', '987 Maple Dr', 'Seattle', 'Emily', 'Davis', '+1 206-555-3141'),
+    ('a1d764df-9b5c-4f62-b0a1-13d8edfcf4a3', 'fddde66f-9b84-4bb8-b408-eae5b815ae69', '654 Birch Blvd', 'Miami', 'Robert', 'Martin', '+1 305-555-7282'),
+    ('6e0c99f4-226f-49fb-bc4b-1f59ff671b95', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', '321 Cedar Ln', 'Boston', 'Lily', 'Martinez', '+1 617-555-9865'),
+    ('c5e2a004-83b0-4f91-9ff2-c235f2166b72', '8bc76c7b-fc9d-469b-a7b1-2d2291d9a9b6', '543 Pinehill St', 'Austin', 'Samuel', 'Jackson', '+1 512-555-3746');
 
 INSERT INTO guest (id, profile_id, name, surname)
 VALUES

@@ -2,6 +2,7 @@ package wedoevents.eventplanner.userManagement.dtos;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.UserType;
 import wedoevents.eventplanner.userManagement.models.userTypes.*;
@@ -18,9 +19,7 @@ public class CreateProfileDTO {
     private String surname;
     private String city;
     private String address;
-    private String postalNumber;
     private String telephoneNumber;
-    private String image;
 
     public Object createUserEntity(Profile profile) {
         switch (userType) {
@@ -34,9 +33,7 @@ public class CreateProfileDTO {
                 eventOrganizer.setSurname(this.surname);
                 eventOrganizer.setCity(this.city);
                 eventOrganizer.setAddress(this.address);
-                eventOrganizer.setPostalNumber(this.postalNumber);
                 eventOrganizer.setTelephoneNumber(this.telephoneNumber);
-                eventOrganizer.setProfileImage(image);
                 eventOrganizer.setProfile(profile);
                 return eventOrganizer;
             case GUEST:
@@ -49,9 +46,7 @@ public class CreateProfileDTO {
                 seller.setSurname(this.surname);
                 seller.setCity(this.city);
                 seller.setAddress(this.address);
-                seller.setPostalNumber(this.postalNumber);
                 seller.setTelephoneNumber(this.telephoneNumber);
-                seller.setProfileImage(this.image);
                 seller.setProfile(profile);
                 return seller;
             default:

@@ -27,6 +27,8 @@ public class Profile {
 
     private boolean areNotificationsMuted;
 
+    private String imageName;
+
     private boolean isVerified;
 
     @ManyToMany
