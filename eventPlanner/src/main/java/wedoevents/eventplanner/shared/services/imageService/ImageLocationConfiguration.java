@@ -8,4 +8,11 @@ import java.util.UUID;
 public class ImageLocationConfiguration {
     public String contentType;
     public UUID contentUUID;
+    public Integer version;
+
+    public ImageLocationConfiguration(String contentType, UUID contentUUID) {
+        this.contentType = contentType;
+        this.contentUUID = contentUUID;
+        this.version = null;
+    }
 }

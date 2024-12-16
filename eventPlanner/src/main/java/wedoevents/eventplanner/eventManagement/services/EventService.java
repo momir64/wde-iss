@@ -8,6 +8,7 @@ import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
 import wedoevents.eventplanner.eventManagement.models.*;
 import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
 import wedoevents.eventplanner.eventManagement.repositories.EventTypeRepository;
+import wedoevents.eventplanner.shared.models.City;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
 
@@ -59,7 +60,7 @@ public class EventService {
 
         newEvent.setDescription(createEventDTO.getDescription());
         newEvent.setName(createEventDTO.getName());
-        newEvent.setCity(createEventDTO.getCity());
+        newEvent.setCity(new City(createEventDTO.getCity()));
         newEvent.setAddress(createEventDTO.getAddress());
         newEvent.setIsPublic(createEventDTO.getIsPublic());
         newEvent.setDate(createEventDTO.getDate());

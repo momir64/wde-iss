@@ -40,7 +40,7 @@ public class EventComplexViewDTO {
                 event.getDescription(),
                 event.getDate(),
                 event.getTime(),
-                event.getCity(),
+                event.getCity().getName(),
                 event.getAddress(),
                 event.getGuestCount(),
                 event.getIsPublic(),

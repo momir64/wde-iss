@@ -17,7 +17,7 @@ public class ImageService {
     public String saveImageToStorage(MultipartFile imageFile, ImageLocationConfiguration locationConfiguration) throws IOException {
         String uniqueFileName = UUID.randomUUID().toString();
 
-        Path uploadPath = Path.of(imagesPath,locationConfiguration.contentType, locationConfiguration.contentUUID.toString());
+        Path uploadPath = Path.of(imagesPath, locationConfiguration.contentType, locationConfiguration.contentUUID.toString());
         Path filePath = uploadPath.resolve(uniqueFileName);
 
         if (!Files.exists(uploadPath)) {
@@ -30,10 +30,14 @@ public class ImageService {
     }
 
     public Optional<byte[]> getImage(String imageName, ImageLocationConfiguration locationConfiguration) throws IOException {
-        Path imagePath = Path.of(imagesPath, locationConfiguration.contentType, locationConfiguration.contentUUID.toString(), imageName);
+        Path path = Path.of(imagesPath, locationConfiguration.contentType, locationConfiguration.contentUUID.toString());
+        if (locationConfiguration.version != null)
+            path = Path.of(path.toString(), locationConfiguration.version.toString(), imageName);
+        else
+            path = Path.of(path.toString(), imageName);
 
-        if (Files.exists(imagePath)) {
-            return Optional.of(Files.readAllBytes(imagePath));
+        if (Files.exists(path)) {
+            return Optional.of(Files.readAllBytes(path));
         } else {
             return Optional.empty();
         }

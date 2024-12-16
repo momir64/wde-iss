@@ -3,6 +3,7 @@ package wedoevents.eventplanner.eventManagement.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import wedoevents.eventplanner.shared.models.City;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -18,7 +19,10 @@ public class Event {
     @GeneratedValue
     private UUID id;
 
-    private String city;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "city", referencedColumnName = "name")
+    private City city;
+
     private String address;
     private Boolean isPublic;
     private String name;
