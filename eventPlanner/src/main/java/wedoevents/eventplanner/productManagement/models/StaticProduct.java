@@ -18,5 +18,5 @@ public class StaticProduct {
     @ManyToOne
     private ProductCategory productCategory;
 
-    private Boolean pending;
+    private Boolean pending; // todo pending on detailed view pages
 }
