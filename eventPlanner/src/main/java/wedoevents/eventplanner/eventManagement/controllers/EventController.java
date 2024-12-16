@@ -6,12 +6,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
 import wedoevents.eventplanner.eventManagement.services.EventService;
+import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
+import wedoevents.eventplanner.shared.services.imageService.ImageService;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -19,13 +23,13 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/v1/events")
 public class EventController {
-
     private final EventService eventService;
-
+    private final ImageService imageService;
 
     @Autowired
-    public EventController(EventService eventService) {
+    public EventController(EventService eventService, ImageService imageService) {
         this.eventService = eventService;
+        this.imageService = imageService;
     }
 
     // todo when session tracking is enabled, add which organizer created the event
@@ -82,6 +86,25 @@ public class EventController {
             return ResponseEntity.ok(events);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
+
+    @GetMapping(value = "/{id}/images/{image_name}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<?> getProfileImage(@PathVariable("id") UUID id, @PathVariable("image_name") String imageName) {
+        try {
+            ImageLocationConfiguration config = new ImageLocationConfiguration("event", id);
+            Optional<byte[]> image = imageService.getImage(imageName, config);
+            if (image.isEmpty())
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image not found");
+            return ResponseEntity.ok().body(image.get());
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image not found");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }

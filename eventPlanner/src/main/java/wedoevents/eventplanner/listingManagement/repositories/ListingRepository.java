@@ -73,7 +73,7 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                         )
                         select type, id, version, name, description, oldPrice, price, is_available, images, count
                         from ranked
-                        join (select max(rank) as count from ranked) subquery ON true
+                        join (select max(rank) as count from ranked) subquery on true
                         where rank > :page * :size and rank <= (:page + 1) * :size
                    """,
            nativeQuery = true)

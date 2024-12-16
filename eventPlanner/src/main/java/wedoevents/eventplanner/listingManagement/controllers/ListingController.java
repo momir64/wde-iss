@@ -1,18 +1,12 @@
 package wedoevents.eventplanner.listingManagement.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wedoevents.eventplanner.listingManagement.dtos.ListingDTO;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
 import wedoevents.eventplanner.listingManagement.services.ListingService;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -55,28 +49,5 @@ public class ListingController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
-    }
-
-    private List<ListingDTO> buildMockListings(int n) {
-        List<ListingDTO> listings = new ArrayList<>();
-
-        for (int i = 0; i < n; i++) {
-            listings.add(new ListingDTO(
-                    ListingType.values()[i % 2],
-                    UUID.randomUUID(),
-                    i,
-                    String.format("Best listing ever %d", i),
-                    String.format("This is the best listing ever %d!", i),
-                    100 * i + 99.,
-                    i % 3 == 0 ? (100 * i + 99.) * (1.1 + 0.1 * i) : null,
-                    2 + i * 0.9 % 5,
-                    Arrays.asList(String.format("https://picsum.photos/300/20%d", i),
-                                  String.format("https://picsum.photos/301/20%d", i),
-                                  String.format("https://picsum.photos/302/20%d", i)),
-                    true
-            ));
-        }
-
-        return listings;
     }
 }
