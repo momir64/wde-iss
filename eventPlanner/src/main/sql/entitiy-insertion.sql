@@ -277,7 +277,7 @@ VALUES
 INSERT INTO versioned_product (static_product_id, version, is_active, is_available, is_last_version, is_private, name, price, sale_percentage)
 VALUES
     -- FIREWORKS CATEGORY
-    ('5a1b07b8-e918-4b0f-bcd2-7f1fd04dbb26', 1, false, true, true,  false, 'Fountain Fireworks', 130.00, 0.1),
+    ('5a1b07b8-e918-4b0f-bcd2-7f1fd04dbb26', 1, true, true, true,  false, 'Fountain Fireworks', 130.00, 0.1),
     ('b19a7c35-3d60-4fe2-a8b2-e8a2c2741b3b', 1, true, true,  true, false, 'Roman Candles', 200.00, 0.2),
     ('ca97b729-3035-4170-b5f7-83f1e63e9b8a', 1, false, true, true,  true, 'Firework Shells', 1200.00, 0.15),
     ('cefe62ba-b263-4db8-8f4f-3b93ebff25cf', 1, true, false, true,  false, 'Sparklers', 50.00, 0.05),
