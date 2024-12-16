@@ -2,8 +2,6 @@ package wedoevents.eventplanner.eventManagement.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,7 +15,6 @@ import wedoevents.eventplanner.shared.services.imageService.ImageService;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 
 @RestController
@@ -58,8 +55,7 @@ public class EventController {
     @GetMapping("/top")
     public ResponseEntity<?> getTopEvents(@RequestParam(value = "city", required = false) String city) {
         try {
-            List<EventComplexViewDTO> events = buildMockEvents(5);
-            return ResponseEntity.ok(events);
+            return ResponseEntity.ok(eventService.getTopEvents(city));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (Exception e) {
@@ -80,10 +76,7 @@ public class EventController {
                                           @RequestParam(name = "page", defaultValue = "0") int page,
                                           @RequestParam(name = "size", defaultValue = "10") int size) {
         try {
-            Pageable pageable = PageRequest.of(page, size);
-
-            List<EventComplexViewDTO> events = buildMockEvents(10);
-            return ResponseEntity.ok(events);
+            return ResponseEntity.ok(eventService.searchEvents(searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, page, size));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (Exception e) {
@@ -108,41 +101,5 @@ public class EventController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
-    }
-
-    private List<UUID> buildMockUUIDs(int n) {
-        List<UUID> uuids = new ArrayList<>();
-        for (int i = 0; i < n; i++)
-             uuids.add(UUID.randomUUID());
-        return uuids;
-    }
-
-    private List<EventComplexViewDTO> buildMockEvents(int n) {
-        List<EventComplexViewDTO> events = new ArrayList<>();
-
-        for (int i = 0; i < n; i++) {
-            events.add(new EventComplexViewDTO(UUID.randomUUID(),
-                                               String.format("Best party ever %d", i),
-                                               String.format("This will be the best party ever %d!", i),
-                                               LocalDate.now(),
-                                               LocalTime.now(),
-                                               String.format("London %d", i),
-                                               String.format("Big Ben %d", i),
-                                               100 * i,
-                                               false,
-                                               Arrays.asList(String.format("https://picsum.photos/303/20%d", i),
-                                                             String.format("https://picsum.photos/304/20%d", i),
-                                                             String.format("https://picsum.photos/305/20%d", i)),
-                                               UUID.randomUUID(),
-                                               new ArrayList<>(),
-                                               new ArrayList<>(),
-                                               0.0,
-                                               0.0,
-                                               buildMockUUIDs(3),
-                                               2 + i * 0.9 % 5
-            ));
-        }
-
-        return events;
     }
 }

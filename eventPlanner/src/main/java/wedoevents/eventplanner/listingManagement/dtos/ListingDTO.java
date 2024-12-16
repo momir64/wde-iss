@@ -36,7 +36,7 @@ public class ListingDTO {
         this.oldPrice = price.equals(data[5]) ? null : (Double) data[5];
         this.isAvailable = (Boolean) data[7];
         this.images = new ArrayList<>(List.of(String.format("%s/api/v1/%ss/%s/%d/images/%s", baseUrl, ((String) data[0]).toLowerCase(), id, version, data[8])));
-        this.rating = 1.0; // todo
+        this.rating = 0.0; // todo
     }
 
     public static ListingDTO appendImages(ListingDTO from, ListingDTO to) {
