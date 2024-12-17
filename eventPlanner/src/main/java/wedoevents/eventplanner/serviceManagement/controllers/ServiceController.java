@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -12,11 +13,11 @@ import wedoevents.eventplanner.serviceManagement.dtos.CreateVersionedServiceDTO;
 import wedoevents.eventplanner.serviceManagement.dtos.UpdateVersionedServiceDTO;
 import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceDTO;
 import wedoevents.eventplanner.serviceManagement.services.ServiceService;
+import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
+import wedoevents.eventplanner.shared.services.imageService.ImageService;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/services")
@@ -24,6 +25,9 @@ public class ServiceController {
 
     @Autowired
     private ServiceService serviceService;
+
+    @Autowired
+    private ImageService imageService;
 
     @GetMapping(path = "/latest-versions")
     public ResponseEntity<?> getAllServicesWithLatestVersions() {
@@ -64,6 +68,24 @@ public class ServiceController {
         }
     }
 
+    @GetMapping(value = "/{id}/{version}/images/{image_name}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<?> getProfileImage(@PathVariable("id") UUID id, @PathVariable("version") Integer version, @PathVariable("image_name") String imageName) {
+        try {
+            ImageLocationConfiguration config = new ImageLocationConfiguration("service", id, version);
+            Optional<byte[]> image = imageService.getImage(imageName, config);
+            if (image.isEmpty())
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image not found");
+            return ResponseEntity.ok().body(image.get());
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image not found");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
 
     @GetMapping
     public ResponseEntity<?> searchServices(

@@ -2,30 +2,31 @@ package wedoevents.eventplanner.eventManagement.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
 import wedoevents.eventplanner.eventManagement.services.EventService;
+import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
+import wedoevents.eventplanner.shared.services.imageService.ImageService;
 
+import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/events")
 public class EventController {
-
     private final EventService eventService;
-
+    private final ImageService imageService;
 
     @Autowired
-    public EventController(EventService eventService) {
+    public EventController(EventService eventService, ImageService imageService) {
         this.eventService = eventService;
+        this.imageService = imageService;
     }
 
     // todo when session tracking is enabled, add which organizer created the event
@@ -54,8 +55,7 @@ public class EventController {
     @GetMapping("/top")
     public ResponseEntity<?> getTopEvents(@RequestParam(value = "city", required = false) String city) {
         try {
-            List<EventComplexViewDTO> events = buildMockEvents(5);
-            return ResponseEntity.ok(events);
+            return ResponseEntity.ok(eventService.getTopEvents(city));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (Exception e) {
@@ -76,10 +76,7 @@ public class EventController {
                                           @RequestParam(name = "page", defaultValue = "0") int page,
                                           @RequestParam(name = "size", defaultValue = "10") int size) {
         try {
-            Pageable pageable = PageRequest.of(page, size);
-
-            List<EventComplexViewDTO> events = buildMockEvents(10);
-            return ResponseEntity.ok(events);
+            return ResponseEntity.ok(eventService.searchEvents(searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, page, size));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (Exception e) {
@@ -87,39 +84,22 @@ public class EventController {
         }
     }
 
-    private List<UUID> buildMockUUIDs(int n) {
-        List<UUID> uuids = new ArrayList<>();
-        for (int i = 0; i < n; i++)
-             uuids.add(UUID.randomUUID());
-        return uuids;
-    }
-
-    private List<EventComplexViewDTO> buildMockEvents(int n) {
-        List<EventComplexViewDTO> events = new ArrayList<>();
-
-        for (int i = 0; i < n; i++) {
-            events.add(new EventComplexViewDTO(UUID.randomUUID(),
-                                               String.format("Best party ever %d", i),
-                                               String.format("This will be the best party ever %d!", i),
-                                               LocalDate.now(),
-                                               LocalTime.now(),
-                                               String.format("London %d", i),
-                                               String.format("Big Ben %d", i),
-                                               100 * i,
-                                               false,
-                                               Arrays.asList(String.format("https://picsum.photos/303/20%d", i),
-                                                             String.format("https://picsum.photos/304/20%d", i),
-                                                             String.format("https://picsum.photos/305/20%d", i)),
-                                               UUID.randomUUID(),
-                                               new ArrayList<>(),
-                                               new ArrayList<>(),
-                                               0.0,
-                                               0.0,
-                                               buildMockUUIDs(3),
-                                               2 + i * 0.9 % 5
-            ));
+    @GetMapping(value = "/{id}/images/{image_name}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<?> getProfileImage(@PathVariable("id") UUID id, @PathVariable("image_name") String imageName) {
+        try {
+            ImageLocationConfiguration config = new ImageLocationConfiguration("event", id);
+            Optional<byte[]> image = imageService.getImage(imageName, config);
+            if (image.isEmpty())
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image not found");
+            return ResponseEntity.ok().body(image.get());
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image not found");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
-
-        return events;
     }
 }
