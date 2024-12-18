@@ -2,6 +2,10 @@ package wedoevents.eventplanner.userManagement.services;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.userManagement.dtos.ExtendedProfileDTO;
 import wedoevents.eventplanner.userManagement.dtos.UpdateProfileDTO;
@@ -30,21 +34,23 @@ public class ProfileService {
     private final AdminRepository adminRepository;
     private final RoleRepository roleRepository;
     private final EventOrganizerRepository eventOrganizerRepository;
-
+    private PasswordEncoder passwordEncoder;
 
 
 
     @Autowired
-    public ProfileService(ProfileRepository profileRepository, EventOrganizerRepository eventOrganizerRepository, SellerRepository sellerRepository, GuestRepository guestRepository, AdminRepository adminRepository, RoleRepository roleRepository) {
+    public ProfileService(ProfileRepository profileRepository, EventOrganizerRepository eventOrganizerRepository, SellerRepository sellerRepository, GuestRepository guestRepository, AdminRepository adminRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.profileRepository = profileRepository;
         this.eventOrganizerRepository = eventOrganizerRepository;
         this.sellerRepository = sellerRepository;
         this.guestRepository = guestRepository;
         this.adminRepository = adminRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Profile createProfile(Profile profile) {
+        profile.setPassword(passwordEncoder.encode(profile.getPassword()));
         return profileRepository.save(profile);
     }
 
@@ -54,9 +60,11 @@ public class ProfileService {
             Profile profileToUpdate = existingProfile.get();
             // Copy all fields from the input profile to the existing profile
             BeanUtils.copyProperties(profile, profileToUpdate, "id", "email"); // "id" and "email" are excluded to avoid changing primary key fields
+            profileToUpdate.setPassword(passwordEncoder.encode(profile.getPassword()));
             return profileRepository.save(profileToUpdate);
         } else {
             // Create a new profile
+            profile.setPassword(passwordEncoder.encode(profile.getPassword()));
             return profileRepository.save(profile);
         }
     }
@@ -186,6 +194,4 @@ public class ProfileService {
 
         return profileRepository.save(profile);
     }
-
-
 }
