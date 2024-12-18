@@ -7,9 +7,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 import wedoevents.eventplanner.serviceManagement.models.VersionedServiceImage;
+import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
+import wedoevents.eventplanner.shared.services.imageService.ImageService;
 
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -17,14 +21,14 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @AllArgsConstructor
-public class VersionedServiceDTO {
+public class VersionedServiceForSellerDTO {
     private UUID staticServiceId;
     private Integer version;
     private UUID serviceCategoryId;
 
     private String name;
-    private Double oldPrice;
-    private List<String> images;
+    private Double salePercentage;
+    private List<byte[]> images;
     private String description;
     private Boolean isPrivate;
     private Boolean isAvailable;
@@ -38,20 +42,22 @@ public class VersionedServiceDTO {
 
     private List<UUID> availableEventTypeIds;
 
-    public static VersionedServiceDTO toDto(VersionedService versionedService) {
-        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).build().toUriString();
+    public static VersionedServiceForSellerDTO toDto(VersionedService versionedService, ImageService imageService) throws IOException {
+        List<byte[]> images = new ArrayList<>();
 
-        return new VersionedServiceDTO(
+        for (String image : versionedService.getImages()) {
+            images.add(imageService.getImage(image, new ImageLocationConfiguration(
+                    "service", versionedService.getStaticServiceId(), versionedService.getVersion())
+            ).get());
+        }
+
+        return new VersionedServiceForSellerDTO(
                 versionedService.getStaticServiceId(),
                 versionedService.getVersion(),
                 versionedService.getStaticService().getServiceCategory().getId(),
                 versionedService.getName(),
-                versionedService.getSalePercentage() != null ? versionedService.getPrice() : null,
-                versionedService.getImages()
-                        .stream()
-                        .map(uniqName -> String.format("%s/api/v1/services/%s/%d/images/%s", baseUrl, versionedService.getStaticServiceId(), versionedService.getVersion(), uniqName))
-                        .sorted()
-                        .toList(),
+                versionedService.getSalePercentage(),
+                images,
                 versionedService.getDescription(),
                 versionedService.getIsPrivate(),
                 versionedService.getIsAvailable(),
@@ -59,7 +65,7 @@ public class VersionedServiceDTO {
                 versionedService.getReservationDeadline(),
                 versionedService.getIsActive(),
                 versionedService.getIsConfirmationManual(),
-                versionedService.getSalePercentage() != null ? (1 - versionedService.getSalePercentage()) * versionedService.getPrice() : null,
+                versionedService.getPrice(),
                 versionedService.getMinimumDuration(),
                 versionedService.getMaximumDuration(),
                 versionedService.getAvailableEventTypes().stream().map(EventType::getId).toList()

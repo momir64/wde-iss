@@ -2,10 +2,10 @@ package wedoevents.eventplanner.serviceManagement.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,6 +13,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @IdClass(VersionedServiceId.class)
+@NoArgsConstructor
 public class VersionedService {
 
     @Id
@@ -32,7 +33,6 @@ public class VersionedService {
 
     private Boolean isPrivate;
     private Boolean isAvailable;
-    private int duration;
 
     private Integer cancellationDeadline;
     private Integer reservationDeadline;
@@ -40,6 +40,9 @@ public class VersionedService {
     private Boolean isActive;
     private Boolean isConfirmationManual;
     private Boolean isLastVersion;
+
+    private Integer minimumDuration;
+    private Integer maximumDuration;
 
     @MapsId("static_service_id")
     @JoinColumns({
@@ -58,5 +61,11 @@ public class VersionedService {
 
     public void incrementVersion() {
         this.version += 1;
+    }
+
+    public VersionedService(VersionedService from) {
+        this.staticServiceId = from.staticServiceId;
+        this.staticService = from.staticService;
+        this.version = from.version;
     }
 }

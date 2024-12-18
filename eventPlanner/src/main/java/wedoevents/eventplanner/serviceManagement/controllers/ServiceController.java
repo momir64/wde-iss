@@ -2,16 +2,16 @@ package wedoevents.eventplanner.serviceManagement.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
-import wedoevents.eventplanner.serviceManagement.dtos.CreateVersionedServiceDTO;
+import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.serviceManagement.dtos.UpdateVersionedServiceDTO;
+import wedoevents.eventplanner.serviceManagement.dtos.CreateVersionedServiceDTO;
 import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceDTO;
+import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceForSellerDTO;
 import wedoevents.eventplanner.serviceManagement.services.ServiceService;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
@@ -43,9 +43,10 @@ public class ServiceController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createService(@RequestBody CreateVersionedServiceDTO createVersionedServiceEntityDTO) {
+    public ResponseEntity<?> createService(@RequestParam(value = "images") MultipartFile[] images,
+                                           @ModelAttribute CreateVersionedServiceDTO createVersionedServiceDTO) {
         try {
-            VersionedServiceDTO newService = serviceService.createService(createVersionedServiceEntityDTO);
+            VersionedServiceDTO newService = serviceService.createService(createVersionedServiceDTO, images);
             return ResponseEntity.status(HttpStatus.CREATED).body(newService);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
@@ -55,10 +56,25 @@ public class ServiceController {
     }
 
     @PutMapping
-    public ResponseEntity<?> updateService(@RequestBody UpdateVersionedServiceDTO updateVersionedServiceEntityDTO) {
+    public ResponseEntity<?> updateService(@RequestParam(value = "images") MultipartFile[] images,
+                                           @ModelAttribute UpdateVersionedServiceDTO updateVersionedServiceEntityDTO) {
         try {
-            VersionedServiceDTO updatedService = serviceService.updateVersionedService(updateVersionedServiceEntityDTO);
+            VersionedServiceDTO updatedService = serviceService.updateVersionedService(updateVersionedServiceEntityDTO, images);
             return ResponseEntity.ok(updatedService);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
+
+    @GetMapping("/{staticServiceId}/latest-version/edit")
+    public ResponseEntity<?> getServiceLatestVersionEditableById(@PathVariable UUID staticServiceId) {
+        try {
+            VersionedServiceForSellerDTO service = serviceService.getVersionedServiceEditableById(staticServiceId);
+            return ResponseEntity.ok(service);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (EntityNotFoundException e) {
@@ -87,27 +103,6 @@ public class ServiceController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<?> searchServices(
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "category", required = false) UUID serviceCategoryId,
-            @RequestParam(value = "eventType", required = false) UUID eventTypeId,
-            @RequestParam(value = "minPrice", required = false) Double minPrice,
-            @RequestParam(value = "maxPrice", required = false) Double maxPrice,
-            @RequestParam(value = "isAvailable", required = false) Boolean isAvailable,
-            @RequestParam(value = "description", required = false) String description,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            // call search latest service versions service
-            List<VersionedServiceDTO> services = buildMockServices();
-            return ResponseEntity.ok(services);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
-        }
-    }
-
     @GetMapping("/{staticServiceId}/latest-version")
     public ResponseEntity<?> getServiceLatestVersionById(@PathVariable UUID staticServiceId) {
         try {
@@ -130,8 +125,8 @@ public class ServiceController {
             return ResponseEntity.ok(service);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
-//        } catch (ProductNotFoundException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Service not found");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Service not found");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
@@ -141,79 +136,16 @@ public class ServiceController {
     public ResponseEntity<?> deleteService(@PathVariable UUID staticServiceId) {
         try {
             serviceService.deactivateService(staticServiceId);
-            return ResponseEntity.ok("Service archived successfully");
+            return ResponseEntity.ok("{}");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (HttpClientErrorException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to archive service");
-//        } catch (ProductNotFoundException e){
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Service not found");
+        } catch (EntityNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Service not found");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
-    }
-
-    public List<VersionedServiceDTO> buildMockServices() {
-        List<VersionedServiceDTO> services = new ArrayList<>();
-
-        services.add(new VersionedServiceDTO(
-                UUID.randomUUID(),
-                1,
-                UUID.randomUUID(),
-                "Service A",
-                10.0,
-                Arrays.asList("image1.jpg", "image2.jpg"),
-                "Description for Service A",
-                false,
-                true,
-                60,
-                24,
-                48,
-                true,
-                false,
-                99.99,
-                Arrays.asList(UUID.randomUUID(), UUID.randomUUID())
-        ));
-
-        services.add(new VersionedServiceDTO(
-                UUID.randomUUID(),
-                1,
-                UUID.randomUUID(),
-                "Service B",
-                15.0,
-                List.of("image3.jpg"),
-                "Description for Service B",
-                true,
-                false,
-                120,
-                48,
-                72,
-                true,
-                true,
-                199.99,
-                List.of(UUID.randomUUID())
-        ));
-
-        services.add(new VersionedServiceDTO(
-                UUID.randomUUID(),
-                1,
-                UUID.randomUUID(),
-                "Service C",
-                5.0,
-                Arrays.asList("image4.jpg", "image5.jpg"),
-                "Description for Service C",
-                false,
-                true,
-                30,
-                12,
-                24,
-                false,
-                false,
-                49.99,
-                Arrays.asList(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID())
-        ));
-
-        return services;
     }
 
     @GetMapping(path = "/catalogue/{id}")
@@ -227,21 +159,6 @@ public class ServiceController {
 //        }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
-        }
-    }
-
-    @PutMapping(path = "/catalogue")
-    public ResponseEntity<?> updateServices(@RequestBody List<UpdateVersionedServiceDTO> updateVersionedServiceDTOs) {
-        try {
-            List<VersionedServiceDTO> updatedServices = serviceService.updateVersionedServices(updateVersionedServiceDTOs);
-            return ResponseEntity.ok(updatedServices);
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
-//        }
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("An unexpected error occurred");
         }
     }
 }

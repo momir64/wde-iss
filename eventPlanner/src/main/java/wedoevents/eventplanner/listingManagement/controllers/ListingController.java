@@ -19,6 +19,7 @@ public class ListingController {
         this.listingService = listingService;
     }
 
+    // todo: don't get listings that are deleted / private
     @GetMapping("/top")
     public ResponseEntity<?> getTopListings(@RequestParam(value = "city", required = false) String city) {
         try {
@@ -30,6 +31,7 @@ public class ListingController {
         }
     }
 
+    // todo: don't get listings that are deleted / private
     @GetMapping
     public ResponseEntity<?> searchListings(@RequestParam(value = "searchTerms", required = false) String searchTerms,
                                             @RequestParam(value = "type", required = false) ListingType type,
