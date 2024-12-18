@@ -35,6 +35,7 @@ public class ListingService {
             else if (sortBy != null && sortBy.equalsIgnoreCase("price"))
                 listings.sort(Comparator.comparing(ListingDTO::getPrice).reversed());
         }
+        listings.forEach(listing -> listing.getImages().sort(String::compareTo));
         int totalPages = data.isEmpty() ? 1 : (int) Math.ceil((double) (Long) data.get(0)[data.get(0).length - 1] / size);
         return Map.of("totalPages", totalPages, "content", listings);
     }
