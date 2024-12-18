@@ -22,12 +22,14 @@ public class VersionedService {
     private Integer version;
 
     private String name;
+    private String description;
+
+    private Double price;
     private Double salePercentage;
 
     @ElementCollection
     private List<String> images;
 
-    private String description;
     private Boolean isPrivate;
     private Boolean isAvailable;
     private int duration;
@@ -37,9 +39,6 @@ public class VersionedService {
 
     private Boolean isActive;
     private Boolean isConfirmationManual;
-
-    private Double price;
-
     private Boolean isLastVersion;
 
     @MapsId("static_service_id")

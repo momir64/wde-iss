@@ -2,18 +2,25 @@ package wedoevents.eventplanner.eventManagement.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
 import wedoevents.eventplanner.eventManagement.models.*;
 import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
 import wedoevents.eventplanner.eventManagement.repositories.EventTypeRepository;
+import wedoevents.eventplanner.shared.models.City;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -32,9 +39,24 @@ public class EventService {
 
     public List<EventComplexViewDTO> getEventsFromOrganizer(UUID eventOrganizerId) {
         return eventOrganizerRepository.getMyEventsById(eventOrganizerId)
-                .stream()
-                .map(EventComplexViewDTO::toDto)
-                .toList();
+                                       .stream()
+                                       .map(EventComplexViewDTO::new)
+                                       .toList();
+    }
+
+    public Page<EventComplexViewDTO> searchEvents(String searchTerms, String city, UUID eventTypeId, Double minRating, Double maxRating,
+                                                  LocalDate dateRangeStart, LocalDate dateRangeEnd, String sortBy, String order, int page, int size) {
+        Pageable pageable;
+        if (sortBy != null && (sortBy.equals("name") || sortBy.equals("date")))
+            pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order != null ? order : "ASC"), sortBy));
+        else
+            pageable = PageRequest.of(page, size);
+        Page<Event> eventPage = eventRepository.searchEvents(searchTerms, city, eventTypeId, dateRangeStart, dateRangeEnd, pageable);
+        return eventPage.map(EventComplexViewDTO::new);
+    }
+
+    public List<EventComplexViewDTO> getTopEvents(String city) {
+        return eventRepository.getTopEvents(city).stream().map(EventComplexViewDTO::new).collect(Collectors.toList());
     }
 
     public EventComplexViewDTO createEvent(CreateEventDTO createEventDTO) {
@@ -59,7 +81,7 @@ public class EventService {
 
         newEvent.setDescription(createEventDTO.getDescription());
         newEvent.setName(createEventDTO.getName());
-        newEvent.setCity(createEventDTO.getCity());
+        newEvent.setCity(new City(createEventDTO.getCity()));
         newEvent.setAddress(createEventDTO.getAddress());
         newEvent.setIsPublic(createEventDTO.getIsPublic());
         newEvent.setDate(createEventDTO.getDate());
@@ -71,7 +93,7 @@ public class EventService {
         eventOrganizer.getMyEvents().add(createdEvent);
         eventOrganizerRepository.save(eventOrganizer);
 
-        return EventComplexViewDTO.toDto(createdEvent);
+        return new EventComplexViewDTO(createdEvent);
     }
 
     public Optional<Event> getEventById(UUID id) {

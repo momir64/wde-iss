@@ -19,5 +19,5 @@ public class StaticService {
     @ManyToOne
     private ServiceCategory serviceCategory;
 
-    private Boolean pending;
+    private Boolean pending; // todo pending on detailed view pages
 }

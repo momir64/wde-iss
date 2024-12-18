@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import wedoevents.eventplanner.shared.models.City;
 import wedoevents.eventplanner.userManagement.dtos.ExtendedProfileDTO;
 import wedoevents.eventplanner.userManagement.dtos.UpdateProfileDTO;
 import wedoevents.eventplanner.userManagement.models.Profile;
@@ -119,7 +120,7 @@ public class ProfileService {
         sellerRepository.findByProfile(profile).ifPresent(seller -> {
             dto.setName(seller.getName());
             dto.setSurname(seller.getSurname());
-            dto.setCity(seller.getCity());
+            dto.setCity(seller.getCity().getName());
             dto.setAddress(seller.getAddress());
             dto.setTelephoneNumber(seller.getTelephoneNumber());
             dto.setDescription(seller.getDescription());
@@ -130,7 +131,7 @@ public class ProfileService {
             eventOrganizerRepository.findByProfile(profile).ifPresent(organizer -> {
                 dto.setName(organizer.getName());
                 dto.setSurname(organizer.getSurname());
-                dto.setCity(organizer.getCity());
+                dto.setCity(organizer.getCity().getName());
                 dto.setAddress(organizer.getAddress());
                 dto.setTelephoneNumber(organizer.getTelephoneNumber());
                 dto.setUserType(UserType.EVENTORGANIZER);
@@ -162,7 +163,7 @@ public class ProfileService {
         sellerRepository.findByProfile(profile).ifPresent(seller -> {
             seller.setName(updateDto.getName());
             seller.setSurname(updateDto.getSurname());
-            seller.setCity(updateDto.getCity());
+            seller.setCity(new City(updateDto.getCity()));
             seller.setAddress(updateDto.getAddress());
             seller.setTelephoneNumber(updateDto.getTelephoneNumber());
             seller.setDescription(updateDto.getDescription());
@@ -172,7 +173,7 @@ public class ProfileService {
         eventOrganizerRepository.findByProfile(profile).ifPresent(organizer -> {
             organizer.setName(updateDto.getName());
             organizer.setSurname(updateDto.getSurname());
-            organizer.setCity(updateDto.getCity());
+            organizer.setCity(new City(updateDto.getCity()));
             organizer.setAddress(updateDto.getAddress());
             organizer.setTelephoneNumber(updateDto.getTelephoneNumber());
             eventOrganizerRepository.save(organizer);

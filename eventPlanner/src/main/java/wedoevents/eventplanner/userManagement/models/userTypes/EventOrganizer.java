@@ -6,6 +6,7 @@ import lombok.Setter;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.productManagement.models.StaticProduct;
 import wedoevents.eventplanner.serviceManagement.models.StaticService;
+import wedoevents.eventplanner.shared.models.City;
 import wedoevents.eventplanner.userManagement.models.Profile;
 
 import java.util.List;
@@ -21,13 +22,15 @@ public class EventOrganizer {
 
     private String name;
     private String surname;
-    private String city;
     private String address;
     private String telephoneNumber;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "city", referencedColumnName = "name")
+    private City city;
+
     @OneToOne(optional = false)
     private Profile profile;
-
 
     @ManyToMany
     @JoinTable(

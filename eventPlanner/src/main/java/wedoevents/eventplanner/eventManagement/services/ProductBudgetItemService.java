@@ -83,7 +83,7 @@ public class ProductBudgetItemService {
 
         VersionedProduct versionedProduct = versionedProductMaybe.get();
 
-        if (!versionedProduct.getIsActive() || !versionedProduct.getIsPrivate() || !versionedProduct.getIsAvailable()) {
+        if (!versionedProduct.getIsActive() || versionedProduct.getIsPrivate() || !versionedProduct.getIsAvailable()) {
             throw new BuyProductException("Can't buy product that is not visible to you");
         }
 

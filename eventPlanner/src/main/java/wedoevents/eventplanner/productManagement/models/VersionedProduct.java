@@ -20,13 +20,14 @@ public class VersionedProduct {
     private Integer version;
 
     private String name;
+    private String description;
 
     private Double price;
+    private Double salePercentage;
 
     @ElementCollection
     private List<String> images;
 
-    private Double salePercentage;
     private Boolean isActive;
     private Boolean isAvailable;
     private Boolean isPrivate;

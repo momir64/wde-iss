@@ -2,7 +2,7 @@ package wedoevents.eventplanner.userManagement.dtos;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
+import wedoevents.eventplanner.shared.models.City;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.UserType;
 import wedoevents.eventplanner.userManagement.models.userTypes.*;
@@ -40,7 +40,7 @@ public class CreateProfileDTO {
                 EventOrganizer eventOrganizer = new EventOrganizer();
                 eventOrganizer.setName(this.name);
                 eventOrganizer.setSurname(this.surname);
-                eventOrganizer.setCity(this.city);
+                eventOrganizer.setCity(new City(this.city));
                 eventOrganizer.setAddress(this.address);
                 eventOrganizer.setTelephoneNumber(this.telephoneNumber);
                 eventOrganizer.setProfile(profile);
@@ -53,7 +53,7 @@ public class CreateProfileDTO {
                 Seller seller = new Seller();
                 seller.setName(this.name);
                 seller.setSurname(this.surname);
-                seller.setCity(this.city);
+                seller.setCity(new City(this.city));
                 seller.setAddress(this.address);
                 seller.setTelephoneNumber(this.telephoneNumber);
                 seller.setProfile(profile);
