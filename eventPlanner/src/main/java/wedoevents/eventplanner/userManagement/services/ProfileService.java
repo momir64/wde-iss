@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.userManagement.dtos.ExtendedProfileDTO;
 import wedoevents.eventplanner.userManagement.dtos.UpdateProfileDTO;
 import wedoevents.eventplanner.userManagement.models.Profile;
+import wedoevents.eventplanner.userManagement.models.Role;
 import wedoevents.eventplanner.userManagement.models.UserType;
 import wedoevents.eventplanner.userManagement.repositories.ProfileRepository;
+import wedoevents.eventplanner.userManagement.repositories.RoleRepository;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.AdminRepository;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.GuestRepository;
@@ -26,18 +28,20 @@ public class ProfileService {
     private final SellerRepository sellerRepository;
     private final GuestRepository guestRepository;
     private final AdminRepository adminRepository;
+    private final RoleRepository roleRepository;
     private final EventOrganizerRepository eventOrganizerRepository;
 
 
 
 
     @Autowired
-    public ProfileService(ProfileRepository profileRepository, EventOrganizerRepository eventOrganizerRepository, SellerRepository sellerRepository, GuestRepository guestRepository, AdminRepository adminRepository) {
+    public ProfileService(ProfileRepository profileRepository, EventOrganizerRepository eventOrganizerRepository, SellerRepository sellerRepository, GuestRepository guestRepository, AdminRepository adminRepository, RoleRepository roleRepository) {
         this.profileRepository = profileRepository;
         this.eventOrganizerRepository = eventOrganizerRepository;
         this.sellerRepository = sellerRepository;
         this.guestRepository = guestRepository;
         this.adminRepository = adminRepository;
+        this.roleRepository = roleRepository;
     }
 
     public Profile createProfile(Profile profile) {
@@ -171,8 +175,12 @@ public class ProfileService {
         return getExtendedProfileById(profileId);
     }
     public Profile createEmptyProfile(String email) {
+        Optional<Role> role = roleRepository.findByName("ROLE_GUEST");
         Profile profile = new Profile();
-        profile.BuildProfile(email, "Password123!", true, false, false);
+        if(role.isEmpty()){
+            return profile;
+        }
+        profile.BuildProfile(email, "Password123!", true, false, false, role.get());
 
         profile.setBlockedUsers(new ArrayList<>());
 

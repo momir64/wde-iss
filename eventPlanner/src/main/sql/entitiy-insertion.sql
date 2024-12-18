@@ -62,36 +62,44 @@ END;
 $$ LANGUAGE plpgsql;
 SELECT truncate_tables();
 
+-- ROLES
+INSERT INTO role (id,name)
+VALUES
+    ('6e569715-d341-4431-8370-d7516907d2e2','ROLE_ORGANIZER'),
+    ('9150703f-0449-40e1-b1fb-f0cb0a31b7b0','ROLE_GUEST'),
+    ('4e3484cf-382f-448d-a1db-1c1063ab41ee','ROLE_SELLER'),
+    ('7ed06959-1018-406f-b3c1-2e91c08daa07','ROLE_ADMIN')
+
 -- PROFILE
-INSERT INTO profile (id, are_notifications_muted, email, is_active, is_verified, password)
+INSERT INTO profile (id, are_notifications_muted, email, is_active, is_verified, password,role_id)
 VALUES
     -- PROFILES OF ADMINS
-    ('7a92c4d7-8742-4a25-aee8-750ca987b42e', true, 'john.doe@example.com', true, true, '123'),
-    ('b2d2e1f0-06ae-4b0f-9cd0-7b5b31b1e9fe', false, 'alice.lee@example.com', true, true, '123'),
+    ('7a92c4d7-8742-4a25-aee8-750ca987b42e', true, 'john.doe@example.com', true, true, '123','7ed06959-1018-406f-b3c1-2e91c08daa07'),
+    ('b2d2e1f0-06ae-4b0f-9cd0-7b5b31b1e9fe', false, 'alice.lee@example.com', true, true, '123','7ed06959-1018-406f-b3c1-2e91c08daa07'),
 
     -- PROFILES OF EVENT ORGANIZERS
-    ('3d82e9b8-3d9b-4c7d-b244-1e6725b78456', false, 'jane.smith@example.com', true, true, '123'),
-    ('91c1e927-9f79-44f4-b12f-bcbf16b16c6f', true, 'mark.jones@example.com', true, true, '123'),
-    ('a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', false, 'susan.brown@example.com', true, true, '123'),
-    ('0cd13f4e-f7de-4533-9071-c42b7b3b4d45', true, 'tom.williams@example.com', true, true, '1233'),
+    ('3d82e9b8-3d9b-4c7d-b244-1e6725b78456', false, 'jane.smith@example.com', true, true, '123','6e569715-d341-4431-8370-d7516907d2e2'),
+    ('91c1e927-9f79-44f4-b12f-bcbf16b16c6f', true, 'mark.jones@example.com', true, true, '123','6e569715-d341-4431-8370-d7516907d2e2'),
+    ('a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', false, 'susan.brown@example.com', true, true, '123','6e569715-d341-4431-8370-d7516907d2e2'),
+    ('0cd13f4e-f7de-4533-9071-c42b7b3b4d45', true, 'tom.williams@example.com', true, true, '1233','6e569715-d341-4431-8370-d7516907d2e2'),
 
     -- PROFILES OF SELLERS
-    ('e852c4ff-3d2b-47ea-b1fd-e711cf18b1d7', false, 'emily.davis@example.com', true, true, '123'),
-    ('fddde66f-9b84-4bb8-b408-eae5b815ae69', true, 'robert.martin@example.com', true, true, '123'),
-    ('db48e7ac-1d35-4d9d-8e09-bf2e86533b91', false, 'lily.martinez@example.com', true, true, '123'),
-    ('8bc76c7b-fc9d-469b-a7b1-2d2291d9a9b6', true, 'samuel.jackson@example.com', true, true, '123'),
+    ('e852c4ff-3d2b-47ea-b1fd-e711cf18b1d7', false, 'emily.davis@example.com', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee'),
+    ('fddde66f-9b84-4bb8-b408-eae5b815ae69', true, 'robert.martin@example.com', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee'),
+    ('db48e7ac-1d35-4d9d-8e09-bf2e86533b91', false, 'lily.martinez@example.com', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee'),
+    ('8bc76c7b-fc9d-469b-a7b1-2d2291d9a9b6', true, 'samuel.jackson@example.com', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee'),
 
     -- PROFILES OF GUESTS
-    ('9a4531e5-2fda-42bc-8355-d7991bfc8ff4', true, 'john.smith@example.com', true, true, '123'),
-    ('0d1f5f7a-6fcf-42d9-82fe-0090a35ea88c', false, 'grace.perez@example.com', true, true, '123'),
-    ('679eb520-7b8d-4c3a-b99f-720e6cfb759b', true, 'oliver.harris@example.com', true, true, '123'),
-    ('4d7248cb-d5f2-4e9b-9eb2-b8ad1de05bcf', false, 'mia.rodriguez@example.com', true, true, '123'),
-    ('27e8a1b2-4d23-4b6f-b5a5-79a76d6b758e', true, 'jason.wilson@example.com', true, true, '123'),
-    ('542c3a1b-ffea-421d-b967-7d45968c6506', false, 'sophia.morris@example.com', true, true, '123'),
-    ('05fdc5be-d59b-468e-8466-d951a4a8d457', true, 'daniel.clark@example.com', true, true, '123'),
-    ('03b88b74-0797-4f35-b15f-ff2a3c3e5c88', false, 'isabella.wright@example.com', true, true, '123'),
-    ('70c7425e-c5f0-44f0-9e9d-44e4087fce62', true, 'ethan.king@example.com', true, true, '123'),
-    ('5a72482a-cd36-46e4-8c09-7b2ff1e22071', false, 'madison.green@example.com', true, true, '123');
+    ('9a4531e5-2fda-42bc-8355-d7991bfc8ff4', true, 'john.smith@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0'),
+    ('0d1f5f7a-6fcf-42d9-82fe-0090a35ea88c', false, 'grace.perez@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0'),
+    ('679eb520-7b8d-4c3a-b99f-720e6cfb759b', true, 'oliver.harris@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0'),
+    ('4d7248cb-d5f2-4e9b-9eb2-b8ad1de05bcf', false, 'mia.rodriguez@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0'),
+    ('27e8a1b2-4d23-4b6f-b5a5-79a76d6b758e', true, 'jason.wilson@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0'),
+    ('542c3a1b-ffea-421d-b967-7d45968c6506', false, 'sophia.morris@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0'),
+    ('05fdc5be-d59b-468e-8466-d951a4a8d457', true, 'daniel.clark@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0'),
+    ('03b88b74-0797-4f35-b15f-ff2a3c3e5c88', false, 'isabella.wright@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0'),
+    ('70c7425e-c5f0-44f0-9e9d-44e4087fce62', true, 'ethan.king@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0'),
+    ('5a72482a-cd36-46e4-8c09-7b2ff1e22071', false, 'madison.green@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0');
 
 INSERT INTO profile_blocked_users (profile_id, blocked_user_id)
 VALUES

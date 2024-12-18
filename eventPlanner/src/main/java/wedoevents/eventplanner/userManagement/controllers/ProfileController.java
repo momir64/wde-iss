@@ -14,10 +14,13 @@ import wedoevents.eventplanner.userManagement.dtos.CreateProfileDTO;
 import wedoevents.eventplanner.userManagement.dtos.UpdateProfileDTO;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.RegistrationAttempt;
+import wedoevents.eventplanner.userManagement.models.Role;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
+import wedoevents.eventplanner.userManagement.repositories.RoleRepository;
 import wedoevents.eventplanner.userManagement.services.ProfileService;
 import wedoevents.eventplanner.userManagement.services.RegistrationAttemptService;
+import wedoevents.eventplanner.userManagement.services.RoleService;
 import wedoevents.eventplanner.userManagement.services.UserService;
 import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
 import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
@@ -44,9 +47,10 @@ public class ProfileController {
     private final IEmailService emailService;
     private final GenericResponseService responseBuilder;
     private final ImageService imageService;
+    private final RoleService roleService;
 
     @Autowired
-    public ProfileController(ProfileService profileService, EventOrganizerService eventOrganizerService, SellerService sellerService, GuestService guestService, ImageService imageService,
+    public ProfileController(ProfileService profileService, EventOrganizerService eventOrganizerService, SellerService sellerService, GuestService guestService, ImageService imageService, RoleService roleService,
                              RegistrationAttemptService registrationAttemptService, UserService userService, @Qualifier("sendGridEmailService") IEmailService emailService, GenericResponseService responseBuilder) {
         this.profileService = profileService;
         this.eventOrganizerService = eventOrganizerService;
@@ -57,6 +61,7 @@ public class ProfileController {
         this.emailService = emailService;
         this.responseBuilder = responseBuilder;
         this.imageService = imageService;
+        this.roleService = roleService;
     }
 
 
@@ -138,7 +143,11 @@ public class ProfileController {
 
         // add/update the profile
         Profile profile = new Profile();
-        profile.BuildProfile(createProfileDTO.getEmail(),createProfileDTO.getPassword(),true,createProfileDTO.isAreNotificationsMuted(),false);
+        Optional<Role> role = roleService.getRole(createProfileDTO.createRoleName());
+        if(role.isEmpty()){
+            return ResponseEntity.badRequest().body(null); // Unknown role
+        }
+        profile.BuildProfile(createProfileDTO.getEmail(),createProfileDTO.getPassword(),true,createProfileDTO.isAreNotificationsMuted(),false, role.get());
 
 
         profile = profileService.createOrUpdateProfile(profile);
