@@ -52,4 +52,27 @@ public class ListingController {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
+
+    // todo: don't get listings that are deleted
+    @GetMapping("/{sellerId}")
+    public ResponseEntity<?> searchListingsForSeller(@PathVariable UUID sellerId,
+                                                     @RequestParam(value = "searchTerms", required = false) String searchTerms,
+                                                     @RequestParam(value = "type", required = false) ListingType type,
+                                                     @RequestParam(value = "category", required = false) UUID category,
+                                                     @RequestParam(value = "minPrice", required = false) Double minPrice,
+                                                     @RequestParam(value = "maxPrice", required = false) Double maxPrice,
+                                                     @RequestParam(value = "minRating", required = false) Double minRating,
+                                                     @RequestParam(value = "maxRating", required = false) Double maxRating,
+                                                     @RequestParam(required = false) String sortBy,
+                                                     @RequestParam(defaultValue = "asc", required = false) String order,
+                                                     @RequestParam(name = "page", defaultValue = "0") int page,
+                                                     @RequestParam(name = "size", defaultValue = "10") int size) {
+        try {
+            return ResponseEntity.ok(listingService.getListingsFromSeller(sellerId, searchTerms, type, category, minPrice, maxPrice, minRating, maxRating, sortBy, order, page, size));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
 }
