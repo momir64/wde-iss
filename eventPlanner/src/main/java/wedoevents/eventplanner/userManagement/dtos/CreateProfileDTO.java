@@ -21,6 +21,15 @@ public class CreateProfileDTO {
     private String address;
     private String telephoneNumber;
 
+    public String createRoleName(){
+        return switch (userType) {
+            case ADMIN -> "ROLE_ADMIN";
+            case SELLER -> "ROLE_SELLER";
+            case EVENTORGANIZER -> "ROLE_ORGANIZER";
+            default -> "ROLE_GUEST";
+        };
+    }
+
     public Object createUserEntity(Profile profile) {
         switch (userType) {
             case ADMIN:

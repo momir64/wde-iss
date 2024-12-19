@@ -3,6 +3,7 @@ package wedoevents.eventplanner.notificationManagement.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.notificationManagement.dtos.NotificationDTO;
 import wedoevents.eventplanner.notificationManagement.models.Notification;
@@ -12,6 +13,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.security.access.annotation.Secured;
+
 
 @RestController
 @RequestMapping("/api/v1/notifications")
