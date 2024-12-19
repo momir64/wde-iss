@@ -132,7 +132,7 @@ public class ProductService {
         List<String> imageNames = new ArrayList<>();
         for (MultipartFile imageFile : images) {
             imageNames.add(imageService.saveImageToStorage(imageFile, new ImageLocationConfiguration(
-                            "service",
+                            "product",
                             newMatchingStaticProduct.getStaticProductId(),
                             1
                     )
@@ -185,7 +185,7 @@ public class ProductService {
         List<String> imageNames = new ArrayList<>();
         for (MultipartFile imageFile : images) {
             imageNames.add(imageService.saveImageToStorage(imageFile, new ImageLocationConfiguration(
-                            "service",
+                            "product",
                             updateVersionedProductDTO.getStaticProductId(),
                     oldVersionOfVersionedProduct.getVersion() + 1
                     )
@@ -194,7 +194,7 @@ public class ProductService {
         newVersionedProduct.setImages(imageNames);
 
         // todo: do backend checks on UUIDs of event types
-        return VersionedProductDTO.toDto(incrementProductVersionAndSave(newVersionedProduct));
+        return VersionedProductDTO.toDto(versionedProductRepository.save(newVersionedProduct));
     }
 
     public VersionedProductDTO getVersionedProductById(UUID staticProductId) {
