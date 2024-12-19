@@ -39,4 +39,23 @@ public class ListingService {
         int totalPages = data.isEmpty() ? 1 : (int) Math.ceil((double) (Long) data.get(0)[data.get(0).length - 1] / size);
         return Map.of("totalPages", totalPages, "content", listings);
     }
+
+    public Map<String, Object> getListingsFromSeller(UUID sellerId, String searchTerms, ListingType type, UUID category, Double minPrice, Double maxPrice, Double minRating, Double maxRating, String sortBy, String order, int page, int size) {
+        List<Object[]> data = listingRepository.getListingsFromSeller(sellerId, searchTerms, type == null ? null : type.toString(), category, minPrice, maxPrice, sortBy, order, page, size);
+        List<ListingDTO> listings = data.stream().map(ListingDTO::new).toList();
+        listings = new ArrayList<>(listings.stream().collect(Collectors.toMap(ListingDTO::getId, Function.identity(), ListingDTO::appendImages)).values());
+        if (order != null && order.equalsIgnoreCase("asc")) {
+            if (sortBy != null && sortBy.equalsIgnoreCase("name"))
+                listings.sort(Comparator.comparing(ListingDTO::getName));
+            else if (sortBy != null && sortBy.equalsIgnoreCase("price"))
+                listings.sort(Comparator.comparing(ListingDTO::getPrice));
+        } else if (order != null && order.equalsIgnoreCase("desc")) {
+            if (sortBy != null && sortBy.equalsIgnoreCase("name"))
+                listings.sort(Comparator.comparing(ListingDTO::getName).reversed());
+            else if (sortBy != null && sortBy.equalsIgnoreCase("price"))
+                listings.sort(Comparator.comparing(ListingDTO::getPrice).reversed());
+        }
+        int totalPages = data.isEmpty() ? 1 : (int) Math.ceil((double) (Long) data.get(0)[data.get(0).length - 1] / size);
+        return Map.of("totalPages", totalPages, "content", listings);
+    }
 }

@@ -87,30 +87,6 @@ public class ProductController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<?> searchProducts( @RequestParam(value = "name", required = false) String name,
-                                             @RequestParam(value = "category", required = false) UUID categoryId,
-                                             @RequestParam(value = "eventType", required = false) UUID eventTypeId,
-                                             @RequestParam(value = "minPrice", required = false) Double minPrice,
-                                             @RequestParam(value = "maxPrice", required = false) Double maxPrice,
-                                             @RequestParam(value = "isAvailable", required = false) Boolean isAvailable,
-                                             @RequestParam(value = "description", required = false) String description,
-                                             @RequestParam(name = "page", defaultValue = "0") int page,
-                                             @RequestParam(name = "size", defaultValue = "10") int size) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            //call search latest product versions service
-            List<VersionedProductDTO> products = buildMockProducts();
-            return ResponseEntity.ok(products);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
-        }
-    }
-
     @GetMapping("/{staticProductId}/latest-version")
     public ResponseEntity<?> getProductLatestVersionById(@PathVariable UUID staticProductId) {
         try {
@@ -153,54 +129,6 @@ public class ProductController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
-    }
-
-    public List<VersionedProductDTO> buildMockProducts() {
-        List<VersionedProductDTO> products = new ArrayList<>();
-
-        products.add(new VersionedProductDTO(
-                UUID.randomUUID(),
-                1,
-                "Product A",
-                29.99,
-                Arrays.asList("image1.jpg", "image2.jpg"),
-                10.0,
-                true,
-                true,
-                false,
-                UUID.randomUUID(),
-                Arrays.asList(UUID.randomUUID(), UUID.randomUUID())
-        ));
-
-        products.add(new VersionedProductDTO(
-                UUID.randomUUID(),
-                1,
-                "Product B",
-                49.99,
-                Arrays.asList("image3.jpg", "image4.jpg"),
-                15.0,
-                true,
-                false,
-                true,
-                UUID.randomUUID(),
-                Arrays.asList(UUID.randomUUID())
-        ));
-
-        products.add(new VersionedProductDTO(
-                UUID.randomUUID(),
-                1,
-                "Product C",
-                19.99,
-                Arrays.asList("image5.jpg"),
-                5.0,
-                false,
-                true,
-                false,
-                UUID.randomUUID(),
-                Arrays.asList(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID())
-        ));
-
-        return products;
     }
 
     @GetMapping(path = "/catalogue/{id}")

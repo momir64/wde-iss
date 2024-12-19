@@ -17,7 +17,14 @@ public class ImageService {
     public String saveImageToStorage(MultipartFile imageFile, ImageLocationConfiguration locationConfiguration) throws IOException {
         String uniqueFileName = UUID.randomUUID().toString();
 
-        Path uploadPath = Path.of(imagesPath, locationConfiguration.contentType, locationConfiguration.contentUUID.toString());
+        Path uploadPath;
+
+        if (locationConfiguration.version != null) {
+            uploadPath = Path.of(imagesPath, locationConfiguration.contentType, locationConfiguration.contentUUID.toString(), locationConfiguration.version.toString());
+        }
+        else {
+            uploadPath = Path.of(imagesPath, locationConfiguration.contentType, locationConfiguration.contentUUID.toString());
+        }
         Path filePath = uploadPath.resolve(uniqueFileName);
 
         if (!Files.exists(uploadPath)) {

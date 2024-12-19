@@ -3,21 +3,27 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.eventManagement.services.EventTypeService;
-import wedoevents.eventplanner.serviceManagement.dtos.CreateVersionedServiceDTO;
 import wedoevents.eventplanner.serviceManagement.dtos.UpdateVersionedServiceDTO;
+import wedoevents.eventplanner.serviceManagement.dtos.CreateVersionedServiceDTO;
 import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceDTO;
+import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceForSellerDTO;
 import wedoevents.eventplanner.serviceManagement.models.ServiceCategory;
 import wedoevents.eventplanner.serviceManagement.models.StaticService;
 import wedoevents.eventplanner.serviceManagement.models.VersionedService;
+import wedoevents.eventplanner.serviceManagement.models.VersionedServiceImage;
+import wedoevents.eventplanner.serviceManagement.repositories.ServiceCategoryRepository;
 import wedoevents.eventplanner.serviceManagement.repositories.StaticServiceRepository;
 import wedoevents.eventplanner.serviceManagement.repositories.VersionedServiceRepository;
+import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
+import wedoevents.eventplanner.shared.services.imageService.ImageService;
+import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
+import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,13 +36,19 @@ public class ServiceService {
     private StaticServiceRepository staticServiceRepository;
 
     @Autowired
-    private ServiceCategoryService serviceCategoryService;
+    private ServiceCategoryRepository serviceCategoryRepository;
 
     @Autowired
     private EntityManager entityManager;
 
     @Autowired
     private EventTypeService eventTypeService;
+
+    @Autowired
+    private ImageService imageService;
+
+    @Autowired
+    private SellerRepository sellerRepository;
 
     private VersionedService incrementServiceVersionAndSave(VersionedService versionedService) {
         entityManager.detach(versionedService);
@@ -51,18 +63,48 @@ public class ServiceService {
         ).toList();
     }
 
-    public VersionedServiceDTO createService(CreateVersionedServiceDTO createVersionedServiceDTO) {
-        // todo backend check if the static service id exists
-        VersionedService newVersionedService;
-        ServiceCategory matchingServiceCategory = serviceCategoryService.getServiceCategoryById(
-                createVersionedServiceDTO.getServiceCategoryId()
-        );
+    public VersionedServiceDTO createService(CreateVersionedServiceDTO createVersionedServiceDTO, MultipartFile[] images) throws IOException {
+        // todo check for fields that must be non-null
+
+        Optional<Seller> sellerMaybe = sellerRepository.findById(createVersionedServiceDTO.getSellerId());
+
+        if (sellerMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        Seller seller = sellerMaybe.get();
+
+        ServiceCategory matchingServiceCategory;
+        if (createVersionedServiceDTO.getSuggestedCategory() == null) {
+            Optional<ServiceCategory> serviceCategoryMaybe = serviceCategoryRepository.findById(
+                    createVersionedServiceDTO.getServiceCategoryId()
+            );
+
+            if (serviceCategoryMaybe.isEmpty()) {
+                throw new EntityNotFoundException();
+            }
+
+            matchingServiceCategory = serviceCategoryMaybe.get();
+        } else {
+            matchingServiceCategory = new ServiceCategory();
+            matchingServiceCategory.setName(createVersionedServiceDTO.getSuggestedCategory());
+            matchingServiceCategory.setDescription(createVersionedServiceDTO.getSuggestedCategoryDescription());
+            matchingServiceCategory.setIsPending(true);
+            matchingServiceCategory.setIsDeleted(false);
+
+            matchingServiceCategory = serviceCategoryRepository.save(matchingServiceCategory);
+        }
 
         StaticService newMatchingStaticService = new StaticService();
-        newMatchingStaticService.setServiceCategory(matchingServiceCategory);
-        staticServiceRepository.save(newMatchingStaticService);
 
-        newVersionedService = new VersionedService();
+        newMatchingStaticService.setServiceCategory(matchingServiceCategory);
+        newMatchingStaticService.setPending(matchingServiceCategory.getIsPending());
+        newMatchingStaticService = staticServiceRepository.save(newMatchingStaticService);
+
+        seller.getMyServices().add(newMatchingStaticService);
+        sellerRepository.save(seller);
+
+        VersionedService newVersionedService = new VersionedService();
         newVersionedService.setStaticService(newMatchingStaticService);
         newVersionedService.setStaticServiceId(newMatchingStaticService.getStaticServiceId());
         newVersionedService.setVersion(1);
@@ -70,11 +112,11 @@ public class ServiceService {
 
         newVersionedService.setName(createVersionedServiceDTO.getName());
         newVersionedService.setSalePercentage(createVersionedServiceDTO.getSalePercentage());
-        newVersionedService.setImages(createVersionedServiceDTO.getImages());
         newVersionedService.setDescription(createVersionedServiceDTO.getDescription());
         newVersionedService.setIsPrivate(createVersionedServiceDTO.getIsPrivate());
         newVersionedService.setIsAvailable(createVersionedServiceDTO.getIsAvailable());
-        newVersionedService.setDuration(createVersionedServiceDTO.getDuration());
+        newVersionedService.setMaximumDuration(createVersionedServiceDTO.getMaximumDuration());
+        newVersionedService.setMinimumDuration(createVersionedServiceDTO.getMinimumDuration());
         newVersionedService.setCancellationDeadline(createVersionedServiceDTO.getCancellationDeadline());
         newVersionedService.setReservationDeadline(createVersionedServiceDTO.getReservationDeadline());
         newVersionedService.setIsActive(createVersionedServiceDTO.getIsActive());
@@ -87,13 +129,31 @@ public class ServiceService {
         }
         newVersionedService.setAvailableEventTypes(eventTypes);
 
+        newVersionedService = versionedServiceRepository.save(newVersionedService);
+
+        List<String> imageNames = new ArrayList<>();
+        for (MultipartFile imageFile : images) {
+            imageNames.add(imageService.saveImageToStorage(imageFile, new ImageLocationConfiguration(
+                            "service",
+                            newMatchingStaticService.getStaticServiceId(),
+                            1
+                    )
+            ));
+        }
+
+        newVersionedService.setImages(imageNames);
+
         // todo: do backend checks on UUIDs of event types
         return VersionedServiceDTO.toDto(versionedServiceRepository.save(newVersionedService));
     }
 
-    public VersionedServiceDTO updateVersionedService(UpdateVersionedServiceDTO updateVersionedServiceDTO) {
+    public VersionedServiceDTO updateVersionedService(UpdateVersionedServiceDTO updateVersionedServiceDTO, MultipartFile[] images) throws IOException {
+        // todo check for fields that must be non-null
+
         Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository
                 .getVersionedServiceByStaticServiceIdAndLatestVersion(updateVersionedServiceDTO.getStaticServiceId());
+
+        // todo prevent editing deleted services
 
         if (versionedServiceMaybe.isEmpty()) {
             throw new EntityNotFoundException();
@@ -103,16 +163,18 @@ public class ServiceService {
 
         oldVersionOfVersionedService.setIsLastVersion(false);
 
-        VersionedService newVersionedService = versionedServiceRepository.save(oldVersionOfVersionedService);
+        oldVersionOfVersionedService = versionedServiceRepository.save(oldVersionOfVersionedService);
+
+        VersionedService newVersionedService = new VersionedService(oldVersionOfVersionedService);
 
         newVersionedService.setIsLastVersion(true);
         newVersionedService.setName(updateVersionedServiceDTO.getName());
         newVersionedService.setSalePercentage(updateVersionedServiceDTO.getSalePercentage());
-        newVersionedService.setImages(updateVersionedServiceDTO.getImages());
         newVersionedService.setDescription(updateVersionedServiceDTO.getDescription());
         newVersionedService.setIsPrivate(updateVersionedServiceDTO.getIsPrivate());
         newVersionedService.setIsAvailable(updateVersionedServiceDTO.getIsAvailable());
-        newVersionedService.setDuration(updateVersionedServiceDTO.getDuration());
+        newVersionedService.setMaximumDuration(updateVersionedServiceDTO.getMaximumDuration());
+        newVersionedService.setMinimumDuration(updateVersionedServiceDTO.getMinimumDuration());
         newVersionedService.setCancellationDeadline(updateVersionedServiceDTO.getCancellationDeadline());
         newVersionedService.setReservationDeadline(updateVersionedServiceDTO.getReservationDeadline());
         newVersionedService.setIsActive(updateVersionedServiceDTO.getIsActive());
@@ -125,13 +187,27 @@ public class ServiceService {
         }
         newVersionedService.setAvailableEventTypes(eventTypes);
 
+        newVersionedService = incrementServiceVersionAndSave(newVersionedService);
+
+        List<String> imageNames = new ArrayList<>();
+        for (MultipartFile imageFile : images) {
+            imageNames.add(imageService.saveImageToStorage(imageFile, new ImageLocationConfiguration(
+                            "service",
+                            updateVersionedServiceDTO.getStaticServiceId(),
+                            oldVersionOfVersionedService.getVersion() + 1
+                    )
+            ));
+        }
+        newVersionedService.setImages(imageNames);
+
         // todo: do backend checks on UUIDs of event types
-        return VersionedServiceDTO.toDto(incrementServiceVersionAndSave(newVersionedService));
+        return VersionedServiceDTO.toDto(versionedServiceRepository.save(newVersionedService));
     }
 
     public VersionedServiceDTO getVersionedServiceById(UUID staticServiceId) {
-        // todo: null check
         Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getVersionedServiceByStaticServiceIdAndLatestVersion(staticServiceId);
+
+        // todo prevent getting deleted services and prevent regular users from getting private services
 
         if (versionedServiceMaybe.isEmpty()) {
             throw new EntityNotFoundException();
@@ -140,12 +216,27 @@ public class ServiceService {
         return VersionedServiceDTO.toDto(versionedServiceMaybe.get());
     }
 
+    public VersionedServiceForSellerDTO getVersionedServiceEditableById(UUID staticServiceId) throws IOException {
+        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getVersionedServiceByStaticServiceIdAndLatestVersion(staticServiceId);
+
+        // todo prevent getting deleted services
+
+        if (versionedServiceMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        return VersionedServiceForSellerDTO.toDto(versionedServiceMaybe.get(), imageService);
+    }
+
     public VersionedServiceDTO getVersionedServiceByStaticServiceIdAndVersion(Integer version, UUID staticServiceId) {
         // todo: null check
         return VersionedServiceDTO.toDto(versionedServiceRepository.getVersionedServiceByStaticServiceIdAndVersion(staticServiceId, version));
     }
 
     public void deactivateService(UUID staticServiceId) {
+        // todo pull all versions to deleted, so that no one can access the latest non deleted version
+        // todo do the same for private
+        // todo potentially add to static service
         Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getVersionedServiceByStaticServiceIdAndLatestVersion(staticServiceId);
 
         if (versionedServiceMaybe.isEmpty()) {
@@ -157,12 +248,5 @@ public class ServiceService {
         newVersionedService.setIsAvailable(false);
 
         incrementServiceVersionAndSave(newVersionedService);
-    }
-
-    public List<VersionedServiceDTO> updateVersionedServices(List<UpdateVersionedServiceDTO> updateVersionedServiceDTOs) {
-        if (updateVersionedServiceDTOs == null || updateVersionedServiceDTOs.isEmpty()) {
-            throw new IllegalArgumentException("No services provided for update");
-        }
-        return updateVersionedServiceDTOs.stream().map(this::updateVersionedService).collect(Collectors.toList());
     }
 }
