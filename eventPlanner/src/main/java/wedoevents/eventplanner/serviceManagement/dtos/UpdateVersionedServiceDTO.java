@@ -20,7 +20,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UpdateVersionedServiceDTO {
     private UUID staticServiceId;
-    private Integer version;
 
     private String name;
     private Double salePercentage;
@@ -29,7 +28,6 @@ public class UpdateVersionedServiceDTO {
     private Boolean isAvailable;
     private Integer cancellationDeadline;
     private Integer reservationDeadline;
-    private Boolean isActive;
     private Boolean isConfirmationManual;
     private Double price;
     private Integer minimumDuration;

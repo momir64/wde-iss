@@ -3,20 +3,16 @@ package wedoevents.eventplanner.serviceManagement.dtos;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.serviceManagement.models.VersionedService;
-import wedoevents.eventplanner.serviceManagement.models.VersionedServiceImage;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
 
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter

@@ -22,7 +22,6 @@ public class CreateVersionedServiceDTO {
     private Boolean isAvailable;
     private Integer cancellationDeadline;
     private Integer reservationDeadline;
-    private Boolean isActive;
     private Boolean isConfirmationManual;
     private Double price;
     private Integer minimumDuration;

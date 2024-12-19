@@ -6,13 +6,10 @@ import lombok.Setter;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.serviceManagement.models.VersionedService;
-import wedoevents.eventplanner.serviceManagement.models.VersionedServiceImage;
 
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter

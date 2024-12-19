@@ -4,15 +4,25 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.eventManagement.services.EventTypeService;
 import wedoevents.eventplanner.productManagement.dtos.CreateVersionedProductDTO;
 import wedoevents.eventplanner.productManagement.dtos.UpdateVersionedProductDTO;
 import wedoevents.eventplanner.productManagement.dtos.VersionedProductDTO;
+import wedoevents.eventplanner.productManagement.dtos.VersionedProductForSellerDTO;
 import wedoevents.eventplanner.productManagement.models.*;
+import wedoevents.eventplanner.productManagement.repositories.ProductCategoryRepository;
 import wedoevents.eventplanner.productManagement.repositories.StaticProductRepository;
 import wedoevents.eventplanner.productManagement.repositories.VersionedProductRepository;
+import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceForSellerDTO;
+import wedoevents.eventplanner.serviceManagement.models.VersionedService;
+import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
+import wedoevents.eventplanner.shared.services.imageService.ImageService;
+import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
+import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepository;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,13 +39,19 @@ public class ProductService {
     private StaticProductRepository staticProductRepository;
 
     @Autowired
-    private ProductCategoryService productCategoryService;
+    private ProductCategoryRepository productCategoryRepository;
 
     @Autowired
     private EntityManager entityManager;
 
     @Autowired
     private EventTypeService eventTypeService;
+
+    @Autowired
+    private ImageService imageService;
+
+    @Autowired
+    private SellerRepository sellerRepository;
 
     private VersionedProduct incrementProductVersionAndSave(VersionedProduct versionedProduct) {
         entityManager.detach(versionedProduct);
@@ -50,44 +66,92 @@ public class ProductService {
         ).toList();
     }
 
-    public VersionedProductDTO createProduct(CreateVersionedProductDTO createProductDTO) {
-        // todo backend check if the static product id exists
-        VersionedProduct newVersionedProduct;
-        ProductCategory matchingProductCategory = productCategoryService.getProductCategoryById(
-                createProductDTO.getProductCategoryId()
-        );
+    public VersionedProductDTO createProduct(CreateVersionedProductDTO createVersionedProductDTO, MultipartFile[] images) throws IOException {
+        // todo check for fields that must be non-null
+
+        Optional<Seller> sellerMaybe = sellerRepository.findById(createVersionedProductDTO.getSellerId());
+
+        if (sellerMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        Seller seller = sellerMaybe.get();
+
+        ProductCategory matchingProductCategory;
+        if (createVersionedProductDTO.getSuggestedCategory() == null) {
+            Optional<ProductCategory> productCategoryMaybe = productCategoryRepository.findById(
+                    createVersionedProductDTO.getProductCategoryId()
+            );
+
+            if (productCategoryMaybe.isEmpty()) {
+                throw new EntityNotFoundException();
+            }
+
+            matchingProductCategory = productCategoryMaybe.get();
+        } else {
+            matchingProductCategory = new ProductCategory();
+            matchingProductCategory.setName(createVersionedProductDTO.getSuggestedCategory());
+            matchingProductCategory.setDescription(createVersionedProductDTO.getSuggestedCategoryDescription());
+            matchingProductCategory.setIsPending(true);
+            matchingProductCategory.setIsDeleted(false);
+
+            matchingProductCategory = productCategoryRepository.save(matchingProductCategory);
+        }
 
         StaticProduct newMatchingStaticProduct = new StaticProduct();
+        
         newMatchingStaticProduct.setProductCategory(matchingProductCategory);
-        staticProductRepository.save(newMatchingStaticProduct);
+        newMatchingStaticProduct.setPending(matchingProductCategory.getIsPending());
+        newMatchingStaticProduct = staticProductRepository.save(newMatchingStaticProduct);
 
-        newVersionedProduct = new VersionedProduct();
+        seller.getMyProducts().add(newMatchingStaticProduct);
+        sellerRepository.save(seller);
+
+        VersionedProduct newVersionedProduct = new VersionedProduct();
         newVersionedProduct.setStaticProduct(newMatchingStaticProduct);
         newVersionedProduct.setStaticProductId(newMatchingStaticProduct.getStaticProductId());
         newVersionedProduct.setVersion(1);
         newVersionedProduct.setIsLastVersion(true);
 
-        newVersionedProduct.setName(createProductDTO.getName());
-        newVersionedProduct.setImages(createProductDTO.getImages());
-        newVersionedProduct.setSalePercentage(createProductDTO.getSalePercentage());
-        newVersionedProduct.setPrice(createProductDTO.getPrice());
-        newVersionedProduct.setIsActive(createProductDTO.getIsActive());
-        newVersionedProduct.setIsAvailable(createProductDTO.getIsAvailable());
-        newVersionedProduct.setIsPrivate(createProductDTO.getIsPrivate());
+        newVersionedProduct.setName(createVersionedProductDTO.getName());
+        newVersionedProduct.setDescription(createVersionedProductDTO.getDescription());
+        newVersionedProduct.setSalePercentage(createVersionedProductDTO.getSalePercentage());
+        newVersionedProduct.setPrice(createVersionedProductDTO.getPrice());
+        newVersionedProduct.setIsActive(true);
+        newVersionedProduct.setIsAvailable(createVersionedProductDTO.getIsAvailable());
+        newVersionedProduct.setIsPrivate(createVersionedProductDTO.getIsPrivate());
 
         List<EventType> eventTypes = new ArrayList<>();
-        for (UUID eventTypeId : createProductDTO.getAvailableEventTypeIds()) {
+        for (UUID eventTypeId : createVersionedProductDTO.getAvailableEventTypeIds()) {
             eventTypes.add(eventTypeService.getEventTypeById(eventTypeId));
         }
         newVersionedProduct.setAvailableEventTypes(eventTypes);
+
+        newVersionedProduct = versionedProductRepository.save(newVersionedProduct);
+
+        List<String> imageNames = new ArrayList<>();
+        for (MultipartFile imageFile : images) {
+            imageNames.add(imageService.saveImageToStorage(imageFile, new ImageLocationConfiguration(
+                            "service",
+                            newMatchingStaticProduct.getStaticProductId(),
+                            1
+                    )
+            ));
+        }
+        
+        newVersionedProduct.setImages(imageNames);
 
         // todo: do backend checks on UUIDs of event types
         return VersionedProductDTO.toDto(versionedProductRepository.save(newVersionedProduct));
     }
 
-    public VersionedProductDTO updateVersionedProduct(UpdateVersionedProductDTO updateVersionedProductDTO) {
+    public VersionedProductDTO updateVersionedProduct(UpdateVersionedProductDTO updateVersionedProductDTO, MultipartFile[] images) throws IOException {
+        // todo check for fields that must be non-null
+
         Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository
                 .getVersionedProductByStaticProductIdAndLatestVersion(updateVersionedProductDTO.getStaticProductId());
+
+        // todo prevent editing deleted services
 
         if (versionedProductMaybe.isEmpty()) {
             throw new EntityNotFoundException();
@@ -97,14 +161,16 @@ public class ProductService {
 
         oldVersionOfVersionedProduct.setIsLastVersion(false);
 
-        VersionedProduct newVersionedProduct = versionedProductRepository.save(oldVersionOfVersionedProduct);
+        oldVersionOfVersionedProduct = versionedProductRepository.save(oldVersionOfVersionedProduct);
+
+        VersionedProduct newVersionedProduct = new VersionedProduct(oldVersionOfVersionedProduct);
 
         newVersionedProduct.setIsLastVersion(true);
         newVersionedProduct.setName(updateVersionedProductDTO.getName());
-        newVersionedProduct.setImages(updateVersionedProductDTO.getImages());
+        newVersionedProduct.setDescription(updateVersionedProductDTO.getDescription());
         newVersionedProduct.setSalePercentage(updateVersionedProductDTO.getSalePercentage());
         newVersionedProduct.setPrice(updateVersionedProductDTO.getPrice());
-        newVersionedProduct.setIsActive(updateVersionedProductDTO.getIsActive());
+        newVersionedProduct.setIsActive(true);
         newVersionedProduct.setIsAvailable(updateVersionedProductDTO.getIsAvailable());
         newVersionedProduct.setIsPrivate(updateVersionedProductDTO.getIsPrivate());
 
@@ -113,6 +179,19 @@ public class ProductService {
             eventTypes.add(eventTypeService.getEventTypeById(eventTypeId));
         }
         newVersionedProduct.setAvailableEventTypes(eventTypes);
+        
+        newVersionedProduct = incrementProductVersionAndSave(newVersionedProduct);
+
+        List<String> imageNames = new ArrayList<>();
+        for (MultipartFile imageFile : images) {
+            imageNames.add(imageService.saveImageToStorage(imageFile, new ImageLocationConfiguration(
+                            "service",
+                            updateVersionedProductDTO.getStaticProductId(),
+                    oldVersionOfVersionedProduct.getVersion() + 1
+                    )
+            ));
+        }
+        newVersionedProduct.setImages(imageNames);
 
         // todo: do backend checks on UUIDs of event types
         return VersionedProductDTO.toDto(incrementProductVersionAndSave(newVersionedProduct));
@@ -121,11 +200,25 @@ public class ProductService {
     public VersionedProductDTO getVersionedProductById(UUID staticProductId) {
         Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getVersionedProductByStaticProductIdAndLatestVersion(staticProductId);
 
+        // todo prevent getting deleted products and prevent regular users from getting private products
+        
         if (versionedProductMaybe.isEmpty()) {
             throw new EntityNotFoundException();
         }
 
         return VersionedProductDTO.toDto(versionedProductMaybe.get());
+    }
+
+    public VersionedProductForSellerDTO getVersionedProductEditableById(UUID staticProductId) throws IOException {
+        Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getVersionedProductByStaticProductIdAndLatestVersion(staticProductId);
+
+        // todo prevent getting deleted services
+
+        if (versionedProductMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        return VersionedProductForSellerDTO.toDto(versionedProductMaybe.get(), imageService);
     }
 
     public VersionedProductDTO getVersionedProductByStaticProductIdAndVersion(Integer version, UUID staticProductId) {
@@ -134,6 +227,9 @@ public class ProductService {
     }
 
     public void deactivateProduct(UUID staticProductId) {
+        // todo pull all versions to deleted, so that no one can access the latest non deleted version
+        // todo do the same for private
+        // todo potentially add to static product
         Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getVersionedProductByStaticProductIdAndLatestVersion(staticProductId);
 
         if (versionedProductMaybe.isEmpty()) {
@@ -145,12 +241,5 @@ public class ProductService {
         newVersionedProduct.setIsAvailable(false);
 
         incrementProductVersionAndSave(newVersionedProduct);
-    }
-
-    public List<VersionedProductDTO> updateVersionedProducts(List<UpdateVersionedProductDTO> updateVersionedProductDTOs) {
-        if (updateVersionedProductDTOs == null || updateVersionedProductDTOs.isEmpty()) {
-            throw new IllegalArgumentException("No products provided for update");
-        }
-        return updateVersionedProductDTOs.stream().map(this::updateVersionedProduct).collect(Collectors.toList());
     }
 }
