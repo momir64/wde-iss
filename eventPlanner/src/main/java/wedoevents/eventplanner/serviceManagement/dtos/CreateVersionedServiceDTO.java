@@ -10,6 +10,10 @@ import java.util.UUID;
 @Setter
 public class CreateVersionedServiceDTO {
     private UUID serviceCategoryId;
+    private String suggestedCategory;
+    private String suggestedCategoryDescription;
+
+    private UUID sellerId;
 
     private String name;
     private Double salePercentage;

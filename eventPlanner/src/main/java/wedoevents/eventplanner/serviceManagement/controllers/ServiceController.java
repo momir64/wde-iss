@@ -42,10 +42,13 @@ public class ServiceController {
         }
     }
 
+    // todo when session tracking is enabled, add which seller created the service
+    // todo for now the seller id is fixed to "2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5"
     @PostMapping
     public ResponseEntity<?> createService(@RequestParam(value = "images") MultipartFile[] images,
                                            @ModelAttribute CreateVersionedServiceDTO createVersionedServiceDTO) {
         try {
+            createVersionedServiceDTO.setSellerId(UUID.fromString("2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5"));
             VersionedServiceDTO newService = serviceService.createService(createVersionedServiceDTO, images);
             return ResponseEntity.status(HttpStatus.CREATED).body(newService);
         } catch (IllegalArgumentException e) {
@@ -85,7 +88,7 @@ public class ServiceController {
     }
 
     @GetMapping(value = "/{id}/{version}/images/{image_name}", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<?> getProfileImage(@PathVariable("id") UUID id, @PathVariable("version") Integer version, @PathVariable("image_name") String imageName) {
+    public ResponseEntity<?> getServiceImage(@PathVariable("id") UUID id, @PathVariable("version") Integer version, @PathVariable("image_name") String imageName) {
         try {
             ImageLocationConfiguration config = new ImageLocationConfiguration("service", id, version);
             Optional<byte[]> image = imageService.getImage(imageName, config);
@@ -118,7 +121,7 @@ public class ServiceController {
     }
 
     @GetMapping("/{staticServiceId}/{version}")
-    public ResponseEntity<?> getServiceLatestVersionById(@PathVariable Integer version,
+    public ResponseEntity<?> getServiceByVersionById(@PathVariable Integer version,
                                                          @PathVariable UUID staticServiceId) {
         try {
             VersionedServiceDTO service = serviceService.getVersionedServiceByStaticServiceIdAndVersion(version, staticServiceId);
