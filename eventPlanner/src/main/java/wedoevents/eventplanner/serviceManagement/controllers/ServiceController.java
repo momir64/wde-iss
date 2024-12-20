@@ -63,7 +63,7 @@ public class ServiceController {
                                            @ModelAttribute UpdateVersionedServiceDTO updateVersionedServiceEntityDTO) {
         try {
             VersionedServiceDTO updatedService = serviceService.updateVersionedService(updateVersionedServiceEntityDTO, images);
-            return ResponseEntity.ok(updatedService);
+            return ResponseEntity.status(HttpStatus.CREATED).body(updatedService);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (EntityNotFoundException e) {

@@ -2,16 +2,16 @@ package wedoevents.eventplanner.productManagement.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.productManagement.dtos.CreateVersionedProductDTO;
 import wedoevents.eventplanner.productManagement.dtos.UpdateVersionedProductDTO;
 import wedoevents.eventplanner.productManagement.dtos.VersionedProductDTO;
+import wedoevents.eventplanner.productManagement.dtos.VersionedProductForSellerDTO;
 import wedoevents.eventplanner.productManagement.services.ProductService;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
@@ -42,10 +42,14 @@ public class ProductController {
         }
     }
 
+    // todo when session tracking is enabled, add which seller created the product
+    // todo for now the seller id is fixed to "2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5"
     @PostMapping
-    public ResponseEntity<?>  createProduct(@RequestBody CreateVersionedProductDTO createVersionedProductDTO) {
-        try{
-            VersionedProductDTO newProduct = productService.createProduct(createVersionedProductDTO);
+    public ResponseEntity<?> createProduct(@RequestParam(value = "images") MultipartFile[] images,
+                                           @ModelAttribute CreateVersionedProductDTO createVersionedProductDTO) {
+        try {
+            createVersionedProductDTO.setSellerId(UUID.fromString("2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5"));
+            VersionedProductDTO newProduct = productService.createProduct(createVersionedProductDTO, images);
             return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
@@ -55,9 +59,10 @@ public class ProductController {
     }
 
     @PutMapping
-    public ResponseEntity<?>  updateProduct(@RequestBody UpdateVersionedProductDTO updateVersionedProductDTO) {
-        try{
-            VersionedProductDTO updatedProduct = productService.updateVersionedProduct(updateVersionedProductDTO);
+    public ResponseEntity<?> updateProduct(@RequestParam(value = "images") MultipartFile[] images,
+                                           @ModelAttribute UpdateVersionedProductDTO updateVersionedProductDTO) {
+        try {
+            VersionedProductDTO updatedProduct = productService.updateVersionedProduct(updateVersionedProductDTO, images);
             return ResponseEntity.status(HttpStatus.CREATED).body(updatedProduct);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
@@ -68,8 +73,22 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/{staticProductId}/latest-version/edit")
+    public ResponseEntity<?> getProductLatestVersionEditableById(@PathVariable UUID staticProductId) {
+        try {
+            VersionedProductForSellerDTO product = productService.getVersionedProductEditableById(staticProductId);
+            return ResponseEntity.ok(product);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
+
     @GetMapping(value = "/{id}/{version}/images/{image_name}", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<?> getProfileImage(@PathVariable("id") UUID id, @PathVariable("version") Integer version, @PathVariable("image_name") String imageName) {
+    public ResponseEntity<?> getProductImage(@PathVariable("id") UUID id, @PathVariable("version") Integer version, @PathVariable("image_name") String imageName) {
         try {
             ImageLocationConfiguration config = new ImageLocationConfiguration("product", id, version);
             Optional<byte[]> image = imageService.getImage(imageName, config);
@@ -96,19 +115,21 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
 
     @GetMapping("/{staticProductId}/{version}")
-    public ResponseEntity<?> getProductLatestVersionById(@PathVariable Integer version,
+    public ResponseEntity<?> getProductByVersionById(@PathVariable Integer version,
                                                            @PathVariable UUID staticProductId) {
         try{
             VersionedProductDTO product = productService.getVersionedProductByStaticProductIdAndVersion(version, staticProductId);
             return ResponseEntity.ok(product);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
-//        } catch (ProductNotFoundException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
@@ -117,15 +138,15 @@ public class ProductController {
     @DeleteMapping("/{staticProductId}")
     public ResponseEntity<?> deleteProduct(@PathVariable UUID staticProductId)
     {
-        try{
+        try {
             productService.deactivateProduct(staticProductId);
-            return ResponseEntity.ok("Product archived successfully");
+            return ResponseEntity.ok("{}");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (HttpClientErrorException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to archive product");
-//        } catch (ProductNotFoundException e){
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+        } catch (EntityNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
@@ -142,21 +163,6 @@ public class ProductController {
 //        }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
-        }
-    }
-
-    @PutMapping(path = "/catalogue")
-    public ResponseEntity<?> updateProducts(@RequestBody List<UpdateVersionedProductDTO> updateVersionedProductDTOs) {
-        try {
-            List<VersionedProductDTO> updatedProducts = productService.updateVersionedProducts(updateVersionedProductDTOs);
-            return ResponseEntity.ok(updatedProducts);
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized products access");
-//        }
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("An unexpected error occurred");
         }
     }
 }

@@ -3,25 +3,27 @@ package wedoevents.eventplanner.productManagement.dtos;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.productManagement.models.VersionedProduct;
+import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
+import wedoevents.eventplanner.shared.services.imageService.ImageService;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class VersionedProductDTO {
+public class VersionedProductForSellerDTO {
     private UUID staticProductId;
     private Integer version;
     private UUID productCategoryId;
 
     private String name;
-    private Double oldPrice;
-    private List<String> images;
+    private Double salePercentage;
+    private List<byte[]> images;
     private String description;
     private Boolean isPrivate;
     private Boolean isAvailable;
@@ -30,25 +32,27 @@ public class VersionedProductDTO {
 
     private List<UUID> availableEventTypeIds;
 
-    public static VersionedProductDTO toDto(VersionedProduct versionedProduct) {
-        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).build().toUriString();
+    public static VersionedProductForSellerDTO toDto(VersionedProduct versionedProduct, ImageService imageService) throws IOException {
+        List<byte[]> images = new ArrayList<>();
 
-        return new VersionedProductDTO(
+        for (String image : versionedProduct.getImages()) {
+            images.add(imageService.getImage(image, new ImageLocationConfiguration(
+                    "product", versionedProduct.getStaticProductId(), versionedProduct.getVersion())
+            ).get());
+        }
+
+        return new VersionedProductForSellerDTO(
                 versionedProduct.getStaticProductId(),
                 versionedProduct.getVersion(),
                 versionedProduct.getStaticProduct().getProductCategory().getId(),
                 versionedProduct.getName(),
-                versionedProduct.getSalePercentage() != null ? versionedProduct.getPrice() : null,
-                versionedProduct.getImages()
-                        .stream()
-                        .map(uniqName -> String.format("%s/api/v1/products/%s/%d/images/%s", baseUrl, versionedProduct.getStaticProductId(), versionedProduct.getVersion(), uniqName))
-                        .sorted()
-                        .toList(),
+                versionedProduct.getSalePercentage(),
+                images,
                 versionedProduct.getDescription(),
                 versionedProduct.getIsPrivate(),
                 versionedProduct.getIsAvailable(),
                 versionedProduct.getIsActive(),
-                versionedProduct.getSalePercentage() != null ? (1 - versionedProduct.getSalePercentage()) * versionedProduct.getPrice() : null,
+                versionedProduct.getPrice(),
                 versionedProduct.getAvailableEventTypes().stream().map(EventType::getId).toList()
         );
     }

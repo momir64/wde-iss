@@ -28,6 +28,7 @@ public class ProductBudgetItemController {
 
     @PostMapping
     public ResponseEntity<?> createProductBudgetItem(@RequestBody CreateProductBudgetItemDTO productBudgetItem) {
+        // todo clean up this comment after checking
 //  if (adding new budget item - event doesn't have item with that category) { --
 //      return new ResponseEntity<>(productBudgetItem, HttpStatus.CREATED);
 //  } else if (error - some id isn't null but doesn't exist) { --

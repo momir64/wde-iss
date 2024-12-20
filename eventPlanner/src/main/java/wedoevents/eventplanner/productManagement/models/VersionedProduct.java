@@ -2,8 +2,10 @@ package wedoevents.eventplanner.productManagement.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import wedoevents.eventplanner.eventManagement.models.EventType;
+import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,6 +14,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @IdClass(VersionedProductId.class)
+@NoArgsConstructor
 public class VersionedProduct {
     @Id
     private UUID staticProductId;
@@ -50,5 +53,11 @@ public class VersionedProduct {
 
     public void incrementVersion() {
         this.version += 1;
+    }
+
+    public VersionedProduct(VersionedProduct from) {
+        this.staticProductId = from.staticProductId;
+        this.staticProduct = from.staticProduct;
+        this.version = from.version;
     }
 }

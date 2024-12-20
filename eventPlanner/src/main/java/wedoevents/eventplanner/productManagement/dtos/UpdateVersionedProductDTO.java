@@ -10,12 +10,13 @@ import java.util.UUID;
 @Setter
 public class UpdateVersionedProductDTO {
     private UUID staticProductId;
+
     private String name;
-    private List<String> images;
-    private Double price;
     private Double salePercentage;
-    private Boolean isActive;
-    private Boolean isAvailable;
+    private String description;
     private Boolean isPrivate;
+    private Boolean isAvailable;
+    private Double price;
+
     private List<UUID> availableEventTypeIds;
 }

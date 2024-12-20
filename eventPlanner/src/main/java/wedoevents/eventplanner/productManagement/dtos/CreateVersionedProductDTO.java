@@ -10,12 +10,17 @@ import java.util.UUID;
 @Setter
 public class CreateVersionedProductDTO {
     private UUID productCategoryId;
+    private String suggestedCategory;
+    private String suggestedCategoryDescription;
+
+    private UUID sellerId;
+
     private String name;
-    private List<String> images;
-    private Double price;
     private Double salePercentage;
-    private Boolean isActive;
-    private Boolean isAvailable;
+    private String description;
     private Boolean isPrivate;
+    private Boolean isAvailable;
+    private Double price;
+
     private List<UUID> availableEventTypeIds;
 }

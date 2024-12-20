@@ -13,7 +13,6 @@ import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceForSellerD
 import wedoevents.eventplanner.serviceManagement.models.ServiceCategory;
 import wedoevents.eventplanner.serviceManagement.models.StaticService;
 import wedoevents.eventplanner.serviceManagement.models.VersionedService;
-import wedoevents.eventplanner.serviceManagement.models.VersionedServiceImage;
 import wedoevents.eventplanner.serviceManagement.repositories.ServiceCategoryRepository;
 import wedoevents.eventplanner.serviceManagement.repositories.StaticServiceRepository;
 import wedoevents.eventplanner.serviceManagement.repositories.VersionedServiceRepository;
@@ -24,7 +23,6 @@ import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepos
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ServiceService {
@@ -115,11 +113,11 @@ public class ServiceService {
         newVersionedService.setDescription(createVersionedServiceDTO.getDescription());
         newVersionedService.setIsPrivate(createVersionedServiceDTO.getIsPrivate());
         newVersionedService.setIsAvailable(createVersionedServiceDTO.getIsAvailable());
+        newVersionedService.setIsActive(true);
         newVersionedService.setMaximumDuration(createVersionedServiceDTO.getMaximumDuration());
         newVersionedService.setMinimumDuration(createVersionedServiceDTO.getMinimumDuration());
         newVersionedService.setCancellationDeadline(createVersionedServiceDTO.getCancellationDeadline());
         newVersionedService.setReservationDeadline(createVersionedServiceDTO.getReservationDeadline());
-        newVersionedService.setIsActive(createVersionedServiceDTO.getIsActive());
         newVersionedService.setIsConfirmationManual(createVersionedServiceDTO.getIsConfirmationManual());
         newVersionedService.setPrice(createVersionedServiceDTO.getPrice());
 
@@ -173,11 +171,11 @@ public class ServiceService {
         newVersionedService.setDescription(updateVersionedServiceDTO.getDescription());
         newVersionedService.setIsPrivate(updateVersionedServiceDTO.getIsPrivate());
         newVersionedService.setIsAvailable(updateVersionedServiceDTO.getIsAvailable());
+        newVersionedService.setIsActive(true);
         newVersionedService.setMaximumDuration(updateVersionedServiceDTO.getMaximumDuration());
         newVersionedService.setMinimumDuration(updateVersionedServiceDTO.getMinimumDuration());
         newVersionedService.setCancellationDeadline(updateVersionedServiceDTO.getCancellationDeadline());
         newVersionedService.setReservationDeadline(updateVersionedServiceDTO.getReservationDeadline());
-        newVersionedService.setIsActive(updateVersionedServiceDTO.getIsActive());
         newVersionedService.setIsConfirmationManual(updateVersionedServiceDTO.getIsConfirmationManual());
         newVersionedService.setPrice(updateVersionedServiceDTO.getPrice());
 
