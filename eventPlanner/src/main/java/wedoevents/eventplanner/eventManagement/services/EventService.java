@@ -14,6 +14,7 @@ import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -50,7 +51,7 @@ public class EventService {
             pageable = PageRequest.of(page, size);
         Page<Event> eventPage;
         if(organizerId != null){
-            List<Event> myEvents = eventOrganizerRepository.getMyEventsById(organizerId);
+            List<Event> myEvents = eventOrganizerRepository.getMyEventsByProfileId(organizerId);
 
             // Filter the events based on the criteria
             List<Event> filteredEvents = myEvents.stream()
@@ -89,7 +90,7 @@ public class EventService {
             throw new EntityNotFoundException();
         }
 
-        Optional<EventOrganizer> eventOrganizerMaybe = this.eventOrganizerRepository.findById(createEventDTO.getOrganizerId());
+        Optional<EventOrganizer> eventOrganizerMaybe = this.eventOrganizerRepository.findByProfileId(createEventDTO.getOrganizerProfileId());
 
         if (eventOrganizerMaybe.isEmpty()) {
             throw new EntityNotFoundException();
@@ -98,10 +99,12 @@ public class EventService {
         EventOrganizer eventOrganizer = eventOrganizerMaybe.get();
 
         Event newEvent = new Event();
-//        newEvent.setEventActivities(new ArrayList<>()); // todo agenda
-//        newEvent.setImages(new ArrayList<>()); // todo images with image service
-        newEvent.setEventType(eventTypeMaybe.get());
+        newEvent.setEventActivities(new ArrayList<>()); // todo agenda
+        newEvent.setImages(new ArrayList<>()); // todo images with image service
+        newEvent.setProductBudgetItems(new ArrayList<>());
+        newEvent.setServiceBudgetItems(new ArrayList<>());
 
+        newEvent.setEventType(eventTypeMaybe.get());
         newEvent.setDescription(createEventDTO.getDescription());
         newEvent.setName(createEventDTO.getName());
         newEvent.setCity(new City(createEventDTO.getCity()));

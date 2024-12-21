@@ -30,12 +30,10 @@ public class EventController {
         this.imageService = imageService;
     }
 
-    // todo when session tracking is enabled, add which organizer created the event
-    // todo for now the organizer id is fixed to "1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236"
+
     @PostMapping
     public ResponseEntity<EventComplexViewDTO> createEvent(@RequestBody CreateEventDTO createEventDTO) {
         try {
-            createEventDTO.setOrganizerId(UUID.fromString("1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236"));
             EventComplexViewDTO createdEvent = eventService.createEvent(createEventDTO);
             return ResponseEntity.ok(createdEvent);
         } catch (EntityNotFoundException e) {
