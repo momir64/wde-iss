@@ -1,4 +1,5 @@
 package wedoevents.eventplanner.userManagement.controllers;
+import io.jsonwebtoken.Jwt;
 import org.springdoc.core.service.GenericResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -7,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import wedoevents.eventplanner.shared.config.auth.JwtUtil;
 import wedoevents.eventplanner.shared.services.emailService.IEmailService;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
@@ -48,10 +50,11 @@ public class ProfileController {
     private final GenericResponseService responseBuilder;
     private final ImageService imageService;
     private final RoleService roleService;
+    private final JwtUtil jwtUtil;
 
     @Autowired
     public ProfileController(ProfileService profileService, EventOrganizerService eventOrganizerService, SellerService sellerService, GuestService guestService, ImageService imageService, RoleService roleService,
-                             RegistrationAttemptService registrationAttemptService, UserService userService, @Qualifier("sendGridEmailService") IEmailService emailService, GenericResponseService responseBuilder) {
+                             RegistrationAttemptService registrationAttemptService,JwtUtil jwtUtil, UserService userService, @Qualifier("sendGridEmailService") IEmailService emailService, GenericResponseService responseBuilder) {
         this.profileService = profileService;
         this.eventOrganizerService = eventOrganizerService;
         this.sellerService = sellerService;
@@ -62,6 +65,7 @@ public class ProfileController {
         this.responseBuilder = responseBuilder;
         this.imageService = imageService;
         this.roleService = roleService;
+        this.jwtUtil = jwtUtil;
     }
 
 
@@ -71,6 +75,7 @@ public class ProfileController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
 
     @GetMapping(value="/{id}/images", produces= MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<?> getProfileImage(@PathVariable("id") UUID profileId) {

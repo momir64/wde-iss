@@ -2,10 +2,7 @@ package wedoevents.eventplanner.eventManagement.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
@@ -45,14 +42,40 @@ public class EventService {
     }
 
     public Page<EventComplexViewDTO> searchEvents(String searchTerms, String city, UUID eventTypeId, Double minRating, Double maxRating,
-                                                  LocalDate dateRangeStart, LocalDate dateRangeEnd, String sortBy, String order, int page, int size) {
+                                                  LocalDate dateRangeStart, LocalDate dateRangeEnd, String sortBy, String order, int page, int size, UUID organizerId) {
         Pageable pageable;
         if (sortBy != null && (sortBy.equals("name") || sortBy.equals("date")))
             pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order != null ? order : "ASC"), sortBy));
         else
             pageable = PageRequest.of(page, size);
-        Page<Event> eventPage = eventRepository.searchEvents(searchTerms, city, eventTypeId, dateRangeStart, dateRangeEnd, pageable);
-        return eventPage.map(EventComplexViewDTO::new);
+        Page<Event> eventPage;
+        if(organizerId != null){
+            List<Event> myEvents = eventOrganizerRepository.getMyEventsById(organizerId);
+
+            // Filter the events based on the criteria
+            List<Event> filteredEvents = myEvents.stream()
+                    .filter(event -> {
+                        boolean matchesSearchTerms = searchTerms == null || event.getName().toLowerCase().contains(searchTerms.toLowerCase());
+                        boolean matchesCity = city == null || event.getCity().getName().equalsIgnoreCase(city);
+                        boolean matchesEventType = eventTypeId == null || event.getEventType().getId().equals(eventTypeId);
+                        boolean matchesDateRange = (dateRangeStart == null || !event.getDate().isBefore(dateRangeStart)) &&
+                                (dateRangeEnd == null || !event.getDate().isAfter(dateRangeEnd));
+//                        boolean matchesRating = (minRating == null || event.getRating() >= minRating) &&
+//                                (maxRating == null || event.getRating() <= maxRating);
+                        return matchesSearchTerms && matchesCity && matchesEventType && matchesDateRange; //&& matchesRating;
+                    })
+                    .collect(Collectors.toList());
+            int start = page * size;
+            int end = Math.min(start + size, filteredEvents.size());
+            List<Event> paginatedEvents = filteredEvents.subList(start, end);
+
+            // Convert filtered and paginated events to DTOs
+            return new PageImpl<>(paginatedEvents.stream().map(EventComplexViewDTO::new).collect(Collectors.toList()), pageable, filteredEvents.size());
+
+        }else{
+            eventPage = eventRepository.searchEvents(searchTerms, city, eventTypeId, dateRangeStart, dateRangeEnd, pageable);
+            return eventPage.map(EventComplexViewDTO::new);
+        }
     }
 
     public List<EventComplexViewDTO> getTopEvents(String city) {
