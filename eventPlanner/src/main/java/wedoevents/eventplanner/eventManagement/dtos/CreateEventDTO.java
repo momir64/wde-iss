@@ -25,7 +25,7 @@ public class CreateEventDTO {
     private Double longitude;
 
     private UUID eventTypeId;
-    private List<UUID> eventActivitiyIds; // todo agenda
+    private List<UUID> agenda;
 
     private UUID organizerProfileId;
 

@@ -3,16 +3,20 @@ package wedoevents.eventplanner.eventManagement.controllers;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
+import wedoevents.eventplanner.eventManagement.dtos.EventActivitiesDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
+import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.services.EventService;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
+import wedoevents.eventplanner.shared.services.pdfService.PdfGeneratorService;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -23,11 +27,12 @@ import java.util.*;
 public class EventController {
     private final EventService eventService;
     private final ImageService imageService;
-
+    private final PdfGeneratorService pdfService;
     @Autowired
-    public EventController(EventService eventService, ImageService imageService) {
+    public EventController(EventService eventService, ImageService imageService, PdfGeneratorService pdfService) {
         this.eventService = eventService;
         this.imageService = imageService;
+        this.pdfService = pdfService;
     }
 
 
@@ -102,4 +107,26 @@ public class EventController {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
+
+    @PostMapping("/agenda")
+    public ResponseEntity<List<UUID>> createAgenda(@RequestBody EventActivitiesDTO eventActivitiesDTO) {
+        return ResponseEntity.ok().body(eventService.createAgenda(eventActivitiesDTO));
+    }
+
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> downloadPdf(@PathVariable("id") UUID id) {
+        Optional<Event> event = eventService.getEventById(id);
+        if (event.isPresent()) {
+            byte[] pdfContent = pdfService.generateEventPdf(event.get());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", "event-details.pdf");
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(pdfContent);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(null);
+    }
+
 }
