@@ -3,10 +3,14 @@ package wedoevents.eventplanner.eventManagement.services;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
+import wedoevents.eventplanner.eventManagement.dtos.EventActivitiesDTO;
+import wedoevents.eventplanner.eventManagement.dtos.EventActivityDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
 import wedoevents.eventplanner.eventManagement.models.*;
+import wedoevents.eventplanner.eventManagement.repositories.EventActivityRepository;
 import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
 import wedoevents.eventplanner.eventManagement.repositories.EventTypeRepository;
 import wedoevents.eventplanner.shared.models.City;
@@ -26,13 +30,14 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventTypeRepository eventTypeRepository;
     private final EventOrganizerRepository eventOrganizerRepository;
-
+    private final EventActivityRepository eventActivityRepository;
     @Autowired
     public EventService(EventRepository eventRepository, EventTypeRepository eventTypeRepository,
-                        EventOrganizerRepository eventOrganizerRepository) {
+                        EventOrganizerRepository eventOrganizerRepository, EventActivityRepository eventActivityRepository) {
         this.eventRepository = eventRepository;
         this.eventTypeRepository = eventTypeRepository;
         this.eventOrganizerRepository = eventOrganizerRepository;
+        this.eventActivityRepository = eventActivityRepository;
     }
 
     public List<EventComplexViewDTO> getEventsFromOrganizer(UUID eventOrganizerId) {
@@ -99,7 +104,11 @@ public class EventService {
         EventOrganizer eventOrganizer = eventOrganizerMaybe.get();
 
         Event newEvent = new Event();
-        newEvent.setEventActivities(new ArrayList<>()); // todo agenda
+        newEvent.setEventActivities(new ArrayList<>());
+        for(UUID id: createEventDTO.getAgenda()){
+            Optional<EventActivity> activity = eventActivityRepository.findById(id);
+            activity.ifPresent(eventActivity -> newEvent.getEventActivities().add(eventActivity));
+        }
         newEvent.setImages(new ArrayList<>()); // todo images with image service
         newEvent.setProductBudgetItems(new ArrayList<>());
         newEvent.setServiceBudgetItems(new ArrayList<>());
@@ -124,5 +133,23 @@ public class EventService {
 
     public Optional<Event> getEventById(UUID id) {
         return eventRepository.findById(id);
+    }
+
+    public List<UUID> createAgenda(EventActivitiesDTO agenda){
+        List<UUID> createdActivityIds = new ArrayList<>();
+
+        for (EventActivityDTO activityDTO : agenda.getEventActivities()) {
+            EventActivity eventActivity = new EventActivity();
+
+            eventActivity.setName(activityDTO.getName());
+            eventActivity.setDescription(activityDTO.getDescription());
+            eventActivity.setLocation(activityDTO.getLocation());
+            eventActivity.setStartTime(activityDTO.getStartTime());
+            eventActivity.setEndTime(activityDTO.getEndTime());
+            eventActivity = eventActivityRepository.save(eventActivity);
+            createdActivityIds.add(eventActivity.getId());
+        }
+
+        return createdActivityIds;
     }
 }
