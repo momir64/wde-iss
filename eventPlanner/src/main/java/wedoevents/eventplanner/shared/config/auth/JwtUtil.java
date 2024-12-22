@@ -44,4 +44,11 @@ public class JwtUtil {
             return false;
         }
     }
+    public UUID extractProfileId(String token) {
+        return UUID.fromString(Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody()
+                .get("profileId", String.class));
+    }
 }

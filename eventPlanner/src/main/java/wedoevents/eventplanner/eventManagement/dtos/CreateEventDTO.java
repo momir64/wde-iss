@@ -25,9 +25,9 @@ public class CreateEventDTO {
     private Double longitude;
 
     private UUID eventTypeId;
-    private List<UUID> eventActivitiyIds; // todo agenda
+    private List<UUID> agenda;
 
-    private UUID organizerId;
+    private UUID organizerProfileId;
 
     // private List<MultipartFile> images; // todo add images with image service
 }

@@ -40,4 +40,9 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
                limit 5
            """)
     List<Event> getTopEvents(@Param("city") String city);  // todo: sort by rating
+
+
+
+
+
 }
