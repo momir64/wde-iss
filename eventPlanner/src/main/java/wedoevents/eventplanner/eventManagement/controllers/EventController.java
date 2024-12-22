@@ -30,12 +30,10 @@ public class EventController {
         this.imageService = imageService;
     }
 
-    // todo when session tracking is enabled, add which organizer created the event
-    // todo for now the organizer id is fixed to "1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236"
+
     @PostMapping
     public ResponseEntity<EventComplexViewDTO> createEvent(@RequestBody CreateEventDTO createEventDTO) {
         try {
-            createEventDTO.setOrganizerId(UUID.fromString("1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236"));
             EventComplexViewDTO createdEvent = eventService.createEvent(createEventDTO);
             return ResponseEntity.ok(createdEvent);
         } catch (EntityNotFoundException e) {
@@ -70,6 +68,7 @@ public class EventController {
                                           @RequestParam(value = "type", required = false) UUID eventTypeId,
                                           @RequestParam(value = "minRating", required = false) Double minRating,
                                           @RequestParam(value = "maxRating", required = false) Double maxRating,
+                                          @RequestParam(value = "organizerId", required = false) UUID organizerId,
                                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateRangeStart,
                                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateRangeEnd,
                                           @RequestParam(required = false) String sortBy,
@@ -77,7 +76,7 @@ public class EventController {
                                           @RequestParam(name = "page", defaultValue = "0") int page,
                                           @RequestParam(name = "size", defaultValue = "10") int size) {
         try {
-            return ResponseEntity.ok(eventService.searchEvents(searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, page, size));
+            return ResponseEntity.ok(eventService.searchEvents(searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, page, size,organizerId));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (Exception e) {

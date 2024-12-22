@@ -27,7 +27,7 @@ public class CreateEventDTO {
     private UUID eventTypeId;
     private List<UUID> eventActivitiyIds; // todo agenda
 
-    private UUID organizerId;
+    private UUID organizerProfileId;
 
     // private List<MultipartFile> images; // todo add images with image service
 }

@@ -33,9 +33,10 @@ public class SecurityConfig {
         http.csrf().disable()
                 .authorizeRequests()
                 .requestMatchers("/v3/api-docs.yaml","/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**","/api-docs/**").permitAll()
-                .requestMatchers("/api/**").permitAll()  //DEV ENV
-                .requestMatchers("/api/v1/events/top","/api/v1/listings/top","/api/v1/notifications**","api/v1/products/**","api/v1/services/**","api/v1/events/**").permitAll()
+                //.requestMatchers("/api/**").permitAll()  //DEV ENV
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/profiles/registration","/api/v1/profiles/images").permitAll()
+                .requestMatchers("/api/v1/events/top","/api/v1/listings/top","/api/v1/listings","/api/v1/notifications**","api/v1/products/**","api/v1/services/**","api/v1/events").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/v1/admins").hasAnyRole("GUEST","ADMIN","ORGANIZER")
                 .anyRequest().authenticated()
