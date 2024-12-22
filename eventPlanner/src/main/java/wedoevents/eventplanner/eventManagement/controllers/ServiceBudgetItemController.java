@@ -5,17 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wedoevents.eventplanner.eventManagement.dtos.BuyProductDTO;
 import wedoevents.eventplanner.eventManagement.dtos.BuyServiceDTO;
 import wedoevents.eventplanner.eventManagement.dtos.CreateServiceBudgetItemDTO;
 import wedoevents.eventplanner.eventManagement.dtos.ServiceBudgetItemDTO;
-import wedoevents.eventplanner.eventManagement.models.ServiceBudgetItem;
 import wedoevents.eventplanner.eventManagement.services.ServiceBudgetItemService;
-import wedoevents.eventplanner.shared.Exceptions.BuyProductException;
+import wedoevents.eventplanner.shared.Exceptions.BuyServiceException;
 import wedoevents.eventplanner.shared.Exceptions.EntityCannotBeDeletedException;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -27,6 +23,16 @@ public class ServiceBudgetItemController {
     @Autowired
     public ServiceBudgetItemController(ServiceBudgetItemService serviceBudgetItemService) {
         this.serviceBudgetItemService = serviceBudgetItemService;
+    }
+
+    @GetMapping("/{serviceId}")
+    public ResponseEntity<?> getSlots(@PathVariable("serviceId") UUID serviceId) {
+        try {
+            UUID organizerId = UUID.fromString("1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236"); // todo: for now fixed organizer
+            return ResponseEntity.ok(serviceBudgetItemService.getSlots(serviceId, organizerId));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
@@ -48,10 +54,10 @@ public class ServiceBudgetItemController {
 //      return new ResponseEntity<>(serviceBudgetItem, HttpStatus.BAD_REQUEST);
 //  }
         try {
-            return ResponseEntity.ok(serviceBudgetItemService.createServiceBudgetItem(serviceBudgetItem));
+            return ResponseEntity.ok(ServiceBudgetItemDTO.toDto(serviceBudgetItemService.createServiceBudgetItem(serviceBudgetItem)));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
-        } catch (BuyProductException e) {
+        } catch (BuyServiceException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
     }
@@ -62,7 +68,7 @@ public class ServiceBudgetItemController {
             return ResponseEntity.ok(serviceBudgetItemService.buyService(buyServiceDTO));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
-        } catch (BuyProductException e) {
+        } catch (BuyServiceException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
     }

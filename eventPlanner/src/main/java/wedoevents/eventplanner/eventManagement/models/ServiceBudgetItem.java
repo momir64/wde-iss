@@ -6,20 +6,19 @@ import lombok.Setter;
 import wedoevents.eventplanner.serviceManagement.models.ServiceCategory;
 import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
 @Entity
 public class ServiceBudgetItem {
-
     @Id
-    @GeneratedValue()
+    @GeneratedValue
     private UUID id;
 
     private double maxPrice;
-    private int serviceVersion;
+
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 

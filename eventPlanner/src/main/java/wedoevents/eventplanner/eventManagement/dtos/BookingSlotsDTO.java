@@ -4,14 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class BuyServiceDTO {
-    private UUID eventId;
-    private UUID serviceId;
-    private String startTime;
-    private String endTime;
+public class BookingSlotsDTO {
+    private EventNameDTO event;
+    private HashMap<String, List<String>> timeTable;
 }
