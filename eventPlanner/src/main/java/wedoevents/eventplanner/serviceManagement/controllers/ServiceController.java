@@ -2,6 +2,7 @@ package wedoevents.eventplanner.serviceManagement.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import wedoevents.eventplanner.serviceManagement.dtos.*;
 import wedoevents.eventplanner.serviceManagement.services.ServiceService;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
+import wedoevents.eventplanner.shared.services.pdfService.PdfGeneratorService;
 
 import java.io.IOException;
 import java.util.*;
@@ -25,6 +27,8 @@ public class ServiceController {
 
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private PdfGeneratorService pdfGeneratorService;
 
     @GetMapping(path = "/latest-versions")
     public ResponseEntity<?> getAllServicesWithLatestVersions() {
@@ -148,10 +152,10 @@ public class ServiceController {
         }
     }
 
-    @GetMapping(path = "/{sellerId}/my-services")
-    public ResponseEntity<?> getSellersServices(@PathVariable UUID sellerId) {
+    @GetMapping(path = "/{sellerId}/my-services/catalogue")
+    public ResponseEntity<?> getSellersServicesForCatalogue(@PathVariable UUID sellerId) {
         try {
-            List<CatalogueServiceDTO> services = serviceService.getAllServicesLatestVersionsFromSeller(sellerId);
+            List<CatalogueServiceDTO> services = serviceService.getAllServicesLatestVersionsFromSellerForCatalogue(sellerId);
             return ResponseEntity.ok(services);
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
@@ -166,6 +170,27 @@ public class ServiceController {
         try {
             serviceService.updateCataloguePrices(sellerId, toBeUpdatedServicesCatalogueDTO);
             return ResponseEntity.ok().build();
+//        } catch (UnauthorizedException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
+//        }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
+
+    @GetMapping(path = "/{sellerId}/catalogue-pdf")
+    public ResponseEntity<?> get(@PathVariable UUID sellerId) {
+        try {
+            byte[] pdfContent = pdfGeneratorService.generateServicesCatalogue(
+                    serviceService.getAllServicesLatestVersionsFromSellerForCatalogue(sellerId)
+            );
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", "services-catalogue.pdf");
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(pdfContent);
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
 //        }

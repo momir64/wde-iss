@@ -2,6 +2,7 @@ package wedoevents.eventplanner.productManagement.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,10 +11,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.productManagement.dtos.*;
 import wedoevents.eventplanner.productManagement.services.ProductService;
-import wedoevents.eventplanner.serviceManagement.dtos.CatalogueServiceDTO;
-import wedoevents.eventplanner.serviceManagement.dtos.ToBeUpdatedServicesCatalogueDTO;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
+import wedoevents.eventplanner.shared.services.pdfService.PdfGeneratorService;
 
 import java.io.IOException;
 import java.util.*;
@@ -27,6 +27,8 @@ public class ProductController {
 
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private PdfGeneratorService pdfGeneratorService;
 
     @GetMapping(path = "latest-versions")
     public ResponseEntity<?> getAllProductsWithLatestVersions() {
@@ -151,10 +153,10 @@ public class ProductController {
         }
     }
 
-    @GetMapping(path = "/{sellerId}/my-products")
-    public ResponseEntity<?> getSellersProducts(@PathVariable UUID sellerId) {
+    @GetMapping(path = "/{sellerId}/my-products/catalogue")
+    public ResponseEntity<?> getSellersProductsForCatalogue(@PathVariable UUID sellerId) {
         try {
-            List<CatalogueProductDTO> services = productService.getAllProductsLatestVersionsFromSeller(sellerId);
+            List<CatalogueProductDTO> services = productService.getAllProductsLatestVersionsFromSellerForCatalogue(sellerId);
             return ResponseEntity.ok(services);
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
@@ -170,6 +172,26 @@ public class ProductController {
         try {
             productService.updateCataloguePrices(sellerId, toBeUpdatedProductsCatalogueDTO);
             return ResponseEntity.ok().build();
+//        } catch (UnauthorizedException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
+//        }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
+    @GetMapping(path = "/{sellerId}/catalogue-pdf")
+    public ResponseEntity<?> get(@PathVariable UUID sellerId) {
+        try {
+            byte[] pdfContent = pdfGeneratorService.generateProductsCatalogue(
+                    productService.getAllProductsLatestVersionsFromSellerForCatalogue(sellerId)
+            );
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", "products-catalogue.pdf");
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(pdfContent);
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
 //        }

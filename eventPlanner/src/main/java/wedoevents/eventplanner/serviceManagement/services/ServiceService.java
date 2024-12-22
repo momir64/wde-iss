@@ -59,7 +59,7 @@ public class ServiceService {
         ).toList();
     }
 
-    public List<CatalogueServiceDTO> getAllServicesLatestVersionsFromSeller(UUID sellerId) {
+    public List<CatalogueServiceDTO> getAllServicesLatestVersionsFromSellerForCatalogue(UUID sellerId) {
         return versionedServiceRepository.getAllVersionedServicesWithMaxVersionsFromSeller(sellerId).stream().map(
                 CatalogueServiceDTO::toDto
         ).toList();

@@ -12,10 +12,6 @@ import wedoevents.eventplanner.productManagement.models.*;
 import wedoevents.eventplanner.productManagement.repositories.ProductCategoryRepository;
 import wedoevents.eventplanner.productManagement.repositories.StaticProductRepository;
 import wedoevents.eventplanner.productManagement.repositories.VersionedProductRepository;
-import wedoevents.eventplanner.serviceManagement.dtos.CatalogueServiceDTO;
-import wedoevents.eventplanner.serviceManagement.dtos.ToBeUpdatedServicesCatalogueDTO;
-import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceForSellerDTO;
-import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 import wedoevents.eventplanner.shared.Exceptions.UpdatePriceException;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
@@ -24,7 +20,6 @@ import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepos
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -63,7 +58,7 @@ public class ProductService {
         ).toList();
     }
 
-    public List<CatalogueProductDTO> getAllProductsLatestVersionsFromSeller(UUID sellerId) {
+    public List<CatalogueProductDTO> getAllProductsLatestVersionsFromSellerForCatalogue(UUID sellerId) {
         return versionedProductRepository.getAllVersionedProductsWithMaxVersionsFromSeller(sellerId).stream().map(
                 CatalogueProductDTO::toDto
         ).toList();

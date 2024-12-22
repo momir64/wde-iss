@@ -1,18 +1,17 @@
 package wedoevents.eventplanner.shared.services.pdfService;
-import com.itextpdf.io.font.FontProgram;
-import com.itextpdf.io.font.FontProgramFactory;
-import com.itextpdf.io.font.PdfEncodings;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.properties.TextAlignment;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.models.EventActivity;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.UnitValue;
+import wedoevents.eventplanner.productManagement.dtos.CatalogueProductDTO;
+import wedoevents.eventplanner.serviceManagement.dtos.CatalogueServiceDTO;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
@@ -67,6 +66,78 @@ public class PdfGeneratorService {
             } else {
                 document.add(new Paragraph("Agenda nije planirana"));
             }
+
+            document.close();
+
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate PDF", e);
+        }
+    }
+
+    public byte[] generateServicesCatalogue(List<CatalogueServiceDTO> catalogueServicesFromSeller) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            PdfWriter writer = new PdfWriter(out);
+
+            Document document = new Document(new com.itextpdf.kernel.pdf.PdfDocument(writer));
+
+            Text underlinedText = new Text("Cenovnik usluga").setUnderline().setBold().setFontSize(35);
+            Paragraph firstParagraph = new Paragraph().add(underlinedText).setTextAlignment(TextAlignment.CENTER);
+            document.add(firstParagraph);
+
+            document.add(new Paragraph().setMarginTop(20));
+
+            Table table = new Table(UnitValue.createPercentArray(new float[]{5, 5})).useAllAvailableWidth();
+
+            table.addHeaderCell("Usluga");
+            table.addHeaderCell(new Cell().add(new Paragraph("Trenutna cena")).setTextAlignment(TextAlignment.RIGHT));
+
+            for (CatalogueServiceDTO cataloguedService : catalogueServicesFromSeller) {
+                table.addCell(cataloguedService.getName());
+
+                Double price = cataloguedService.getSalePercentage() == null ?
+                        cataloguedService.getPrice() : cataloguedService.getPrice() * (1 - cataloguedService.getSalePercentage());
+
+                table.addCell(new Cell().add(new Paragraph(String.format("%.2f€/hr", price)).setTextAlignment(TextAlignment.RIGHT)));
+            }
+
+            document.add(table);
+
+            document.close();
+
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate PDF", e);
+        }
+    }
+
+    public byte[] generateProductsCatalogue(List<CatalogueProductDTO> catalogueProductsFromSeller) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            PdfWriter writer = new PdfWriter(out);
+
+            Document document = new Document(new com.itextpdf.kernel.pdf.PdfDocument(writer));
+
+            Text underlinedText = new Text("Cenovnik proizvoda").setUnderline().setBold().setFontSize(35);
+            Paragraph firstParagraph = new Paragraph().add(underlinedText).setTextAlignment(TextAlignment.CENTER);
+            document.add(firstParagraph);
+
+            document.add(new Paragraph().setMarginTop(20));
+
+            Table table = new Table(UnitValue.createPercentArray(new float[]{5, 5})).useAllAvailableWidth();
+
+            table.addHeaderCell("Proizvod");
+            table.addHeaderCell(new Cell().add(new Paragraph("Trenutna cena")).setTextAlignment(TextAlignment.RIGHT));
+
+            for (CatalogueProductDTO cataloguedProduct : catalogueProductsFromSeller) {
+                table.addCell(cataloguedProduct.getName());
+
+                Double price = cataloguedProduct.getSalePercentage() == null ?
+                        cataloguedProduct.getPrice() : cataloguedProduct.getPrice() * (1 - cataloguedProduct.getSalePercentage());
+
+                table.addCell(new Cell().add(new Paragraph(String.format("%.2f€", price)).setTextAlignment(TextAlignment.RIGHT)));
+            }
+
+            document.add(table);
 
             document.close();
 
