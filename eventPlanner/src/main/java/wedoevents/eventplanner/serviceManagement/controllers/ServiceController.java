@@ -8,10 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
-import wedoevents.eventplanner.serviceManagement.dtos.UpdateVersionedServiceDTO;
-import wedoevents.eventplanner.serviceManagement.dtos.CreateVersionedServiceDTO;
-import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceDTO;
-import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceForSellerDTO;
+import wedoevents.eventplanner.serviceManagement.dtos.*;
 import wedoevents.eventplanner.serviceManagement.services.ServiceService;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
@@ -151,12 +148,24 @@ public class ServiceController {
         }
     }
 
-    @GetMapping(path = "/catalogue/{id}")
-    public ResponseEntity<?> getSellersServices(@PathVariable UUID id) {
+    @GetMapping(path = "/{sellerId}/my-services")
+    public ResponseEntity<?> getSellersServices(@PathVariable UUID sellerId) {
         try {
-            // will later change to only return services of a given seller
-            List<VersionedServiceDTO> services = serviceService.getAllServicesWithLatestVersions();
+            List<CatalogueServiceDTO> services = serviceService.getAllServicesLatestVersionsFromSeller(sellerId);
             return ResponseEntity.ok(services);
+//        } catch (UnauthorizedException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
+//        }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
+
+    @PostMapping(path = "/{sellerId}/update-catalogue")
+    public ResponseEntity<?> updateSellerServicePrices(@PathVariable UUID sellerId, @RequestBody ToBeUpdatedServicesCatalogueDTO toBeUpdatedServicesCatalogueDTO) {
+        try {
+            serviceService.updateCataloguePrices(sellerId, toBeUpdatedServicesCatalogueDTO);
+            return ResponseEntity.ok().build();
 //        } catch (UnauthorizedException e) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
 //        }

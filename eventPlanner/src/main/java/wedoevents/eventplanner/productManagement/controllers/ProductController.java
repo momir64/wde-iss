@@ -8,11 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
-import wedoevents.eventplanner.productManagement.dtos.CreateVersionedProductDTO;
-import wedoevents.eventplanner.productManagement.dtos.UpdateVersionedProductDTO;
-import wedoevents.eventplanner.productManagement.dtos.VersionedProductDTO;
-import wedoevents.eventplanner.productManagement.dtos.VersionedProductForSellerDTO;
+import wedoevents.eventplanner.productManagement.dtos.*;
 import wedoevents.eventplanner.productManagement.services.ProductService;
+import wedoevents.eventplanner.serviceManagement.dtos.CatalogueServiceDTO;
+import wedoevents.eventplanner.serviceManagement.dtos.ToBeUpdatedServicesCatalogueDTO;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
 
@@ -152,14 +151,27 @@ public class ProductController {
         }
     }
 
-    @GetMapping(path = "/catalogue/{id}")
-    public ResponseEntity<?> getSellersProducts(@PathVariable UUID id) {
+    @GetMapping(path = "/{sellerId}/my-products")
+    public ResponseEntity<?> getSellersProducts(@PathVariable UUID sellerId) {
         try {
-            // will later change to only return products of a given seller
-            List<VersionedProductDTO> products = productService.getAllProductsWithLatestVersions();
-            return ResponseEntity.ok(products);
+            List<CatalogueProductDTO> services = productService.getAllProductsLatestVersionsFromSeller(sellerId);
+            return ResponseEntity.ok(services);
 //        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized products access");
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
+//        }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
+
+    @PostMapping(path = "/{sellerId}/update-catalogue")
+    public ResponseEntity<?> updateSellerProductPrices(@PathVariable UUID sellerId, @RequestBody ToBeUpdatedProductsCatalogueDTO toBeUpdatedProductsCatalogueDTO) {
+
+        try {
+            productService.updateCataloguePrices(sellerId, toBeUpdatedProductsCatalogueDTO);
+            return ResponseEntity.ok().build();
+//        } catch (UnauthorizedException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
 //        }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
