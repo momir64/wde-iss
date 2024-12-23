@@ -7,27 +7,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.eventManagement.services.EventTypeService;
-import wedoevents.eventplanner.productManagement.dtos.CreateVersionedProductDTO;
-import wedoevents.eventplanner.productManagement.dtos.UpdateVersionedProductDTO;
-import wedoevents.eventplanner.productManagement.dtos.VersionedProductDTO;
-import wedoevents.eventplanner.productManagement.dtos.VersionedProductForSellerDTO;
+import wedoevents.eventplanner.productManagement.dtos.*;
 import wedoevents.eventplanner.productManagement.models.*;
 import wedoevents.eventplanner.productManagement.repositories.ProductCategoryRepository;
 import wedoevents.eventplanner.productManagement.repositories.StaticProductRepository;
 import wedoevents.eventplanner.productManagement.repositories.VersionedProductRepository;
-import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceForSellerDTO;
-import wedoevents.eventplanner.serviceManagement.models.VersionedService;
+import wedoevents.eventplanner.shared.Exceptions.UpdatePriceException;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
 import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepository;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class ProductService {
@@ -63,6 +55,12 @@ public class ProductService {
     public List<VersionedProductDTO> getAllProductsWithLatestVersions() {
         return versionedProductRepository.getAllVersionedProductsWithMaxVersions().stream().map(
                 VersionedProductDTO::toDto
+        ).toList();
+    }
+
+    public List<CatalogueProductDTO> getAllProductsLatestVersionsFromSellerForCatalogue(UUID sellerId) {
+        return versionedProductRepository.getAllVersionedProductsWithMaxVersionsFromSeller(sellerId).stream().map(
+                CatalogueProductDTO::toDto
         ).toList();
     }
 
@@ -241,5 +239,38 @@ public class ProductService {
         newVersionedProduct.setIsAvailable(false);
 
         incrementProductVersionAndSave(newVersionedProduct);
+    }
+
+    public void updateCataloguePrices(UUID sellerId, ToBeUpdatedProductsCatalogueDTO toBeUpdatedProductsCatalogueDTO) {
+        Collection<VersionedProduct> productsFromSeller = this.versionedProductRepository.getAllVersionedProductsWithMaxVersionsFromSeller(sellerId);
+
+        for (CatalogueProductDTO newPrice : toBeUpdatedProductsCatalogueDTO.getToBeUpdated()) {
+            Optional<VersionedProduct> matchingVersionedProductMaybe =
+                    productsFromSeller
+                            .stream()
+                            .filter(s -> s.getStaticProductId().equals(newPrice.getProductId()))
+                            .findFirst();
+
+            if (matchingVersionedProductMaybe.isEmpty()) {
+                // todo unauthorized exception
+                throw new EntityNotFoundException();
+            }
+
+            if (newPrice.getPrice() == null) {
+                throw new UpdatePriceException("Price must be set");
+            }
+
+            VersionedProduct matchingVersionedProduct = matchingVersionedProductMaybe.get();
+
+            if (!matchingVersionedProduct.getPrice().equals(newPrice.getPrice()) ||
+                    !matchingVersionedProduct.getSalePercentage().equals(newPrice.getSalePercentage())) {
+                matchingVersionedProduct.setPrice(newPrice.getPrice());
+                matchingVersionedProduct.setSalePercentage(newPrice.getSalePercentage());
+
+                // TODO BIG: ACTUAL UPDATE USING updateVersionedProduct FUNCTION
+                // TODO BIG: FIX updateVersionedProduct FUNCTION TO ACCEPT EVERY FIELD AS OPTIONAL
+                versionedProductRepository.save(matchingVersionedProduct);
+            }
+        }
     }
 }

@@ -25,5 +25,12 @@ public interface VersionedServiceRepository extends JpaRepository<VersionedServi
                 "vs.version = vs_max_versions.max_version")
     Collection<VersionedService> getAllVersionedServicesWithMaxVersions();
 
+    @Query(value =
+            "SELECT vs.* " +
+            "FROM static_service ss INNER JOIN versioned_service vs ON vs.static_service_id = ss.static_service_id " +
+            "WHERE ss.seller_id = ?1",
+            nativeQuery = true)
+    Collection<VersionedService> getAllVersionedServicesWithMaxVersionsFromSeller(UUID sellerId);
+
     VersionedService getVersionedServiceByStaticServiceIdAndVersion(UUID staticServiceId, Integer version);
 }

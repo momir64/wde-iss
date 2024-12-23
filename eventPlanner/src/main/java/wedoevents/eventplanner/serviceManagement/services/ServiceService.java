@@ -6,16 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.eventManagement.services.EventTypeService;
-import wedoevents.eventplanner.serviceManagement.dtos.UpdateVersionedServiceDTO;
-import wedoevents.eventplanner.serviceManagement.dtos.CreateVersionedServiceDTO;
-import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceDTO;
-import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceForSellerDTO;
+import wedoevents.eventplanner.serviceManagement.dtos.*;
 import wedoevents.eventplanner.serviceManagement.models.ServiceCategory;
 import wedoevents.eventplanner.serviceManagement.models.StaticService;
 import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 import wedoevents.eventplanner.serviceManagement.repositories.ServiceCategoryRepository;
 import wedoevents.eventplanner.serviceManagement.repositories.StaticServiceRepository;
 import wedoevents.eventplanner.serviceManagement.repositories.VersionedServiceRepository;
+import wedoevents.eventplanner.shared.Exceptions.UpdatePriceException;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
 import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
@@ -58,6 +56,12 @@ public class ServiceService {
     public List<VersionedServiceDTO> getAllServicesWithLatestVersions() {
         return versionedServiceRepository.getAllVersionedServicesWithMaxVersions().stream().map(
                 VersionedServiceDTO::toDto
+        ).toList();
+    }
+
+    public List<CatalogueServiceDTO> getAllServicesLatestVersionsFromSellerForCatalogue(UUID sellerId) {
+        return versionedServiceRepository.getAllVersionedServicesWithMaxVersionsFromSeller(sellerId).stream().map(
+                CatalogueServiceDTO::toDto
         ).toList();
     }
 
@@ -246,5 +250,38 @@ public class ServiceService {
         newVersionedService.setIsAvailable(false);
 
         incrementServiceVersionAndSave(newVersionedService);
+    }
+
+    public void updateCataloguePrices(UUID sellerId, ToBeUpdatedServicesCatalogueDTO toBeUpdatedServicesCatalogueDTO) {
+        Collection<VersionedService> servicesFromSeller = this.versionedServiceRepository.getAllVersionedServicesWithMaxVersionsFromSeller(sellerId);
+
+        for (CatalogueServiceDTO newPrice : toBeUpdatedServicesCatalogueDTO.getToBeUpdated()) {
+            Optional<VersionedService> matchingVersionedServiceMaybe =
+                    servicesFromSeller
+                            .stream()
+                            .filter(s -> s.getStaticServiceId().equals(newPrice.getServiceId()))
+                            .findFirst();
+
+            if (matchingVersionedServiceMaybe.isEmpty()) {
+                // todo unauthorized exception
+                throw new EntityNotFoundException();
+            }
+
+            if (newPrice.getPrice() == null) {
+                throw new UpdatePriceException("Price must be set");
+            }
+
+            VersionedService matchingVersionedService = matchingVersionedServiceMaybe.get();
+
+            if (!matchingVersionedService.getPrice().equals(newPrice.getPrice()) ||
+                    !matchingVersionedService.getSalePercentage().equals(newPrice.getSalePercentage())) {
+                matchingVersionedService.setPrice(newPrice.getPrice());
+                matchingVersionedService.setSalePercentage(newPrice.getSalePercentage());
+
+                // TODO BIG: ACTUAL UPDATE USING updateVersionedService FUNCTION
+                // TODO BIG: FIX updateVersionedService FUNCTION TO ACCEPT EVERY FIELD AS OPTIONAL
+                versionedServiceRepository.save(matchingVersionedService);
+            }
+        }
     }
 }
