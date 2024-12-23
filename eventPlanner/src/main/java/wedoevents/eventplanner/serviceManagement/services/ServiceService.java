@@ -153,7 +153,7 @@ public class ServiceService {
         // todo check for fields that must be non-null
 
         Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository
-                .getVersionedServiceByStaticServiceIdAndLatestVersion(updateVersionedServiceDTO.getStaticServiceId());
+                .getLatestByStaticServiceId(updateVersionedServiceDTO.getStaticServiceId());
 
         // todo prevent editing deleted services
 
@@ -207,7 +207,7 @@ public class ServiceService {
     }
 
     public VersionedServiceDTO getVersionedServiceById(UUID staticServiceId) {
-        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getVersionedServiceByStaticServiceIdAndLatestVersion(staticServiceId);
+        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getLatestByStaticServiceId(staticServiceId);
 
         // todo prevent getting deleted services and prevent regular users from getting private services
 
@@ -219,7 +219,7 @@ public class ServiceService {
     }
 
     public VersionedServiceForSellerDTO getVersionedServiceEditableById(UUID staticServiceId) throws IOException {
-        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getVersionedServiceByStaticServiceIdAndLatestVersion(staticServiceId);
+        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getLatestByStaticServiceId(staticServiceId);
 
         // todo prevent getting deleted services
 
@@ -239,7 +239,7 @@ public class ServiceService {
         // todo pull all versions to deleted, so that no one can access the latest non deleted version
         // todo do the same for private
         // todo potentially add to static service
-        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getVersionedServiceByStaticServiceIdAndLatestVersion(staticServiceId);
+        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getLatestByStaticServiceId(staticServiceId);
 
         if (versionedServiceMaybe.isEmpty()) {
             throw new EntityNotFoundException();

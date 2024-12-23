@@ -15,7 +15,7 @@ public interface VersionedServiceRepository extends JpaRepository<VersionedServi
     @Query("SELECT vs FROM VersionedService vs WHERE " +
             "vs.isLastVersion AND " +
             "vs.staticService.staticServiceId = ?1")
-    Optional<VersionedService> getVersionedServiceByStaticServiceIdAndLatestVersion(UUID staticServiceId);
+    Optional<VersionedService> getLatestByStaticServiceId(UUID staticServiceId);
 
     @Query("SELECT vs FROM VersionedService vs INNER JOIN " +
             "(SELECT vs2.staticServiceId AS max_version_id, MAX(vs2.version) AS max_version " +
