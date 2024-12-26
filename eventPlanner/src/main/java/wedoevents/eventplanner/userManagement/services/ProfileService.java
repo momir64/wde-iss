@@ -183,16 +183,19 @@ public class ProfileService {
 
         return getExtendedProfileById(profileId);
     }
-    public Profile createEmptyProfile(String email) {
+    public Profile createEmptyGuestProfile(String email) {
         Optional<Role> role = roleRepository.findByName("ROLE_GUEST");
         Profile profile = new Profile();
         if(role.isEmpty()){
             return profile;
         }
         profile.BuildProfile(email, "Password123!", true, false, false, role.get());
-
         profile.setBlockedUsers(new ArrayList<>());
 
+        return profileRepository.save(profile);
+    }
+
+    public Profile saveProfile(Profile profile) {
         return profileRepository.save(profile);
     }
 }

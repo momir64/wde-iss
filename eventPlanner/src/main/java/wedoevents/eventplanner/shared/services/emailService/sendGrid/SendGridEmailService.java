@@ -60,18 +60,30 @@ public class SendGridEmailService implements IEmailService {
         return sendEmail(email, "Verify Your Registration", htmlContent); // Sending email as HTML
     }
 
-    public String sendInvitationEmail(String email,String guestEmail, String event, String organizerName, String organizerSurname) throws IOException {
-        String templatePath =  "templates/EventInvitation.html";
-        //TODO change url
-        String invitationUrl = "http://localhost:8080/api/v1/profiles/36832425-0f2f-43a4-b6cb-e603a8ccd39f";
+    public String sendQuickRegistrationEmail(String email,String guestEmail, String event, String organizerName, String organizerSurname, String profileId) throws IOException {
+        String templatePath = "templates/FastRegistration.html";
+        String registrationUrl = "http://localhost:8080/api/v1/registrationAttempts/fast-registration/" + profileId;
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("email", guestEmail);
         placeholders.put("event", event);
         placeholders.put("organizerName", organizerName);
         placeholders.put("organizerSurname", organizerSurname);
-        placeholders.put("invitationUrl", invitationUrl);
+        placeholders.put("registrationUrl", registrationUrl);
         String htmlContent = loadTemplate(templatePath, placeholders);
-        return sendEmail(email, "Event invitation", htmlContent);
+        return sendEmail(email, "Quick registration", htmlContent);
+    }
+
+    public String sendEventInvitationEmail(String email, String guestEmail, String event, String organizerName, String organizerSurname, String profileId, String eventId) throws IOException {
+        String templatePath = "templates/EventInvitation.html";
+        String confirmationUrl = "http://localhost:8080/api/v1/invitations/confirm/" + eventId + "/" + profileId;
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("email", guestEmail);
+        placeholders.put("event", event);
+        placeholders.put("organizerName", organizerName);
+        placeholders.put("organizerSurname", organizerSurname);
+        placeholders.put("confirmationUrl", confirmationUrl);
+        String htmlContent = loadTemplate(templatePath, placeholders);
+        return sendEmail(email, "Quick registration", htmlContent);
     }
 
     public String loadTemplate(String templatePath, Map<String, String> placeholders) throws IOException {

@@ -4,6 +4,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.eventManagement.models.Event;
+import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.GuestRepository;
@@ -17,10 +18,12 @@ import java.util.UUID;
 public class GuestService {
 
     private final GuestRepository guestRepository;
+    private final EventRepository eventRepository;
 
     @Autowired
-    public GuestService(GuestRepository guestRepository) {
+    public GuestService(GuestRepository guestRepository, EventRepository eventRepository) {
         this.guestRepository = guestRepository;
+        this.eventRepository = eventRepository;
     }
 
     public Guest saveGuest(Guest guest) {
@@ -100,6 +103,23 @@ public class GuestService {
         guest.setAcceptedEvents(new ArrayList<>());
 
         return guestRepository.save(guest);
+    }
+
+    public Optional<Event> getInvitedEvent(Guest guest, UUID eventId) {
+        return guest.getInvitedEvents().stream().filter(event -> event.getId().equals(eventId)).findFirst();
+    }
+    public void confirmInvitation(Event event, Guest guest, boolean decision) {
+
+        if(decision){
+            guest.getInvitedEvents().remove(event);
+            guest.getAcceptedEvents().add(event);
+            guestRepository.save(guest);
+            event.setGuestCount(event.getGuestCount() + 1);
+            eventRepository.save(event);
+        }else{
+            guest.getAcceptedEvents().remove(event);
+            guestRepository.save(guest);
+        }
     }
 
 }
