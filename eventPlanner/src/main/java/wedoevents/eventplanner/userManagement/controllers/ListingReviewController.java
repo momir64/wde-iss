@@ -13,9 +13,11 @@ import wedoevents.eventplanner.userManagement.dtos.ListingReviewDTO;
 import wedoevents.eventplanner.userManagement.models.ListingReview;
 import wedoevents.eventplanner.userManagement.models.PendingStatus;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
+import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
 import wedoevents.eventplanner.userManagement.services.ListingReviewService;
 import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
 import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
+import wedoevents.eventplanner.userManagement.services.userTypes.SellerService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,13 +32,15 @@ public class ListingReviewController {
     private final EventOrganizerService eventOrganizerService;
     private final ProductService productService;
     private final ServiceService serviceService;
+    private final SellerService sellerService;
 
     @Autowired
-    public ListingReviewController(ListingReviewService listingReviewService, EventOrganizerService eventOrganizerService, ProductService productService, ServiceService serviceService) {
+    public ListingReviewController(ListingReviewService listingReviewService, EventOrganizerService eventOrganizerService, ProductService productService, ServiceService serviceService, SellerService sellerService) {
         this.listingReviewService = listingReviewService;
         this.eventOrganizerService = eventOrganizerService;
         this.productService = productService;
         this.serviceService = serviceService;
+        this.sellerService = sellerService;
     }
 
     @PostMapping
@@ -65,13 +69,20 @@ public class ListingReviewController {
 
     @PutMapping("process")
     public ResponseEntity<?> processReview(@RequestBody UUID listingReviewId,@RequestBody boolean isAccepted){
-        Optional<ListingReview> review = listingReviewService.getReviewById(listingReviewId);
-        if(review.isEmpty()) {
+        Optional<ListingReview> reviewOptional = listingReviewService.getReviewById(listingReviewId);
+        if(reviewOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        listingReviewService.processReview(review.get(), isAccepted);
+        ListingReview review = reviewOptional.get();
+        listingReviewService.processReview(review, isAccepted);
         if(isAccepted) {
-            //TODO send review notification (get seller from listing)
+            Optional<Seller> sellerOptional;
+            if(review.getProduct() != null) {
+                sellerOptional = sellerService.getSellerByProductId(review.getProduct().getStaticProductId());
+            }else{
+                sellerOptional = sellerService.getSellerByServiceId(review.getService().getStaticServiceId());
+            }
+            //TODO send review notification
         }
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

@@ -9,8 +9,10 @@ import wedoevents.eventplanner.eventManagement.services.EventService;
 import wedoevents.eventplanner.userManagement.dtos.EvenReviewResponseDTO;
 import wedoevents.eventplanner.userManagement.dtos.EventReviewDTO;
 import wedoevents.eventplanner.userManagement.models.EventReview;
+import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
 import wedoevents.eventplanner.userManagement.services.EventReviewService;
+import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
 import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
 
 import java.util.List;
@@ -24,12 +26,14 @@ public class EventReviewController {
     private final EventReviewService eventReviewService;
     private final EventService eventService;
     private final GuestService guestService;
+    private final EventOrganizerService eventOrganizerService;
 
     @Autowired
-    public EventReviewController(EventReviewService eventReviewService, EventService eventService, GuestService guestService) {
+    public EventReviewController(EventReviewService eventReviewService, EventService eventService, GuestService guestService, EventOrganizerService eventOrganizerService) {
         this.eventReviewService = eventReviewService;
         this.eventService = eventService;
         this.guestService = guestService;
+        this.eventOrganizerService = eventOrganizerService;
     }
 
     @PostMapping
@@ -54,7 +58,8 @@ public class EventReviewController {
         }
         eventReviewService.processReview(eventReview.get(),isAccepted);
         if(isAccepted){
-            //TODO send review notification (get organizer from event)
+            Optional<EventOrganizer> organizerOptional = eventOrganizerService.getEventOrganizerByEventId(eventReview.get().getEvent().getId());
+            //TODO send review notification
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
