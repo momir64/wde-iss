@@ -3,8 +3,10 @@ package wedoevents.eventplanner.notificationManagement.dtos;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import wedoevents.eventplanner.notificationManagement.models.Notification;
+import wedoevents.eventplanner.notificationManagement.models.NotificationType;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -12,17 +14,22 @@ import java.util.UUID;
 @AllArgsConstructor
 public class NotificationDTO {
     private UUID id;
-
     private boolean isSeen;
-    private LocalDate date;
-    private String message;
+    private LocalDateTime time;
     private String title;
+    private String message;
     private String webRedirect;
-    private String mobileRedirect;
+    private NotificationType type;
+    private UUID entityId;
 
-    // one of these three will be -1 or null
-
-    private UUID serviceCategoryId;
-    private UUID productCategoryId;
-    private UUID eventId;
+    public NotificationDTO(Notification notification) {
+        this.id = notification.getId();
+        this.isSeen = notification.isSeen();
+        this.time = notification.getTime();
+        this.title = notification.getTitle();
+        this.message = notification.getMessage();
+        this.webRedirect = notification.getWebRedirect();
+        this.entityId = notification.getEntityId();
+        this.type = notification.getType();
+    }
 }

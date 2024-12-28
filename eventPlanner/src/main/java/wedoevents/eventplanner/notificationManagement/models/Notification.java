@@ -1,42 +1,35 @@
 package wedoevents.eventplanner.notificationManagement.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import wedoevents.eventplanner.eventManagement.models.Event;
-import wedoevents.eventplanner.productManagement.models.ProductCategory;
-import wedoevents.eventplanner.serviceManagement.models.ServiceCategory;
 import wedoevents.eventplanner.userManagement.models.Profile;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class Notification {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "UUID")
     private UUID id;
 
     private boolean isSeen;
-    private LocalDate date;
-    private String message;
+    private LocalDateTime time;
     private String title;
+    private String message;
     private String webRedirect;
-    private String mobileRedirect;
+
+    private NotificationType type;
+    private UUID entityId;
 
     @ManyToOne(optional = false)
-    private Profile user;
-
-    // only one of these three will be non-null
-
-    @ManyToOne()
-    private ServiceCategory serviceCategory;
-    @ManyToOne()
-    private ProductCategory productCategory;
-    @ManyToOne()
-    private Event event;
+    private Profile profile;
 }

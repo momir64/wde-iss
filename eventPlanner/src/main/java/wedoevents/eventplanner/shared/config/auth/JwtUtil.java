@@ -55,9 +55,11 @@ public class JwtUtil {
     }
 
     public static UUID extractProfileId(HttpServletRequest request) {
+        String token = extractJwt(request);
+        if (token == null) throw new IllegalArgumentException();
         return UUID.fromString(Jwts.parserBuilder()
                                    .setSigningKey(key).build()
-                                   .parseClaimsJws(extractJwt(request))
+                                   .parseClaimsJws(token)
                                    .getBody()
                                    .get("profileId", String.class));
     }
