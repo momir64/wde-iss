@@ -53,4 +53,11 @@ public class EventOrganizerService {
     public void deleteByProfile(Profile profile){
         eventOrganizerRepository.deleteByProfile(profile);
     }
+    public Optional<EventOrganizer> getEventOrganizerByEventId(UUID eventId) {
+        return eventOrganizerRepository.findByEventId(eventId);
+    }
+    public Optional<EventOrganizer> getEventOrganizerByProfileId(UUID profileId) {
+        return eventOrganizerRepository.findByProfileId(profileId);
+    }
+
 }

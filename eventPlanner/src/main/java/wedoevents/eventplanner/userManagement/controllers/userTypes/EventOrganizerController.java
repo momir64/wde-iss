@@ -5,10 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.userManagement.dtos.FavoriteListingDTO;
+import wedoevents.eventplanner.userManagement.dtos.UserAdditionalInfoDTO;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -58,5 +60,15 @@ public class EventOrganizerController {
     public ResponseEntity<Void> deleteEventOrganizer(@PathVariable UUID id) {
         eventOrganizerService.deleteEventOrganizer(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/profile/{profileId}")
+    public ResponseEntity<?> getOrganizerAdditionalInfo(@PathVariable UUID profileId) {
+        Optional<EventOrganizer> organizerOptional = eventOrganizerService.getEventOrganizerByProfileId(profileId);
+        if(organizerOptional.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        EventOrganizer organizer = organizerOptional.get();
+        return ResponseEntity.ok(new UserAdditionalInfoDTO(organizer.getName(),organizer.getSurname()));
     }
 }

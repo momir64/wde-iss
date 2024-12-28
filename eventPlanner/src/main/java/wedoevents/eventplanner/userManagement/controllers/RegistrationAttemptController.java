@@ -1,14 +1,25 @@
 package wedoevents.eventplanner.userManagement.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wedoevents.eventplanner.eventManagement.models.Event;
+import wedoevents.eventplanner.shared.services.emailService.IEmailService;
+import wedoevents.eventplanner.userManagement.dtos.CreateProfileDTO;
+import wedoevents.eventplanner.userManagement.dtos.FastRegistrationDTO;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.RegistrationAttempt;
 import wedoevents.eventplanner.userManagement.models.RegistrationAttemptDTO;
+import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
+import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
+import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
+import wedoevents.eventplanner.userManagement.repositories.userTypes.GuestRepository;
 import wedoevents.eventplanner.userManagement.services.ProfileService;
 import wedoevents.eventplanner.userManagement.services.RegistrationAttemptService;
+import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
+import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -20,14 +31,22 @@ import java.util.UUID;
 @RequestMapping("/api/v1/registrationAttempts")
 public class RegistrationAttemptController {
 
+    private final String recipientEmail = "uvoduvod1@gmail.com";
     private final RegistrationAttemptService registrationAttemptService;
-
+    private final String errorUrl = "http://localhost:4200/error/";
     private final ProfileService profileService;
+    private final GuestService guestService;
+    private final IEmailService emailService;
+    private final EventOrganizerService eventOrganizerService;
+
 
     @Autowired
-    public RegistrationAttemptController(RegistrationAttemptService registrationAttemptService,ProfileService profileService) {
+    public RegistrationAttemptController(RegistrationAttemptService registrationAttemptService,ProfileService profileService, GuestService guestService, @Qualifier("sendGridEmailService")  IEmailService emailService, EventOrganizerService eventOrganizerService) {
         this.registrationAttemptService = registrationAttemptService;
         this.profileService = profileService;
+        this.guestService = guestService;
+        this.emailService = emailService;
+        this.eventOrganizerService = eventOrganizerService;
     }
 
     @PostMapping
@@ -40,7 +59,6 @@ public class RegistrationAttemptController {
     @GetMapping("/verify/{id}/{profileId}")
     public ResponseEntity<?> verifyRegistration(@PathVariable UUID id, @PathVariable UUID profileId) {
 
-        String errorUrl = "http://localhost:4200/error/";
 
         // Step 1: Get the profile associated with the profileId from the RegistrationAttemptDTO
         Optional<Profile> profileOptional = profileService.findProfileById(profileId);
@@ -94,6 +112,70 @@ public class RegistrationAttemptController {
 //                .body("Profile successfully verified.");
     }
 
+    @GetMapping("/fast-registration/{profileId}")
+    public ResponseEntity<?> fastRegistrationInvite(@PathVariable UUID profileId) {
+
+        String redirectUrl = "http://localhost:4200/fast-registration/";
+        Optional<Profile> profileOptional = profileService.findProfileById(profileId);
+
+        if (profileOptional.isEmpty()) {
+            String message = "Profile%20not%20found";
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location", errorUrl+message).build();
+        }
+
+        Profile profile = profileOptional.get();
+
+        if(profile.isVerified()){
+            String message = "Already%20verified";
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location", errorUrl+message).build();
+        }
+
+        Optional<Guest> guest = guestService.getGuestByProfile(profile);
+        if(guest.isEmpty()) {
+            String message = "Guest%20not%20found";
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location", errorUrl+message).build();
+        }
+        redirectUrl = redirectUrl + profileId + "/" + profile.getEmail();
+        return ResponseEntity.status(HttpStatus.FOUND).header("Location", redirectUrl).build();
+    }
+
+    @PostMapping("/fast-registration")
+    public ResponseEntity<?> fastRegistrationVerification(@RequestBody FastRegistrationDTO fastRegistrationDTO) {
+        Optional<Profile> profileOptional = profileService.findProfileById(fastRegistrationDTO.getProfileId());
+
+        if (profileOptional.isEmpty()) {
+            String message = "Profile%20not%20found";
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location", errorUrl+message).build();
+        }
+
+        Profile profile = profileOptional.get();
+
+        Optional<Guest> guestOptional = guestService.getGuestByProfile(profile);
+        if(guestOptional.isEmpty()) {
+            String message = "Guest%20not%20found";
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location", errorUrl+message).build();
+        }
+        profile.setPassword(fastRegistrationDTO.getPassword());
+        profile.setVerified(true);
+        profileService.saveProfile(profile);
+
+        Guest guest = guestOptional.get();
+        guest.setName(fastRegistrationDTO.getName());
+        guest.setSurname(fastRegistrationDTO.getSurname());
+        guestService.saveGuest(guest);
+        List<Event> invitedEvents = guest.getInvitedEvents();
+        for (Event event : invitedEvents) {
+            Optional<EventOrganizer> organizerOptional = eventOrganizerService.getEventOrganizerByEventId(event.getId());
+            if(organizerOptional.isEmpty()) continue;
+            try{
+                String response = emailService.sendEventInvitationEmail(recipientEmail,profile.getEmail(),event.getName(),organizerOptional.get().getName(),organizerOptional.get().getSurname(),profile.getId().toString(),event.getId().toString());
+            }catch (Exception e){
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
+        //TODO send notification
+        return ResponseEntity.status(HttpStatus.OK).header("Location", "http://localhost:4200/login").build();
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<RegistrationAttempt> getRegistrationAttemptById(@PathVariable UUID id) {

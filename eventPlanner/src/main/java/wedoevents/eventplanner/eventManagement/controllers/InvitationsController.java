@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.dtos.GuestListDTO;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.services.EventService;
@@ -20,6 +17,7 @@ import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/invitations")
@@ -53,31 +51,54 @@ public class InvitationsController {
         if (emails.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Empty guest list");
         }
-        int guestCount = 0;
-
-
         for(String email : emails) {
             Optional<Profile> profile = profileService.findProfileByEmail(email);
             if(profile.isEmpty()) {
                 //create account, send email
-                Profile newProfile = profileService.createEmptyProfile(email);
+                Profile newProfile = profileService.createEmptyGuestProfile(email);
                 guestService.createGuestForEvent(newProfile, event.get());
                 try{
-                    String response = emailService.sendInvitationEmail(recipientEmail, email ,event.get().getName(),request.getOrganizerName(),request.getOrganizerSurname());
-                    guestCount++;
-                    //TODO log
+                    String response = emailService.sendQuickRegistrationEmail(recipientEmail, email ,event.get().getName(),request.getOrganizerName(),request.getOrganizerSurname(),newProfile.getId().toString());
                 }catch (Exception e){
-                    //TODO log
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
                 }
             }else{
                 Optional<Guest> guest = guestService.getGuestByProfile(profile.get());
                 if(guest.isPresent()) {
                     guestService.addInvitation(guest.get(), event.get());
-                    guestCount++;
-                    // optionally send notification, email etc.
+                    try{
+                        String response = emailService.sendEventInvitationEmail(recipientEmail,email,event.get().getName(),request.getOrganizerName(),request.getOrganizerSurname(),guest.get().getProfile().getId().toString(),event.get().getId().toString());
+                    }catch (Exception e){
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+                    }
+                    //TODO send notification
                 }
             }
         }
-        return ResponseEntity.status(HttpStatus.OK).body(guestCount);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/confirm/{eventId}/{profileId}/{decision}")
+    public ResponseEntity<?> confirmInvitation(@PathVariable UUID eventId, @PathVariable UUID profileId, @PathVariable boolean decision) {
+        final String errorUrl = "http://localhost:4200/error/";
+        Optional<Profile> profileOptional = profileService.findProfileById(profileId);
+        if (profileOptional.isEmpty()) {
+            String message = "Profile%20not%20found";
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location", errorUrl+message).build();
+        }
+        Profile profile = profileOptional.get();
+        Optional<Guest> guestOptional = guestService.getGuestByProfile(profile);
+        if (guestOptional.isEmpty()) {
+            String message = "Guest%20not%20found";
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location", errorUrl+message).build();
+        }
+        Guest guest = guestOptional.get();
+        Optional<Event> eventOptional = guestService.getInvitedEvent(guest, eventId);
+        if (eventOptional.isEmpty()) {
+            String message = "Event%20invitation%20already%20processed";
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location", errorUrl+message).build();
+        }
+        guestService.confirmInvitation(eventOptional.get(),guest,decision);
+        return ResponseEntity.status(HttpStatus.FOUND).header("Location", "http://localhost:4200/login").build();
     }
 }
