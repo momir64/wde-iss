@@ -284,4 +284,7 @@ public class ServiceService {
             }
         }
     }
+    public Optional<StaticService> getStaticServiceById(UUID serviceId) {
+        return staticServiceRepository.findById(serviceId);
+    }
 }

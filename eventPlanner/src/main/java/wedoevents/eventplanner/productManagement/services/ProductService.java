@@ -273,4 +273,9 @@ public class ProductService {
             }
         }
     }
+
+    public Optional<StaticProduct> getStaticProductById(UUID staticProductId) {
+        return staticProductRepository.findById(staticProductId);
+    }
+
 }

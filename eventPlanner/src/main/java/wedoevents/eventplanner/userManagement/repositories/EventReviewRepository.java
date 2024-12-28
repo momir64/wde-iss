@@ -1,9 +1,19 @@
 package wedoevents.eventplanner.userManagement.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import wedoevents.eventplanner.userManagement.models.EventReview;
+import wedoevents.eventplanner.userManagement.models.PendingStatus;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface EventReviewRepository extends JpaRepository<EventReview, UUID> {
+    @Query("SELECT er FROM EventReview er WHERE er.event.id = :eventId AND er.pendingStatus = :status")
+    List<EventReview> findByEventIdAndPendingStatus(@Param("eventId") UUID eventId, @Param("status") PendingStatus status);
+
+    @Query("SELECT er FROM EventReview er WHERE er.pendingStatus = :status")
+    List<EventReview> findByPendingStatus(PendingStatus status);
+
 }
