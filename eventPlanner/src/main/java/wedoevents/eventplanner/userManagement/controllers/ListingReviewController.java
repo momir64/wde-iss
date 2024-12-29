@@ -5,13 +5,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
+import wedoevents.eventplanner.productManagement.models.StaticProduct;
+import wedoevents.eventplanner.productManagement.services.ProductService;
+import wedoevents.eventplanner.serviceManagement.models.StaticService;
+import wedoevents.eventplanner.serviceManagement.services.ServiceService;
 import wedoevents.eventplanner.userManagement.dtos.ListingReviewDTO;
 import wedoevents.eventplanner.userManagement.models.ListingReview;
 import wedoevents.eventplanner.userManagement.models.PendingStatus;
+import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
+import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
 import wedoevents.eventplanner.userManagement.services.ListingReviewService;
+import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
+import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
+import wedoevents.eventplanner.userManagement.services.userTypes.SellerService;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -19,39 +29,89 @@ import java.util.UUID;
 public class ListingReviewController {
 
     private final ListingReviewService listingReviewService;
+    private final EventOrganizerService eventOrganizerService;
+    private final ProductService productService;
+    private final ServiceService serviceService;
+    private final SellerService sellerService;
 
     @Autowired
-    public ListingReviewController(ListingReviewService listingReviewService) {
+    public ListingReviewController(ListingReviewService listingReviewService, EventOrganizerService eventOrganizerService, ProductService productService, ServiceService serviceService, SellerService sellerService) {
         this.listingReviewService = listingReviewService;
+        this.eventOrganizerService = eventOrganizerService;
+        this.productService = productService;
+        this.serviceService = serviceService;
+        this.sellerService = sellerService;
     }
 
     @PostMapping
     public ResponseEntity<?> createReview(@RequestBody ListingReviewDTO listingReviewDTO) {
-        try {
-            // call process review service
-            return ResponseEntity.ok("Review processed successfully");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid review data");
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to process this review");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        Optional<EventOrganizer> organizer = eventOrganizerService.getEventOrganizerById(listingReviewDTO.getEventOrganizerId());
+        if(organizer.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        ListingType listingType = listingReviewDTO.getListingType();
+        if(listingType == ListingType.PRODUCT){
+            Optional<StaticProduct> product = productService.getStaticProductById(listingReviewDTO.getListingId());
+            if(product.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            if(!listingReviewService.IsReviewAllowed(organizer.get(), ListingType.PRODUCT,listingReviewDTO.getListingId())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            listingReviewService.createProductReview(listingReviewDTO, organizer.get(), product.get());
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        }else{
+            Optional<StaticService> service = serviceService.getStaticServiceById(listingReviewDTO.getListingId());
+            if(service.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            if(!listingReviewService.IsReviewAllowed(organizer.get(), ListingType.SERVICE,listingReviewDTO.getListingId())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            listingReviewService.createServiceReview(listingReviewDTO, organizer.get(), service.get());
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        }
+    }
+    @GetMapping("/check/{organizerId}/{isProduct}/{listingId}")
+    public ResponseEntity<?> checkIfReviewIsAllowed(@PathVariable UUID organizerId, @PathVariable boolean isProduct, @PathVariable UUID listingId) {
+        Optional<EventOrganizer> organizer = eventOrganizerService.getEventOrganizerById(organizerId);
+        if(organizer.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        ListingType listingType = isProduct ? ListingType.PRODUCT : ListingType.SERVICE;
+        return listingReviewService.IsReviewAllowed(organizer.get(), listingType,listingId) ? ResponseEntity.status(HttpStatus.OK).build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @PutMapping
-    public ResponseEntity<?> processReview(@RequestBody ListingReviewDTO listingReviewDTO) {
-        try {
-            // call process review service
-            return ResponseEntity.ok("Review processed successfully");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid review data");
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to process this review");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+    public ResponseEntity<?> processReview(@RequestBody UUID listingReviewId,@RequestBody boolean isAccepted){
+        Optional<ListingReview> reviewOptional = listingReviewService.getReviewById(listingReviewId);
+        if(reviewOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        ListingReview review = reviewOptional.get();
+        listingReviewService.processReview(review, isAccepted);
+        if(isAccepted) {
+            Optional<Seller> sellerOptional;
+            if(review.getProduct() != null) {
+                sellerOptional = sellerService.getSellerByProductId(review.getProduct().getStaticProductId());
+            }else{
+                sellerOptional = sellerService.getSellerByServiceId(review.getService().getStaticServiceId());
+            }
+            //TODO send review notification
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+
+    @GetMapping("/listing/{listingId}/{isProduct}")
+    public ResponseEntity<?> getAcceptedListingReviewsByListingId(@PathVariable UUID listingId, @PathVariable boolean isProduct){
+        return new ResponseEntity<>(listingReviewService.getReviewsByListingIdAndStatus(listingId,PendingStatus.APPROVED,isProduct), HttpStatus.OK);
+    }
+
+    @GetMapping("/pending")
+    public ResponseEntity<?> getPendingReviews(){
+        return new ResponseEntity<>(listingReviewService.getAllPendingReviews(), HttpStatus.OK);
+    }
+
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ListingReview> getReviewById(@PathVariable UUID id) {

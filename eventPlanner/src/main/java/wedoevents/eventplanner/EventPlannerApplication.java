@@ -14,7 +14,7 @@ public class EventPlannerApplication {
     public static void main(String[] args) throws IOException {
         SpringApplication.run(EventPlannerApplication.class, args);
 
-        FileInputStream firebaseKey = new FileInputStream("firebase-key.json");
+        FileInputStream firebaseKey = new FileInputStream("../firebase-key.json");
         FirebaseApp.initializeApp(FirebaseOptions.builder().setCredentials(GoogleCredentials.fromStream(firebaseKey)).build());
     }
 }

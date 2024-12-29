@@ -51,4 +51,10 @@ public class SellerService {
     public void deleteByProfile(Profile profile){
         sellerRepository.deleteByProfile(profile);
     }
+    public Optional<Seller> getSellerByServiceId(UUID serviceId) {
+        return sellerRepository.findByServiceId(serviceId);
+    }
+    public Optional<Seller> getSellerByProductId(UUID productId) {
+        return sellerRepository.findByProductId(productId);
+    }
 }

@@ -27,12 +27,15 @@ public class VersionedProductDTO {
     private Boolean isAvailable;
     private Boolean isActive;
     private Double price;
-
     private List<UUID> availableEventTypeIds;
+    private Double rating;
 
     public static VersionedProductDTO toDto(VersionedProduct versionedProduct) {
-        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).build().toUriString();
+        return toDto(versionedProduct, 0.0);
+    }
 
+    public static VersionedProductDTO toDto(VersionedProduct versionedProduct, Double rating) {
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).build().toUriString();
         return new VersionedProductDTO(
                 versionedProduct.getStaticProductId(),
                 versionedProduct.getVersion(),
@@ -49,7 +52,8 @@ public class VersionedProductDTO {
                 versionedProduct.getIsAvailable(),
                 versionedProduct.getIsActive(),
                 versionedProduct.getSalePercentage() != null ? (1 - versionedProduct.getSalePercentage()) * versionedProduct.getPrice() : null,
-                versionedProduct.getAvailableEventTypes().stream().map(EventType::getId).toList()
+                versionedProduct.getAvailableEventTypes().stream().map(EventType::getId).toList(),
+                rating
         );
     }
 }

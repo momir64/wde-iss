@@ -35,7 +35,14 @@ public class VersionedServiceDTO {
 
     private List<UUID> availableEventTypeIds;
 
+    private Double rating;
+
+
     public static VersionedServiceDTO toDto(VersionedService versionedService) {
+        return toDto(versionedService, 0.0);
+    }
+
+    public static VersionedServiceDTO toDto(VersionedService versionedService, Double rating) {
         String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).build().toUriString();
 
         return new VersionedServiceDTO(
@@ -59,7 +66,8 @@ public class VersionedServiceDTO {
                 versionedService.getSalePercentage() != null ? (1 - versionedService.getSalePercentage()) * versionedService.getPrice() : null,
                 versionedService.getMinimumDuration(),
                 versionedService.getMaximumDuration(),
-                versionedService.getAvailableEventTypes().stream().map(EventType::getId).toList()
+                versionedService.getAvailableEventTypes().stream().map(EventType::getId).toList(),
+                rating
         );
     }
 }
