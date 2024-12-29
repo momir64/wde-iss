@@ -6,7 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.services.EventService;
-import wedoevents.eventplanner.listingManagement.models.ListingType;
+import wedoevents.eventplanner.notificationManagement.models.NotificationType;
+import wedoevents.eventplanner.notificationManagement.services.NotificationService;
 import wedoevents.eventplanner.userManagement.dtos.EvenReviewResponseDTO;
 import wedoevents.eventplanner.userManagement.dtos.EventReviewDTO;
 import wedoevents.eventplanner.userManagement.models.EventReview;
@@ -28,56 +29,58 @@ public class EventReviewController {
     private final EventService eventService;
     private final GuestService guestService;
     private final EventOrganizerService eventOrganizerService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public EventReviewController(EventReviewService eventReviewService, EventService eventService, GuestService guestService, EventOrganizerService eventOrganizerService) {
+    public EventReviewController(EventReviewService eventReviewService, EventService eventService, GuestService guestService, EventOrganizerService eventOrganizerService, NotificationService notificationService) {
         this.eventReviewService = eventReviewService;
         this.eventService = eventService;
         this.guestService = guestService;
         this.eventOrganizerService = eventOrganizerService;
+        this.notificationService = notificationService;
     }
 
     @PostMapping
     public ResponseEntity<?> createReview(@RequestBody EventReviewDTO eventReviewDTO) {
         Optional<Guest> guest = guestService.getGuestById(eventReviewDTO.getGuestId());
-        if (guest.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         Optional<Event> event = eventService.getEventById(eventReviewDTO.getEventId());
-        if (event.isEmpty()) {
+        if (guest.isEmpty() || event.isEmpty())
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if(!eventReviewService.IsReviewAllowed(guest.get(),event.get())) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        eventReviewService.createReview(eventReviewDTO,guest.get(),event.get());
+        if (!eventReviewService.IsReviewAllowed(guest.get(), event.get()))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        eventReviewService.createReview(eventReviewDTO, guest.get(), event.get());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
     @GetMapping("/check/{guestId}/{eventId}")
     public ResponseEntity<?> checkIfReviewIsAllowed(@PathVariable UUID guestId, @PathVariable UUID eventId) {
         Optional<Guest> guest = guestService.getGuestById(guestId);
-        if (guest.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         Optional<Event> event = eventService.getEventById(eventId);
-        if (event.isEmpty()) {
+        if (guest.isEmpty() || event.isEmpty())
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if(!eventReviewService.IsReviewAllowed(guest.get(),event.get())) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (!eventReviewService.IsReviewAllowed(guest.get(), event.get()))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
     @PutMapping("process")
     public ResponseEntity<?> processReview(@RequestBody UUID eventReviewId, @RequestBody boolean isAccepted) {
         Optional<EventReview> eventReview = eventReviewService.getReviewById(eventReviewId);
-        if (eventReview.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        eventReviewService.processReview(eventReview.get(),isAccepted);
-        if(isAccepted){
-            Optional<EventOrganizer> organizerOptional = eventOrganizerService.getEventOrganizerByEventId(eventReview.get().getEvent().getId());
-            //TODO send review notification
+        if (eventReview.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        eventReviewService.processReview(eventReview.get(), isAccepted);
+        if (isAccepted) {
+            Event event = eventReview.get().getEvent();
+            Optional<EventOrganizer> organizerOptional = eventOrganizerService.getEventOrganizerByEventId(event.getId());
+            if (organizerOptional.isPresent()) {
+                String title = "New review for " + event.getName();
+                String message = "Your event " + event.getName() + " has received a new review from " +
+                                 eventReview.get().getGuest().getName() + " " + eventReview.get().getGuest().getSurname() + "!";
+                notificationService.sendNotification(organizerOptional.get().getProfile(), title, message, NotificationType.EVENT, event.getId());
+            }
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
     @GetMapping("/event/{eventId}")
     public ResponseEntity<List<EvenReviewResponseDTO>> getAcceptedReviewsByEventId(@PathVariable UUID eventId) {
         return new ResponseEntity<>(eventReviewService.getAcceptedReviewsByEventId(eventId), HttpStatus.OK);
@@ -88,15 +91,10 @@ public class EventReviewController {
         return new ResponseEntity<>(eventReviewService.getAllPendingReviews(), HttpStatus.OK);
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<EventReview> getReviewById(@PathVariable UUID id) {
-        return eventReviewService.getReviewById(id)
-                                 .map(ResponseEntity::ok)
-                                 .orElse(ResponseEntity.notFound().build());
+        return eventReviewService.getReviewById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
-
-
 
     @GetMapping
     public ResponseEntity<List<EventReview>> getAllReviews() {
