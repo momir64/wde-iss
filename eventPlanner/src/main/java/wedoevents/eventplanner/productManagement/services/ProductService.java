@@ -15,7 +15,11 @@ import wedoevents.eventplanner.productManagement.repositories.VersionedProductRe
 import wedoevents.eventplanner.shared.Exceptions.UpdatePriceException;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
+import wedoevents.eventplanner.userManagement.models.EventReview;
+import wedoevents.eventplanner.userManagement.models.ListingReview;
 import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
+import wedoevents.eventplanner.userManagement.repositories.EventReviewRepository;
+import wedoevents.eventplanner.userManagement.repositories.ListingReviewRepository;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepository;
 
 import java.io.IOException;
@@ -23,6 +27,10 @@ import java.util.*;
 
 @Service
 public class ProductService {
+
+
+    @Autowired
+    private ListingReviewRepository listingReviewRepository;
 
     @Autowired
     private VersionedProductRepository versionedProductRepository;
@@ -203,8 +211,14 @@ public class ProductService {
         if (versionedProductMaybe.isEmpty()) {
             throw new EntityNotFoundException();
         }
-
-        return VersionedProductDTO.toDto(versionedProductMaybe.get());
+        VersionedProductDTO product = VersionedProductDTO.toDto(versionedProductMaybe.get());
+        List<ListingReview> reviews = listingReviewRepository.findByProductId(staticProductId);
+        double averageRating = reviews.stream()
+                .mapToInt(ListingReview::getGrade)
+                .average()
+                .orElse(0.0);
+        product.setRating(averageRating);
+        return product;
     }
 
     public VersionedProductForSellerDTO getVersionedProductEditableById(UUID staticProductId) throws IOException {

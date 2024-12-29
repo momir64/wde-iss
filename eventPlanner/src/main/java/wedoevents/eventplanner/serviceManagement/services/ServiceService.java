@@ -16,7 +16,9 @@ import wedoevents.eventplanner.serviceManagement.repositories.VersionedServiceRe
 import wedoevents.eventplanner.shared.Exceptions.UpdatePriceException;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
+import wedoevents.eventplanner.userManagement.models.ListingReview;
 import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
+import wedoevents.eventplanner.userManagement.repositories.ListingReviewRepository;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepository;
 
 import java.io.IOException;
@@ -27,6 +29,9 @@ public class ServiceService {
 
     @Autowired
     private VersionedServiceRepository versionedServiceRepository;
+
+    @Autowired
+    private ListingReviewRepository listingReviewRepository;
 
     @Autowired
     private StaticServiceRepository staticServiceRepository;
@@ -214,8 +219,14 @@ public class ServiceService {
         if (versionedServiceMaybe.isEmpty()) {
             throw new EntityNotFoundException();
         }
-
-        return VersionedServiceDTO.toDto(versionedServiceMaybe.get());
+        VersionedServiceDTO service = VersionedServiceDTO.toDto(versionedServiceMaybe.get());
+        List<ListingReview> reviews = listingReviewRepository.findByServiceId(staticServiceId);
+        double averageRating = reviews.stream()
+                .mapToInt(ListingReview::getGrade)
+                .average()
+                .orElse(0.0);
+        service.setRating(averageRating);
+        return service;
     }
 
     public VersionedServiceForSellerDTO getVersionedServiceEditableById(UUID staticServiceId) throws IOException {

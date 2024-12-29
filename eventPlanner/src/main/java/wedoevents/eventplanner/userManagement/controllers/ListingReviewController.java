@@ -55,6 +55,7 @@ public class ListingReviewController {
             if(product.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
+            if(!listingReviewService.IsReviewAllowed(organizer.get(), ListingType.PRODUCT,listingReviewDTO.getListingId())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             listingReviewService.createProductReview(listingReviewDTO, organizer.get(), product.get());
             return ResponseEntity.status(HttpStatus.CREATED).build();
         }else{
@@ -62,12 +63,23 @@ public class ListingReviewController {
             if(service.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
+            if(!listingReviewService.IsReviewAllowed(organizer.get(), ListingType.SERVICE,listingReviewDTO.getListingId())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             listingReviewService.createServiceReview(listingReviewDTO, organizer.get(), service.get());
             return ResponseEntity.status(HttpStatus.CREATED).build();
         }
     }
+    @GetMapping("/check/{organizerId}/{isProduct}/{listingId}")
+    public ResponseEntity<?> checkIfReviewIsAllowed(@PathVariable UUID organizerId, @PathVariable boolean isProduct, @PathVariable UUID listingId) {
+        Optional<EventOrganizer> organizer = eventOrganizerService.getEventOrganizerById(organizerId);
+        if(organizer.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
-    @PutMapping("process")
+        ListingType listingType = isProduct ? ListingType.PRODUCT : ListingType.SERVICE;
+        return listingReviewService.IsReviewAllowed(organizer.get(), listingType,listingId) ? ResponseEntity.status(HttpStatus.OK).build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @PutMapping
     public ResponseEntity<?> processReview(@RequestBody UUID listingReviewId,@RequestBody boolean isAccepted){
         Optional<ListingReview> reviewOptional = listingReviewService.getReviewById(listingReviewId);
         if(reviewOptional.isEmpty()) {
@@ -99,19 +111,7 @@ public class ListingReviewController {
     }
 
 
-    @PutMapping
-    public ResponseEntity<?> processReview(@RequestBody ListingReviewDTO listingReviewDTO) {
-        try {
-            // call process review service
-            return ResponseEntity.ok("Review processed successfully");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid review data");
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to process this review");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
-        }
-    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ListingReview> getReviewById(@PathVariable UUID id) {

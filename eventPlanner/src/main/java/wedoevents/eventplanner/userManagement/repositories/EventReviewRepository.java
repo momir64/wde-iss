@@ -16,4 +16,7 @@ public interface EventReviewRepository extends JpaRepository<EventReview, UUID> 
     @Query("SELECT er FROM EventReview er WHERE er.pendingStatus = :status")
     List<EventReview> findByPendingStatus(PendingStatus status);
 
+    @Query("SELECT COUNT(er) > 0 FROM EventReview er WHERE er.event.id = :eventId AND er.guest.id = :guestId")
+    boolean existsByEventIdAndGuestId(@Param("eventId") UUID eventId, @Param("guestId") UUID guestId);
+
 }

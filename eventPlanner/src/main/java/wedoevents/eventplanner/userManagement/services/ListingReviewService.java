@@ -2,6 +2,10 @@ package wedoevents.eventplanner.userManagement.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import wedoevents.eventplanner.eventManagement.models.Event;
+import wedoevents.eventplanner.eventManagement.models.ProductBudgetItem;
+import wedoevents.eventplanner.eventManagement.models.ServiceBudgetItem;
+import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
 import wedoevents.eventplanner.productManagement.models.StaticProduct;
 import wedoevents.eventplanner.serviceManagement.models.StaticService;
@@ -10,7 +14,9 @@ import wedoevents.eventplanner.userManagement.dtos.ListingReviewResponseDTO;
 import wedoevents.eventplanner.userManagement.models.ListingReview;
 import wedoevents.eventplanner.userManagement.models.PendingStatus;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
+import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
 import wedoevents.eventplanner.userManagement.repositories.ListingReviewRepository;
+import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +27,7 @@ import java.util.stream.Collectors;
 public class ListingReviewService {
 
     private final ListingReviewRepository listingReviewRepository;
+
 
     @Autowired
     public ListingReviewService(ListingReviewRepository listingReviewRepository) {
@@ -105,4 +112,36 @@ public class ListingReviewService {
         dto.setGuestSurname(review.getEventOrganizer().getSurname());
         return dto;
     }
+
+    public boolean IsReviewAllowed (EventOrganizer organizer, ListingType listingType, UUID listingId){
+        int purchases = 0;
+        List<Event> events = organizer.getMyEvents();
+        if(listingType == ListingType.PRODUCT){
+            for (Event event : events) {
+                for(ProductBudgetItem budgetItem : event.getProductBudgetItems()){
+                    if(budgetItem.getProduct() != null){
+                        if(budgetItem.getProduct().getStaticProductId().equals(listingId)){
+                            purchases++;
+                        }
+                    }
+                }
+            }
+            Long reviewCount = listingReviewRepository.countByProductIdAndEventOrganizerId(listingId, organizer.getId());
+            return purchases > reviewCount;
+        }
+
+        for (Event event : events) {
+            for(ServiceBudgetItem budgetItem : event.getServiceBudgetItems()){
+                if(budgetItem.getService() != null){
+                    if(budgetItem.getService().getStaticServiceId().equals(listingId)){
+                        purchases++;
+                    }
+                }
+            }
+        }
+        Long reviewCount = listingReviewRepository.countByServiceIdAndEventOrganizerId(listingId, organizer.getId());
+        return purchases > reviewCount;
+    }
+
+
 }

@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.services.EventService;
+import wedoevents.eventplanner.listingManagement.models.ListingType;
 import wedoevents.eventplanner.userManagement.dtos.EvenReviewResponseDTO;
 import wedoevents.eventplanner.userManagement.dtos.EventReviewDTO;
 import wedoevents.eventplanner.userManagement.models.EventReview;
@@ -46,10 +47,24 @@ public class EventReviewController {
         if (event.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        if(!eventReviewService.IsReviewAllowed(guest.get(),event.get())) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
         eventReviewService.createReview(eventReviewDTO,guest.get(),event.get());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
-
+    @GetMapping("/check/{guestId}/{eventId}")
+    public ResponseEntity<?> checkIfReviewIsAllowed(@PathVariable UUID guestId, @PathVariable UUID eventId) {
+        Optional<Guest> guest = guestService.getGuestById(guestId);
+        if (guest.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Optional<Event> event = eventService.getEventById(eventId);
+        if (event.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if(!eventReviewService.IsReviewAllowed(guest.get(),event.get())) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
     @PutMapping("process")
     public ResponseEntity<?> processReview(@RequestBody UUID eventReviewId, @RequestBody boolean isAccepted) {
         Optional<EventReview> eventReview = eventReviewService.getReviewById(eventReviewId);

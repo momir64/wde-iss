@@ -81,4 +81,9 @@ public class EventReviewService {
         return dto;
     }
 
+    public boolean IsReviewAllowed(Guest g, Event event) {
+        if(!g.getAcceptedEvents().contains(event)) return false;
+        return !evenetReviewRepository.existsByEventIdAndGuestId(event.getId(),g.getId());
+    }
+
 }
