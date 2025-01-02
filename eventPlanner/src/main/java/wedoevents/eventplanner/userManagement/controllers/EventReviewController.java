@@ -10,6 +10,7 @@ import wedoevents.eventplanner.notificationManagement.models.NotificationType;
 import wedoevents.eventplanner.notificationManagement.services.NotificationService;
 import wedoevents.eventplanner.userManagement.dtos.EvenReviewResponseDTO;
 import wedoevents.eventplanner.userManagement.dtos.EventReviewDTO;
+import wedoevents.eventplanner.userManagement.dtos.ReviewHandlingDTO;
 import wedoevents.eventplanner.userManagement.models.EventReview;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
@@ -64,7 +65,9 @@ public class EventReviewController {
     }
 
     @PutMapping("process")
-    public ResponseEntity<?> processReview(@RequestBody UUID eventReviewId, @RequestBody boolean isAccepted) {
+    public ResponseEntity<?> processReview(@RequestBody ReviewHandlingDTO reviewHandlingDTO) {
+        UUID eventReviewId = reviewHandlingDTO.getId();
+        boolean isAccepted = reviewHandlingDTO.isDecision();
         Optional<EventReview> eventReview = eventReviewService.getReviewById(eventReviewId);
         if (eventReview.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         eventReviewService.processReview(eventReview.get(), isAccepted);

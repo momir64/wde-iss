@@ -105,7 +105,7 @@ public class ListingReviewService {
         dto.setGrade(review.getGrade());
         dto.setComment(review.getComment());
         dto.setPendingStatus(review.getPendingStatus());
-        dto.setListingId(review.getProduct() != null ? review.getProduct().getStaticProductId() : null);
+        dto.setListingId(review.getProduct() != null ? review.getProduct().getStaticProductId() : review.getService().getStaticServiceId());
         dto.setListingType((review.getProduct() != null ? ListingType.PRODUCT : ListingType.SERVICE));
         dto.setEventOrganizerId(review.getEventOrganizer().getId());
         dto.setGuestName(review.getEventOrganizer().getName());

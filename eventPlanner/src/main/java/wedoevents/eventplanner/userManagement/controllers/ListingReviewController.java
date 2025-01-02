@@ -12,6 +12,7 @@ import wedoevents.eventplanner.productManagement.services.ProductService;
 import wedoevents.eventplanner.serviceManagement.models.StaticService;
 import wedoevents.eventplanner.serviceManagement.services.ServiceService;
 import wedoevents.eventplanner.userManagement.dtos.ListingReviewDTO;
+import wedoevents.eventplanner.userManagement.dtos.ReviewHandlingDTO;
 import wedoevents.eventplanner.userManagement.models.ListingReview;
 import wedoevents.eventplanner.userManagement.models.PendingStatus;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
@@ -83,7 +84,9 @@ public class ListingReviewController {
     }
 
     @PutMapping
-    public ResponseEntity<?> processReview(@RequestBody UUID listingReviewId, @RequestBody boolean isAccepted) {
+    public ResponseEntity<?> processReview(@RequestBody ReviewHandlingDTO reviewHandlingDTO) {
+        UUID listingReviewId = reviewHandlingDTO.getId();
+        boolean isAccepted = reviewHandlingDTO.isDecision();
         Optional<ListingReview> reviewOptional = listingReviewService.getReviewById(listingReviewId);
         if (reviewOptional.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
