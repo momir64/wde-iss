@@ -29,9 +29,9 @@ public interface VersionedProductRepository extends JpaRepository<VersionedProdu
     @Query(value =
             "SELECT vp.* " +
             "FROM static_product sp INNER JOIN versioned_product vp ON sp.static_product_id = vp.static_product_id " +
-            "WHERE sp.seller_id = ?1",
+            "WHERE sp.seller_id = ?1 AND vp.is_last_version AND vp.is_active",
             nativeQuery = true)
     Collection<VersionedProduct> getAllVersionedProductsWithMaxVersionsFromSeller(UUID sellerId);
 
-    VersionedProduct getVersionedProductByStaticProductIdAndVersion(UUID staticProductId, Integer version);
+    Optional<VersionedProduct> getVersionedProductByStaticProductIdAndVersion(UUID staticProductId, Integer version);
 }

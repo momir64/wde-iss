@@ -12,6 +12,8 @@ import wedoevents.eventplanner.productManagement.models.*;
 import wedoevents.eventplanner.productManagement.repositories.ProductCategoryRepository;
 import wedoevents.eventplanner.productManagement.repositories.StaticProductRepository;
 import wedoevents.eventplanner.productManagement.repositories.VersionedProductRepository;
+import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceDTO;
+import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 import wedoevents.eventplanner.shared.Exceptions.UpdatePriceException;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
@@ -54,7 +56,6 @@ public class ProductService {
     private SellerRepository sellerRepository;
 
     private VersionedProduct incrementProductVersionAndSave(VersionedProduct versionedProduct) {
-        entityManager.detach(versionedProduct);
         versionedProduct.incrementVersion();
 
         return versionedProductRepository.save(versionedProduct);
@@ -156,17 +157,18 @@ public class ProductService {
 
         Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository
                 .getVersionedProductByStaticProductIdAndLatestVersion(updateVersionedProductDTO.getStaticProductId());
-
-        // todo prevent editing deleted services
-
+        
         if (versionedProductMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        if (!versionedProductMaybe.get().getIsActive()) {
             throw new EntityNotFoundException();
         }
 
         VersionedProduct oldVersionOfVersionedProduct = versionedProductMaybe.get();
 
         oldVersionOfVersionedProduct.setIsLastVersion(false);
-
         oldVersionOfVersionedProduct = versionedProductRepository.save(oldVersionOfVersionedProduct);
 
         VersionedProduct newVersionedProduct = new VersionedProduct(oldVersionOfVersionedProduct);
@@ -176,7 +178,6 @@ public class ProductService {
         newVersionedProduct.setDescription(updateVersionedProductDTO.getDescription());
         newVersionedProduct.setSalePercentage(updateVersionedProductDTO.getSalePercentage());
         newVersionedProduct.setPrice(updateVersionedProductDTO.getPrice());
-        newVersionedProduct.setIsActive(true);
         newVersionedProduct.setIsAvailable(updateVersionedProductDTO.getIsAvailable());
         newVersionedProduct.setIsPrivate(updateVersionedProductDTO.getIsPrivate());
 
@@ -206,11 +207,22 @@ public class ProductService {
     public VersionedProductDTO getVersionedProductById(UUID staticProductId) {
         Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getVersionedProductByStaticProductIdAndLatestVersion(staticProductId);
 
-        // todo prevent getting deleted products and prevent regular users from getting private products
-        
         if (versionedProductMaybe.isEmpty()) {
             throw new EntityNotFoundException();
         }
+
+        if (!versionedProductMaybe.get().getIsActive()) {
+            throw new EntityNotFoundException();
+        }
+
+        if (versionedProductMaybe.get().getIsPrivate()) {
+            // todo prevent regular users from getting private services
+        }
+
+        if (!versionedProductMaybe.get().getIsAvailable()) {
+            // todo prevent regular users from getting unavailable services
+        }
+        
         VersionedProductDTO product = VersionedProductDTO.toDto(versionedProductMaybe.get());
         List<ListingReview> reviews = listingReviewRepository.findByProductId(staticProductId);
         double averageRating = reviews.stream()
@@ -230,32 +242,46 @@ public class ProductService {
             throw new EntityNotFoundException();
         }
 
+        if (!versionedProductMaybe.get().getIsActive()) {
+            throw new EntityNotFoundException();
+        }
+
         return VersionedProductForSellerDTO.toDto(versionedProductMaybe.get(), imageService);
     }
 
     public VersionedProductDTO getVersionedProductByStaticProductIdAndVersion(Integer version, UUID staticProductId) {
-        // todo: null check
-        return VersionedProductDTO.toDto(versionedProductRepository.getVersionedProductByStaticProductIdAndVersion(staticProductId, version));
+        Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getVersionedProductByStaticProductIdAndVersion(staticProductId, version);
+
+        if (versionedProductMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        if (versionedProductMaybe.get().getIsPrivate()) {
+            throw new EntityNotFoundException();
+        }
+
+        return VersionedProductDTO.toDto(versionedProductMaybe.get());
     }
 
     public void deactivateProduct(UUID staticProductId) {
-        // todo pull all versions to deleted, so that no one can access the latest non deleted version
-        // todo do the same for private
-        // todo potentially add to static product
         Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getVersionedProductByStaticProductIdAndLatestVersion(staticProductId);
 
         if (versionedProductMaybe.isEmpty()) {
             throw new EntityNotFoundException();
         }
 
-        VersionedProduct newVersionedProduct = versionedProductMaybe.get();
+        VersionedProduct oldVersionedProduct = versionedProductMaybe.get();
+        oldVersionedProduct.setIsLastVersion(false);
+        versionedProductRepository.save(oldVersionedProduct);
 
-        newVersionedProduct.setIsAvailable(false);
+        VersionedProduct newVersionedProduct = new VersionedProduct(oldVersionedProduct);
+        newVersionedProduct.setIsLastVersion(true);
+        newVersionedProduct.setIsActive(false);
 
         incrementProductVersionAndSave(newVersionedProduct);
     }
 
-    public void updateCataloguePrices(UUID sellerId, ToBeUpdatedProductsCatalogueDTO toBeUpdatedProductsCatalogueDTO) {
+    public void updateCataloguePrices(UUID sellerId, ToBeUpdatedProductsCatalogueDTO toBeUpdatedProductsCatalogueDTO) throws IOException {
         Collection<VersionedProduct> productsFromSeller = this.versionedProductRepository.getAllVersionedProductsWithMaxVersionsFromSeller(sellerId);
 
         for (CatalogueProductDTO newPrice : toBeUpdatedProductsCatalogueDTO.getToBeUpdated()) {
@@ -274,16 +300,26 @@ public class ProductService {
                 throw new UpdatePriceException("Price must be set");
             }
 
-            VersionedProduct matchingVersionedProduct = matchingVersionedProductMaybe.get();
+            VersionedProduct oldPriceVersionedProduct = matchingVersionedProductMaybe.get();
 
-            if (!matchingVersionedProduct.getPrice().equals(newPrice.getPrice()) ||
-                    !matchingVersionedProduct.getSalePercentage().equals(newPrice.getSalePercentage())) {
-                matchingVersionedProduct.setPrice(newPrice.getPrice());
-                matchingVersionedProduct.setSalePercentage(newPrice.getSalePercentage());
+            if (!oldPriceVersionedProduct.getPrice().equals(newPrice.getPrice()) ||
+                    !oldPriceVersionedProduct.getSalePercentage().equals(newPrice.getSalePercentage())) {
+                oldPriceVersionedProduct.setIsLastVersion(false);
+                versionedProductRepository.save(oldPriceVersionedProduct);
+                
+                VersionedProduct newPriceVersionedProduct = new VersionedProduct(oldPriceVersionedProduct);
+                
+                newPriceVersionedProduct.setPrice(newPrice.getPrice());
+                newPriceVersionedProduct.setSalePercentage(newPrice.getSalePercentage());
+                newPriceVersionedProduct.setIsLastVersion(true);
 
-                // TODO BIG: ACTUAL UPDATE USING updateVersionedProduct FUNCTION
-                // TODO BIG: FIX updateVersionedProduct FUNCTION TO ACCEPT EVERY FIELD AS OPTIONAL
-                versionedProductRepository.save(matchingVersionedProduct);
+                newPriceVersionedProduct.setImages(imageService.copyImagesToNewVersion(
+                        new ImageLocationConfiguration("product",
+                                oldPriceVersionedProduct.getStaticProductId(),
+                                oldPriceVersionedProduct.getVersion())
+                ));
+
+                incrementProductVersionAndSave(newPriceVersionedProduct);
             }
         }
     }
@@ -291,5 +327,4 @@ public class ProductService {
     public Optional<StaticProduct> getStaticProductById(UUID staticProductId) {
         return staticProductRepository.findById(staticProductId);
     }
-
 }

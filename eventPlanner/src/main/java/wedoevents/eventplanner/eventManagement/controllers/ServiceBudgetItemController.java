@@ -25,7 +25,16 @@ public class ServiceBudgetItemController {
         this.serviceBudgetItemService = serviceBudgetItemService;
     }
 
-    @GetMapping("/{serviceId}")
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProductBudgetItem(@PathVariable UUID id) {
+        try {
+            return ResponseEntity.ok(serviceBudgetItemService.getServiceBudgetItem(id));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{serviceId}/slots")
     public ResponseEntity<?> getSlots(@PathVariable("serviceId") UUID serviceId) {
         try {
             UUID organizerId = UUID.fromString("1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236"); // todo: for now fixed organizer

@@ -5,7 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import wedoevents.eventplanner.eventManagement.models.EventType;
+import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
+import wedoevents.eventplanner.shared.services.imageService.ImageService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -67,5 +70,22 @@ public class VersionedService {
         this.staticServiceId = from.staticServiceId;
         this.staticService = from.staticService;
         this.version = from.version;
+        this.cancellationDeadline = from.cancellationDeadline;
+        this.reservationDeadline = from.reservationDeadline;
+        this.description = from.description;
+        this.name = from.name;
+        this.isActive = from.isActive;
+        this.isAvailable = from.isAvailable;
+        this.isConfirmationManual = from.isConfirmationManual;
+        this.isPrivate = from.isPrivate;
+        this.minimumDuration = from.minimumDuration;
+        this.maximumDuration = from.maximumDuration;
+        this.price = from.price;
+        this.salePercentage = from.salePercentage;
+        this.isLastVersion = from.isLastVersion;
+        this.availableEventTypes = from.availableEventTypes;
+
+        // images shouldn't be copied because storing them is based per version
+        this.images = new ArrayList<>();
     }
 }
