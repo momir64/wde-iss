@@ -25,20 +25,23 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                         from (
                             select *, dense_rank() over (order by price desc, id) as rank
                             from (
-                                (select 'SERVICE' as type, vs.static_service_id as id, version, vs.name, vs.description, price as oldPrice, (price * (1 - sale_percentage)) as price, is_available, city, images from versioned_service vs
+                                (select 'SERVICE' as type, vs.static_service_id as id, version, vs.name, vs.description, price as oldPrice, (price * (1 - sale_percentage)) as price, is_available, is_active, is_private, city, images, vs.is_last_version from versioned_service vs
                                 inner join static_service ss on ss.static_service_id = vs.static_service_id
                                 inner join seller s on s.id = ss.seller_id
                                 inner join versioned_service_images vsi on vsi.versioned_service_static_service_id = vs.static_service_id and vsi.versioned_service_version = vs.version)
                    
                                 union all
                    
-                                (select 'PRODUCT' as type, vp.static_product_id as id, version, vp.name, vp.description, price as oldPrice, (price * (1 - sale_percentage)) as price, is_available, city, images from versioned_product vp
+                                (select 'PRODUCT' as type, vp.static_product_id as id, version, vp.name, vp.description, price as oldPrice, (price * (1 - sale_percentage)) as price, is_available, is_active, is_private, city, images, vp.is_last_version from versioned_product vp
                                 inner join static_product sp on sp.static_product_id = vp.static_product_id
                                 inner join seller s on s.id = sp.seller_id
                                 inner join versioned_product_images vpi on vpi.versioned_product_static_product_id = vp.static_product_id and vpi.versioned_product_version = vp.version)
                             ) as combined
                             where :city is null or city = :city
                                 and is_available
+                                and is_last_version
+                                and is_active
+                                and not is_private
                         ) as ranked
                         where rank <= 5
                    """,
@@ -54,15 +57,17 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                                                             case when :sortBy = 'name' and :order = 'desc' then name end desc,
                                                          id) as rank
                             from (
-                                (select 'SERVICE' as type, vs.static_service_id as id, version, vs.name, vs.description, price as oldPrice, (price * (1 - sale_percentage)) as price, is_available, images, ss.service_category_id as category from versioned_service vs
+                                (select 'SERVICE' as type, vs.static_service_id as id, version, vs.name, vs.description, price as oldPrice, (price * (1 - sale_percentage)) as price, is_available, is_active, is_private, images, ss.service_category_id as category, vs.is_last_version from versioned_service vs
                                 inner join static_service ss on ss.static_service_id = vs.static_service_id
-                                inner join versioned_service_images vsi on vsi.versioned_service_static_service_id = vs.static_service_id and vsi.versioned_service_version = vs.version)
-                   
+                                inner join versioned_service_images vsi on vsi.versioned_service_static_service_id = vs.static_service_id and vsi.versioned_service_version = vs.version
+                                where is_last_version)
+
                                 union all
-                   
-                                (select 'PRODUCT' as type, vp.static_product_id as id, version, vp.name, vp.description, price as oldPrice, (price * (1 - sale_percentage)) as price, is_available, images, sp.product_category_id as category from versioned_product vp
+
+                                (select 'PRODUCT' as type, vp.static_product_id as id, version, vp.name, vp.description, price as oldPrice, (price * (1 - sale_percentage)) as price, is_available, is_active, is_private, images, sp.product_category_id as category, vp.is_last_version from versioned_product vp
                                 inner join static_product sp on sp.static_product_id = vp.static_product_id
-                                inner join versioned_product_images vpi on vpi.versioned_product_static_product_id = vp.static_product_id and vpi.versioned_product_version = vp.version)
+                                inner join versioned_product_images vpi on vpi.versioned_product_static_product_id = vp.static_product_id and vpi.versioned_product_version = vp.version
+                                where is_last_version)
                             ) as combined
                             where (:searchTerms is null or lower(name) like concat('%', lower(:searchTerms), '%'))
                                 and (:type is null or type = :type)
@@ -70,6 +75,8 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                                 and (:minPrice is null or price >= :minPrice)
                                 and (:maxPrice is null or price <= :maxPrice)
                                 and is_available
+                                and is_active
+                                and not is_private
                         )
                         select type, id, version, name, description, oldPrice, price, is_available, images, count
                         from ranked
@@ -98,26 +105,26 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                                                             case when :sortBy = 'name' and :order = 'desc' then name end desc,
                                                          id) as rank
                             from (
-                                (select 'SERVICE' as type, vs.static_service_id as id, version, vs.name, vs.description, price as oldPrice, (price * (1 - sale_percentage)) as price, is_available, images, ss.service_category_id as category from versioned_service vs
+                                (select 'SERVICE' as type, vs.static_service_id as id, version, vs.name, vs.description, price as oldPrice, (price * (1 - sale_percentage)) as price, is_available, is_active, images, ss.service_category_id as category, vs.is_last_version from versioned_service vs
                                 inner join static_service ss on ss.static_service_id = vs.static_service_id
                                 inner join versioned_service_images vsi on vsi.versioned_service_static_service_id = vs.static_service_id and vsi.versioned_service_version = vs.version
-                                where ss.seller_id = :sellerId)
+                                where ss.seller_id = :sellerId and is_last_version)
                    
                                 union all
                    
-                                (select 'PRODUCT' as type, vp.static_product_id as id, version, vp.name, vp.description, price as oldPrice, (price * (1 - sale_percentage)) as price, is_available, images, sp.product_category_id as category from versioned_product vp
+                                (select 'PRODUCT' as type, vp.static_product_id as id, version, vp.name, vp.description, price as oldPrice, (price * (1 - sale_percentage)) as price, is_available, is_active, images, sp.product_category_id as category, vp.is_last_version from versioned_product vp
                                 inner join static_product sp on sp.static_product_id = vp.static_product_id
                                 inner join versioned_product_images vpi on vpi.versioned_product_static_product_id = vp.static_product_id and vpi.versioned_product_version = vp.version
-                                where sp.seller_id = :sellerId)
+                                where sp.seller_id = :sellerId and is_last_version)
                             ) as combined
                             where (:searchTerms is null or lower(name) like concat('%', lower(:searchTerms), '%'))
                                 and (:type is null or type = :type)
                                 and (:category is null or category = :category)
                                 and (:minPrice is null or price >= :minPrice)
                                 and (:maxPrice is null or price <= :maxPrice)
-                                and is_available
+                                and is_active
                         )
-                        select type, id, version, name, description, oldPrice, price, is_available, images, count
+                        select type, id, version, name, description, oldPrice, price, is_active, images, count
                         from ranked_from_seller
                         join (select max(rank) as count from ranked_from_seller) subquery on true
                         where rank > :page * :size and rank <= (:page + 1) * :size

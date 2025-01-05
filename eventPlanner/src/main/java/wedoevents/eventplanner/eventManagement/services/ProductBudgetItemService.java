@@ -39,6 +39,16 @@ public class ProductBudgetItemService {
         this.versionedProductRepository = versionedProductRepository;
     }
 
+    public ProductBudgetItemDTO getProductBudgetItem(UUID id) {
+        Optional<ProductBudgetItem> productBudgetItemMaybe = productBudgetItemRepository.findById(id);
+
+        if (productBudgetItemMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        return ProductBudgetItemDTO.toDto(productBudgetItemMaybe.get());
+    }
+
     public ProductBudgetItemDTO createProductBudgetItem(CreateProductBudgetItemDTO createProductBudgetItemDTO) {
         Optional<ProductCategory> productCategoryMaybe = productCategoryRepository.findById(createProductBudgetItemDTO.getProductCategoryId());
 

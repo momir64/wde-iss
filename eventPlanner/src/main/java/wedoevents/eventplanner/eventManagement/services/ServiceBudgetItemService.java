@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.eventManagement.dtos.*;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.models.EventType;
+import wedoevents.eventplanner.eventManagement.models.ProductBudgetItem;
 import wedoevents.eventplanner.eventManagement.models.ServiceBudgetItem;
 import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
 import wedoevents.eventplanner.eventManagement.repositories.ServiceBudgetItemRepository;
@@ -46,6 +47,16 @@ public class ServiceBudgetItemService {
         this.eventRepository = eventRepository;
     }
 
+    public ServiceBudgetItemDTO getServiceBudgetItem(UUID id) {
+        Optional<ServiceBudgetItem> serviceBudgetItemMaybe = serviceBudgetItemRepository.findById(id);
+
+        if (serviceBudgetItemMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        return ServiceBudgetItemDTO.toDto(serviceBudgetItemMaybe.get());
+    }
+
     public ServiceBudgetItem createServiceBudgetItem(CreateServiceBudgetItemDTO createServiceBudgetItemDTO) {
         ServiceCategory serviceCategory = serviceCategoryRepository.findById(createServiceBudgetItemDTO.getServiceCategoryId()).orElseThrow(EntityNotFoundException::new);
         Event event = eventRepository.findById(createServiceBudgetItemDTO.getEventId()).orElseThrow(EntityNotFoundException::new);
@@ -65,7 +76,7 @@ public class ServiceBudgetItemService {
     }
 
     public ServiceBudgetItemDTO buyService(BuyServiceDTO buyServiceDTO) {
-        VersionedService service = versionedServiceRepository.getLatestByStaticServiceId(buyServiceDTO.getServiceId()).orElseThrow(EntityNotFoundException::new);
+        VersionedService service = versionedServiceRepository.getLatestByStaticServiceIdAndLatestVersion(buyServiceDTO.getServiceId()).orElseThrow(EntityNotFoundException::new);
 
         if (!service.getIsActive() || service.getIsPrivate() || !service.getIsAvailable())
             throw new BuyServiceException("Can't buy service that is not visible to you");
@@ -105,7 +116,7 @@ public class ServiceBudgetItemService {
 
     public List<BookingSlotsDTO> getSlots(UUID serviceId, UUID organizerId) {
         List<Event> events = eventOrganizerRepository.getMyEventsById(organizerId);
-        VersionedService service = versionedServiceRepository.getLatestByStaticServiceId(serviceId).orElseThrow(EntityNotFoundException::new);
+        VersionedService service = versionedServiceRepository.getLatestByStaticServiceIdAndLatestVersion(serviceId).orElseThrow(EntityNotFoundException::new);
         events = events.stream().filter(event -> {
             boolean hadPassed = !event.getDate().isAfter(LocalDate.now());
             boolean isSupported = service.getAvailableEventTypes().stream().anyMatch(type -> type.getId().equals(event.getEventType().getId()));

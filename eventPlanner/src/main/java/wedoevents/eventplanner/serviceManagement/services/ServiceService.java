@@ -52,7 +52,6 @@ public class ServiceService {
     private SellerRepository sellerRepository;
 
     private VersionedService incrementServiceVersionAndSave(VersionedService versionedService) {
-        entityManager.detach(versionedService);
         versionedService.incrementVersion();
 
         return versionedServiceRepository.save(versionedService);
@@ -158,19 +157,20 @@ public class ServiceService {
         // todo check for fields that must be non-null
 
         Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository
-                .getLatestByStaticServiceId(updateVersionedServiceDTO.getStaticServiceId());
-
-        // todo prevent editing deleted services
+                .getLatestByStaticServiceIdAndLatestVersion(updateVersionedServiceDTO.getStaticServiceId());
 
         if (versionedServiceMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        if (!versionedServiceMaybe.get().getIsActive()) {
             throw new EntityNotFoundException();
         }
 
         VersionedService oldVersionOfVersionedService = versionedServiceMaybe.get();
 
         oldVersionOfVersionedService.setIsLastVersion(false);
-
-        oldVersionOfVersionedService = versionedServiceRepository.save(oldVersionOfVersionedService);
+        versionedServiceRepository.save(oldVersionOfVersionedService);
 
         VersionedService newVersionedService = new VersionedService(oldVersionOfVersionedService);
 
@@ -180,7 +180,6 @@ public class ServiceService {
         newVersionedService.setDescription(updateVersionedServiceDTO.getDescription());
         newVersionedService.setIsPrivate(updateVersionedServiceDTO.getIsPrivate());
         newVersionedService.setIsAvailable(updateVersionedServiceDTO.getIsAvailable());
-        newVersionedService.setIsActive(true);
         newVersionedService.setMaximumDuration(updateVersionedServiceDTO.getMaximumDuration());
         newVersionedService.setMinimumDuration(updateVersionedServiceDTO.getMinimumDuration());
         newVersionedService.setCancellationDeadline(updateVersionedServiceDTO.getCancellationDeadline());
@@ -212,14 +211,26 @@ public class ServiceService {
     }
 
     public VersionedServiceDTO getVersionedServiceById(UUID staticServiceId) {
-        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getLatestByStaticServiceId(staticServiceId);
-
-        // todo prevent getting deleted services and prevent regular users from getting private services
+        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getLatestByStaticServiceIdAndLatestVersion(staticServiceId);
 
         if (versionedServiceMaybe.isEmpty()) {
             throw new EntityNotFoundException();
         }
+
+        if (!versionedServiceMaybe.get().getIsActive()) {
+            throw new EntityNotFoundException();
+        }
+
+        if (versionedServiceMaybe.get().getIsPrivate()) {
+            // todo prevent regular users from getting private services
+        }
+
+        if (!versionedServiceMaybe.get().getIsAvailable()) {
+            // todo prevent regular users from getting unavailable services
+        }
+
         VersionedServiceDTO service = VersionedServiceDTO.toDto(versionedServiceMaybe.get());
+
         List<ListingReview> reviews = listingReviewRepository.findByServiceId(staticServiceId);
         double averageRating = reviews.stream()
                 .mapToInt(ListingReview::getGrade)
@@ -230,11 +241,13 @@ public class ServiceService {
     }
 
     public VersionedServiceForSellerDTO getVersionedServiceEditableById(UUID staticServiceId) throws IOException {
-        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getLatestByStaticServiceId(staticServiceId);
-
-        // todo prevent getting deleted services
+        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getLatestByStaticServiceIdAndLatestVersion(staticServiceId);
 
         if (versionedServiceMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        if (!versionedServiceMaybe.get().getIsActive()) {
             throw new EntityNotFoundException();
         }
 
@@ -242,28 +255,38 @@ public class ServiceService {
     }
 
     public VersionedServiceDTO getVersionedServiceByStaticServiceIdAndVersion(Integer version, UUID staticServiceId) {
-        // todo: null check
-        return VersionedServiceDTO.toDto(versionedServiceRepository.getVersionedServiceByStaticServiceIdAndVersion(staticServiceId, version));
-    }
-
-    public void deactivateService(UUID staticServiceId) {
-        // todo pull all versions to deleted, so that no one can access the latest non deleted version
-        // todo do the same for private
-        // todo potentially add to static service
-        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getLatestByStaticServiceId(staticServiceId);
+        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getVersionedServiceByStaticServiceIdAndVersion(staticServiceId, version);
 
         if (versionedServiceMaybe.isEmpty()) {
             throw new EntityNotFoundException();
         }
 
-        VersionedService newVersionedService = versionedServiceMaybe.get();
+        if (versionedServiceMaybe.get().getIsPrivate()) {
+            throw new EntityNotFoundException();
+        }
 
-        newVersionedService.setIsAvailable(false);
+        return VersionedServiceDTO.toDto(versionedServiceMaybe.get());
+    }
+
+    public void deactivateService(UUID staticServiceId) {
+        Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository.getLatestByStaticServiceIdAndLatestVersion(staticServiceId);
+
+        if (versionedServiceMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        VersionedService oldVersionedService = versionedServiceMaybe.get();
+        oldVersionedService.setIsLastVersion(false);
+        versionedServiceRepository.save(oldVersionedService);
+
+        VersionedService newVersionedService = new VersionedService(oldVersionedService);
+        newVersionedService.setIsLastVersion(true);
+        newVersionedService.setIsActive(false);
 
         incrementServiceVersionAndSave(newVersionedService);
     }
 
-    public void updateCataloguePrices(UUID sellerId, ToBeUpdatedServicesCatalogueDTO toBeUpdatedServicesCatalogueDTO) {
+    public void updateCataloguePrices(UUID sellerId, ToBeUpdatedServicesCatalogueDTO toBeUpdatedServicesCatalogueDTO) throws IOException {
         Collection<VersionedService> servicesFromSeller = this.versionedServiceRepository.getAllVersionedServicesWithMaxVersionsFromSeller(sellerId);
 
         for (CatalogueServiceDTO newPrice : toBeUpdatedServicesCatalogueDTO.getToBeUpdated()) {
@@ -282,19 +305,30 @@ public class ServiceService {
                 throw new UpdatePriceException("Price must be set");
             }
 
-            VersionedService matchingVersionedService = matchingVersionedServiceMaybe.get();
+            VersionedService oldPriceVersionedService = matchingVersionedServiceMaybe.get();
 
-            if (!matchingVersionedService.getPrice().equals(newPrice.getPrice()) ||
-                    !matchingVersionedService.getSalePercentage().equals(newPrice.getSalePercentage())) {
-                matchingVersionedService.setPrice(newPrice.getPrice());
-                matchingVersionedService.setSalePercentage(newPrice.getSalePercentage());
+            if (!oldPriceVersionedService.getPrice().equals(newPrice.getPrice()) ||
+                    !oldPriceVersionedService.getSalePercentage().equals(newPrice.getSalePercentage())) {
+                oldPriceVersionedService.setIsLastVersion(false);
+                versionedServiceRepository.save(oldPriceVersionedService);
 
-                // TODO BIG: ACTUAL UPDATE USING updateVersionedService FUNCTION
-                // TODO BIG: FIX updateVersionedService FUNCTION TO ACCEPT EVERY FIELD AS OPTIONAL
-                versionedServiceRepository.save(matchingVersionedService);
+                VersionedService newPriceVersionedService = new VersionedService(oldPriceVersionedService);
+
+                newPriceVersionedService.setPrice(newPrice.getPrice());
+                newPriceVersionedService.setSalePercentage(newPrice.getSalePercentage());
+                newPriceVersionedService.setIsLastVersion(true);
+
+                newPriceVersionedService.setImages(imageService.copyImagesToNewVersion(
+                        new ImageLocationConfiguration("service",
+                                                       oldPriceVersionedService.getStaticServiceId(),
+                                                       oldPriceVersionedService.getVersion())
+                ));
+
+                incrementServiceVersionAndSave(newPriceVersionedService);
             }
         }
     }
+
     public Optional<StaticService> getStaticServiceById(UUID serviceId) {
         return staticServiceRepository.findById(serviceId);
     }

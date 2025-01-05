@@ -26,6 +26,15 @@ public class ProductBudgetItemController {
         this.productBudgetItemService = productBudgetItemService;
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProductBudgetItem(@PathVariable UUID id) {
+        try {
+            return ResponseEntity.ok(productBudgetItemService.getProductBudgetItem(id));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping
     public ResponseEntity<?> createProductBudgetItem(@RequestBody CreateProductBudgetItemDTO productBudgetItem) {
         // todo clean up this comment after checking

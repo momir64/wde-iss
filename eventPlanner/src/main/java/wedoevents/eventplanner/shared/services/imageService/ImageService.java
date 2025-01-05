@@ -1,12 +1,16 @@
 package wedoevents.eventplanner.shared.services.imageService;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,6 +52,21 @@ public class ImageService {
         } else {
             return Optional.empty();
         }
+    }
+
+    public List<String> copyImagesToNewVersion(ImageLocationConfiguration locationConfiguration) throws IOException {
+        Path oldImagesLocation = Path.of(imagesPath, locationConfiguration.contentType, locationConfiguration.contentUUID.toString(), locationConfiguration.version.toString());
+        Path newImagesLocation = Path.of(imagesPath, locationConfiguration.contentType, locationConfiguration.contentUUID.toString(), String.valueOf(locationConfiguration.version + 1));
+
+        List<String> copiedImages = new ArrayList<>();
+
+        FileSystemUtils.copyRecursively(oldImagesLocation, newImagesLocation);
+
+        for (File img : new File(newImagesLocation.toString()).listFiles()) {
+            copiedImages.add(img.getName());
+        }
+
+        return copiedImages;
     }
 
     public String deleteImage(String imageName) throws IOException {

@@ -7,6 +7,7 @@ import lombok.Setter;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,5 +60,17 @@ public class VersionedProduct {
         this.staticProductId = from.staticProductId;
         this.staticProduct = from.staticProduct;
         this.version = from.version;
+        this.price = from.price;
+        this.salePercentage = from.salePercentage;
+        this.availableEventTypes = from.availableEventTypes;
+        this.isActive = from.isActive;
+        this.isPrivate = from.isPrivate;
+        this.isAvailable = from.isAvailable;
+        this.name = from.name;
+        this.description = from.description;
+        this.isLastVersion = from.isLastVersion;
+
+        // images shouldn't be copied because storing them is based per version
+        this.images = new ArrayList<>();
     }
 }
