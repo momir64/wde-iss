@@ -90,7 +90,11 @@ public class PdfGeneratorService {
                 document.add(invitedParagraph);
 
                 for (Guest guest : invitedGuests) {
-                    document.add(new Paragraph(guest.getName() + " " + guest.getSurname()));
+                    if(guest.getName().isEmpty()){
+                        document.add(new Paragraph(guest.getProfile().getEmail()));
+                    }else{
+                        document.add(new Paragraph(guest.getName() + " " + guest.getSurname()));
+                    }
                 }
             }
             if (reviewDistribution != null && (reviewDistribution.getOne() > 0 || reviewDistribution.getTwo() > 0 || reviewDistribution.getThree() > 0 || reviewDistribution.getFour() > 0 || reviewDistribution.getFive() > 0)) {
