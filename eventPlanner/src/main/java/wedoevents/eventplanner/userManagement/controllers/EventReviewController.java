@@ -10,6 +10,7 @@ import wedoevents.eventplanner.notificationManagement.models.NotificationType;
 import wedoevents.eventplanner.notificationManagement.services.NotificationService;
 import wedoevents.eventplanner.userManagement.dtos.EvenReviewResponseDTO;
 import wedoevents.eventplanner.userManagement.dtos.EventReviewDTO;
+import wedoevents.eventplanner.userManagement.dtos.ReviewDistributionDTO;
 import wedoevents.eventplanner.userManagement.dtos.ReviewHandlingDTO;
 import wedoevents.eventplanner.userManagement.models.EventReview;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
@@ -108,5 +109,11 @@ public class EventReviewController {
     public ResponseEntity<Void> deleteReview(@PathVariable UUID id) {
         eventReviewService.deleteReview(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/distribution/{eventId}")
+    public ResponseEntity<ReviewDistributionDTO> getReviewDistribution(@PathVariable UUID eventId) {
+        ReviewDistributionDTO distributionDTO = eventReviewService.getReviewCounts(eventId);
+        return ResponseEntity.ok(distributionDTO);
     }
 }

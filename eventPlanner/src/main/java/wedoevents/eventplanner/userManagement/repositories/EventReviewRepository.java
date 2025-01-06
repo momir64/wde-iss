@@ -19,4 +19,8 @@ public interface EventReviewRepository extends JpaRepository<EventReview, UUID> 
     @Query("SELECT COUNT(er) > 0 FROM EventReview er WHERE er.event.id = :eventId AND er.guest.id = :guestId")
     boolean existsByEventIdAndGuestId(@Param("eventId") UUID eventId, @Param("guestId") UUID guestId);
 
+
+    @Query("SELECT AVG(er.grade) FROM EventReview er WHERE er.event.id = :eventId AND er.pendingStatus = 'APPROVED'")
+    Double findAverageRatingByEventId(@Param("eventId") UUID eventId);
+
 }

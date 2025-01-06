@@ -5,12 +5,14 @@ import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.userManagement.dtos.EvenReviewResponseDTO;
 import wedoevents.eventplanner.userManagement.dtos.EventReviewDTO;
+import wedoevents.eventplanner.userManagement.dtos.ReviewDistributionDTO;
 import wedoevents.eventplanner.userManagement.models.EventReview;
 import wedoevents.eventplanner.userManagement.models.PendingStatus;
 import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
 import wedoevents.eventplanner.userManagement.repositories.EventReviewRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -86,4 +88,24 @@ public class EventReviewService {
         return !evenetReviewRepository.existsByEventIdAndGuestId(event.getId(),g.getId());
     }
 
+    public Double getAverageRating(UUID eventId) {
+        Double averageRating = evenetReviewRepository.findAverageRatingByEventId(eventId);
+        return averageRating != null ? averageRating : 0.0;
+    }
+
+    public ReviewDistributionDTO getReviewCounts(UUID eventId) {
+        List<EventReview> reviews = evenetReviewRepository.findByEventIdAndPendingStatus(eventId, PendingStatus.APPROVED);
+
+        Map<Integer, Long> gradeCounts = reviews.stream()
+                .collect(Collectors.groupingBy(EventReview::getGrade, Collectors.counting()));
+
+        ReviewDistributionDTO distributionDTO = new ReviewDistributionDTO();
+        distributionDTO.setOne(gradeCounts.getOrDefault(1, 0L));
+        distributionDTO.setTwo(gradeCounts.getOrDefault(2, 0L));
+        distributionDTO.setThree(gradeCounts.getOrDefault(3, 0L));
+        distributionDTO.setFour(gradeCounts.getOrDefault(4, 0L));
+        distributionDTO.setFive(gradeCounts.getOrDefault(5, 0L));
+
+        return distributionDTO;
+    }
 }
