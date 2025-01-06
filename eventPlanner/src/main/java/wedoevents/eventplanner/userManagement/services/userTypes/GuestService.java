@@ -121,5 +121,16 @@ public class GuestService {
             guestRepository.save(guest);
         }
     }
+    public long getAcceptedGuestCount(UUID eventId) {
+        return guestRepository.countGuestsByAcceptedEventId(eventId);
+    }
+
+    public List<Guest> getGuestsByInvitedEventId(UUID eventId) {
+        return guestRepository.findGuestsByInvitedEventId(eventId);
+    }
+
+    public List<Guest> getGuestsByAcceptedEventId(UUID eventId) {
+        return guestRepository.findGuestsByAcceptedEventId(eventId);
+    }
 
 }

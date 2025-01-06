@@ -40,9 +40,6 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
                limit 5
            """)
     List<Event> getTopEvents(@Param("city") String city);  // todo: sort by rating
-
-
-
-
-
+    @Query("SELECT e FROM Event e WHERE e.isPublic = true")
+    List<Event> findAllPublicEvents();
 }

@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
-import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
-import wedoevents.eventplanner.eventManagement.dtos.EventActivitiesDTO;
-import wedoevents.eventplanner.eventManagement.dtos.EventActivityDTO;
-import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
+import wedoevents.eventplanner.eventManagement.dtos.*;
 import wedoevents.eventplanner.eventManagement.models.*;
 import wedoevents.eventplanner.eventManagement.repositories.EventActivityRepository;
 import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
@@ -16,6 +13,8 @@ import wedoevents.eventplanner.eventManagement.repositories.EventTypeRepository;
 import wedoevents.eventplanner.shared.models.City;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
+import wedoevents.eventplanner.userManagement.services.EventReviewService;
+import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -31,13 +30,18 @@ public class EventService {
     private final EventTypeRepository eventTypeRepository;
     private final EventOrganizerRepository eventOrganizerRepository;
     private final EventActivityRepository eventActivityRepository;
+    private final EventReviewService eventReviewService;
+    private final GuestService guestService;
     @Autowired
     public EventService(EventRepository eventRepository, EventTypeRepository eventTypeRepository,
-                        EventOrganizerRepository eventOrganizerRepository, EventActivityRepository eventActivityRepository) {
+                        EventOrganizerRepository eventOrganizerRepository, EventActivityRepository eventActivityRepository,
+                        EventReviewService eventReviewService, GuestService guestService) {
         this.eventRepository = eventRepository;
         this.eventTypeRepository = eventTypeRepository;
         this.eventOrganizerRepository = eventOrganizerRepository;
         this.eventActivityRepository = eventActivityRepository;
+        this.eventReviewService = eventReviewService;
+        this.guestService = guestService;
     }
 
     public List<EventComplexViewDTO> getEventsFromOrganizer(UUID eventOrganizerId) {
@@ -151,5 +155,17 @@ public class EventService {
         }
 
         return createdActivityIds;
+    }
+    public List<EventAdminViewDTO> getAllPublicEvents() {
+        List<Event> events =  eventRepository.findAllPublicEvents();
+        return events.stream().map(event -> {
+            EventAdminViewDTO dto = new EventAdminViewDTO();
+            dto.setId(event.getId());
+            dto.setName(event.getName());
+            dto.setCity(event.getCity().getName());
+            dto.setAttendance(guestService.getAcceptedGuestCount(event.getId()));
+            dto.setRating(eventReviewService.getAverageRating(event.getId())); // Get the rating from ReviewService
+            return dto;
+        }).collect(Collectors.toList());
     }
 }

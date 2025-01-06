@@ -1,18 +1,24 @@
 package wedoevents.eventplanner.shared.services.pdfService;
+import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.TextAlignment;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.models.EventActivity;
-import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.UnitValue;
 import wedoevents.eventplanner.productManagement.dtos.CatalogueProductDTO;
 import wedoevents.eventplanner.serviceManagement.dtos.CatalogueServiceDTO;
+import wedoevents.eventplanner.userManagement.dtos.ReviewDistributionDTO;
+import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
@@ -21,7 +27,7 @@ import java.util.List;
 public class PdfGeneratorService {
     public static final String DEJAVU = "src/main/resources/fonts/DejaVuSans.ttf";
 
-    public byte[] generateEventPdf(Event event) {
+    public byte[] generateEventPdf(Event event, List<Guest> invitedGuests, List<Guest> acceptedGuests, ReviewDistributionDTO reviewDistribution) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(out);
 
@@ -66,6 +72,59 @@ public class PdfGeneratorService {
             } else {
                 document.add(new Paragraph("Agenda nije planirana"));
             }
+
+            if (!acceptedGuests.isEmpty()) {
+                Text acceptedText = new Text("Potvrdjeni gosti:").setUnderline();
+                Paragraph acceptedParagraph = new Paragraph().add(acceptedText);
+                document.add(acceptedParagraph);
+
+                for (Guest guest : acceptedGuests) {
+                    document.add(new Paragraph(guest.getName() + " " + guest.getSurname()));
+                }
+            }
+
+
+            if (!invitedGuests.isEmpty()) {
+                Text invitedText = new Text("Gosti koji jos nisu potvrdili dolazak:").setUnderline();
+                Paragraph invitedParagraph = new Paragraph().add(invitedText);
+                document.add(invitedParagraph);
+
+                for (Guest guest : invitedGuests) {
+                    document.add(new Paragraph(guest.getName() + " " + guest.getSurname()));
+                }
+            }
+            if (reviewDistribution != null && (reviewDistribution.getOne() > 0 || reviewDistribution.getTwo() > 0 || reviewDistribution.getThree() > 0 || reviewDistribution.getFour() > 0 || reviewDistribution.getFive() > 0)) {
+                DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+                dataset.addValue(reviewDistribution.getOne(), "Reviews", "1");
+                dataset.addValue(reviewDistribution.getTwo(), "Reviews", "2");
+                dataset.addValue(reviewDistribution.getThree(), "Reviews", "3");
+                dataset.addValue(reviewDistribution.getFour(), "Reviews", "4");
+                dataset.addValue(reviewDistribution.getFive(), "Reviews", "5");
+
+                JFreeChart chart = ChartFactory.createBarChart(
+                        "Recenzije",
+                        "Rating",
+                        "Count",
+                        dataset,
+                        PlotOrientation.VERTICAL,
+                        true,
+                        false,
+                        false
+                );
+
+                BufferedImage chartImage = chart.createBufferedImage(500, 300);
+                ByteArrayOutputStream chartOut = new ByteArrayOutputStream();
+                ImageIO.write(chartImage, "PNG", chartOut);
+
+                byte[] chartImageData = chartOut.toByteArray();
+                Image chartPdfImage = new Image(ImageDataFactory.create(chartImageData));
+
+                document.add(new Paragraph("Recenzije:"));
+                document.add(chartPdfImage);
+
+            }
+
 
             document.close();
 
