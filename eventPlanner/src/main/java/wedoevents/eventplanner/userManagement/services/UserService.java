@@ -3,7 +3,6 @@ package wedoevents.eventplanner.userManagement.services;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.AdminRepository;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
@@ -39,6 +38,26 @@ public class UserService {
         sellerRepository.deleteByProfile(profile);
     }
 
+    public String getUserCredentials(UUID profileId){
+        Optional<Guest> g = guestRepository.findByProfileId(profileId);
+        if(g.isPresent()){
+            return g.get().getName() + " " + g.get().getSurname();
+        }
+
+        Optional<Admin> a = adminRepository.findByProfileId(profileId);
+        if(a.isPresent()){
+            return a.get().getProfile().getEmail();
+        }
+
+        Optional<Seller> s = sellerRepository.findByProfileId(profileId);
+        if(s.isPresent()){
+            return s.get().getName() + " " + s.get().getSurname();
+        }
+
+        Optional<EventOrganizer> eo = eventOrganizerRepository.findByProfileId(profileId);
+        return eo.map(eventOrganizer -> eventOrganizer.getName() + " " + eventOrganizer.getSurname()).orElse(null);
+    }
+
     public UUID getUserId(UUID profileId){
         Optional<Guest> g = guestRepository.findByProfileId(profileId);
         if(g.isPresent()){
@@ -57,6 +76,5 @@ public class UserService {
 
         Optional<EventOrganizer> eo = eventOrganizerRepository.findByProfileId(profileId);
         return eo.map(EventOrganizer::getId).orElse(null);
-
     }
 }
