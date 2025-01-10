@@ -29,13 +29,18 @@ public class UserReportController {
 
     @PostMapping
     public ResponseEntity<?> createUserReport(@RequestBody UserReportDTO reportDTO) {
+
+        if(reportDTO.getUserProfileToId() == reportDTO.getUserProfileFromId()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot report yourself");
+        }
+
         Optional<Profile> from = profileService.findProfileById(reportDTO.getUserProfileFromId());
         if(from.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(reportDTO);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Profile not found");
         }
         Optional<Profile> to = profileService.findProfileById(reportDTO.getUserProfileToId());
         if(to.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(reportDTO);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Profile not found");
         }
         userReportService.createUserReport(from.get(),to.get(),reportDTO.getReason());
         return ResponseEntity.ok().build();
