@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/userReports")
+@RequestMapping("/api/v1/user-reports")
 public class UserReportController {
 
     private final UserReportService userReportService;
