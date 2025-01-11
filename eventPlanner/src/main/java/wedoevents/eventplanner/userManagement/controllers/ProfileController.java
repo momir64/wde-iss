@@ -1,5 +1,4 @@
 package wedoevents.eventplanner.userManagement.controllers;
-import io.jsonwebtoken.Jwt;
 import org.springdoc.core.service.GenericResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,12 +13,13 @@ import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfigu
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
 import wedoevents.eventplanner.userManagement.dtos.CreateProfileDTO;
 import wedoevents.eventplanner.userManagement.dtos.UpdateProfileDTO;
+import wedoevents.eventplanner.userManagement.dtos.UserBlockDTO;
+import wedoevents.eventplanner.userManagement.dtos.UserBlockResponseDTO;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.RegistrationAttempt;
 import wedoevents.eventplanner.userManagement.models.Role;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
-import wedoevents.eventplanner.userManagement.repositories.RoleRepository;
 import wedoevents.eventplanner.userManagement.services.ProfileService;
 import wedoevents.eventplanner.userManagement.services.RegistrationAttemptService;
 import wedoevents.eventplanner.userManagement.services.RoleService;
@@ -33,7 +33,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 
 
 @RestController
@@ -180,8 +179,6 @@ public class ProfileController {
         registrationAttemptService.saveRegistrationAttempt(registrationAttempt);
 
 
-
-
         // send email for verification
         //for development purposes send to the same email all the time
         try{
@@ -206,4 +203,50 @@ public class ProfileController {
     }
 
 
+    @GetMapping("/{profileId}/blocking/to")
+    public ResponseEntity<?> getBlockedUsers(@PathVariable UUID profileId) {
+        Optional<Profile> profile = profileService.findProfileById(profileId);
+        if(profile.isEmpty()){
+            return ResponseEntity.status((HttpStatus.NOT_FOUND)).body("Profile not found");
+        }
+        UserBlockResponseDTO userBlockResponseDTO = new UserBlockResponseDTO();
+        userBlockResponseDTO.setBlockedUserIds(profileService.getBlockedUserIds(profile.get()));
+        return ResponseEntity.ok(userBlockResponseDTO);
+    }
+
+    @GetMapping("/{profileId}/blocking/from")
+    public ResponseEntity<?> getBlockingUsers(@PathVariable UUID profileId) {
+        Optional<Profile> profile = profileService.findProfileById(profileId);
+        if(profile.isEmpty()){
+            return ResponseEntity.status((HttpStatus.NOT_FOUND)).body("Profile not found");
+        }
+        UserBlockResponseDTO userBlockResponseDTO = new UserBlockResponseDTO();
+        userBlockResponseDTO.setBlockedUserIds(profileService.getBlockingUserIds(profileId));
+        return ResponseEntity.ok(userBlockResponseDTO);
+    }
+
+
+    @PutMapping("/blocking")
+    public ResponseEntity<?> blockUser(@RequestBody UserBlockDTO userBlockDTO) {
+
+        if(userBlockDTO.getFromId() == userBlockDTO.getToId()){
+            return ResponseEntity.status((HttpStatus.BAD_REQUEST)).body("Cannot block yourself");
+        }
+
+
+        Optional<Profile> profileFrom = profileService.findProfileById(userBlockDTO.getFromId());
+        if(profileFrom.isEmpty()){
+            return ResponseEntity.status((HttpStatus.NOT_FOUND)).body("Profile not found");
+        }
+
+        Optional<Profile> profileTo = profileService.findProfileById(userBlockDTO.getToId());
+        if(profileTo.isEmpty()){
+            return ResponseEntity.status((HttpStatus.NOT_FOUND)).body("Profile not found");
+        }
+
+        profileService.toggleBlockUser(profileFrom.get(), profileTo.get());
+
+
+        return ResponseEntity.ok().build();
+    }
 }
