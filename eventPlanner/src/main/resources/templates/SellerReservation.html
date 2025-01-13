@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reservation confirmation</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #262626; border: 1px solid #ddd; }
+    h2 { color: #FFFFFF; }
+    p { color: white; }
+    .primary {color: #A939F9}
+    .message {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+    .success { color: #28a745; }
+    .error { color: #dc3545; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Reservation confirmation</h2>
+  <p style="color: white">Dear {{name}} {{surname}}, </p>
+  <p style="color: white">Reservation of {{service}} for {{event}} has been confirmed.</p>
+
+
+  <div id="message" class="message"></div>
+</div>
+</body>
+</html>
