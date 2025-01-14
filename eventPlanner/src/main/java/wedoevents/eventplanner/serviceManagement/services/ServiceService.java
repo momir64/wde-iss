@@ -332,4 +332,8 @@ public class ServiceService {
     public Optional<StaticService> getStaticServiceById(UUID serviceId) {
         return staticServiceRepository.findById(serviceId);
     }
+    public Optional<VersionedService> getLatestByStaticServiceIdAndLatestVersion(UUID serviceId) {
+        return versionedServiceRepository.getLatestByStaticServiceIdAndLatestVersion(serviceId);
+
+    }
 }

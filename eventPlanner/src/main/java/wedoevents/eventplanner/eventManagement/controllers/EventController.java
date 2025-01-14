@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.eventManagement.controllers;
 
+import com.google.api.Http;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -9,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventActivitiesDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventAdminViewDTO;
@@ -19,6 +21,7 @@ import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfigu
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
 import wedoevents.eventplanner.shared.services.pdfService.PdfGeneratorService;
 import wedoevents.eventplanner.userManagement.dtos.ReviewDistributionDTO;
+import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
 import wedoevents.eventplanner.userManagement.services.EventReviewService;
 import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
@@ -47,15 +50,26 @@ public class EventController {
 
 
     @PostMapping
-    public ResponseEntity<EventComplexViewDTO> createEvent(@RequestBody CreateEventDTO createEventDTO) {
+    public ResponseEntity<?> createEvent(@RequestBody CreateEventDTO createEventDTO) {
         try {
             EventComplexViewDTO createdEvent = eventService.createEvent(createEventDTO);
             return ResponseEntity.ok(createdEvent);
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status((HttpStatus.BAD_REQUEST)).body("Error processing request");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending email");
         }
     }
+    @PutMapping("/images")
+    public ResponseEntity<?> putProfileImage(@RequestParam("images") List<MultipartFile> images,
+                                             @RequestParam("eventId") UUID eventId){
+        try {
+            return ResponseEntity.ok(eventService.putEventImages(images, eventId));
+        } catch (Exception e) {
 
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Could not save images");
+        }
+    }
     @GetMapping("/{eventOrganizerId}/my-events")
     public ResponseEntity<List<EventComplexViewDTO>> getEventsFromOrganizer(@PathVariable UUID eventOrganizerId) {
         try {

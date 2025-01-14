@@ -17,6 +17,7 @@ public class CreateProfileDTO {
     private UserType userType;
     private String name;
     private String surname;
+    private String description;
     private String city;
     private String address;
     private String telephoneNumber;
@@ -53,6 +54,7 @@ public class CreateProfileDTO {
                 Seller seller = new Seller();
                 seller.setName(this.name);
                 seller.setSurname(this.surname);
+                seller.setDescription(this.description);
                 seller.setCity(new City(this.city));
                 seller.setAddress(this.address);
                 seller.setTelephoneNumber(this.telephoneNumber);

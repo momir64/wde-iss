@@ -2,16 +2,27 @@ package wedoevents.eventplanner.eventManagement.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.dtos.BuyServiceDTO;
 import wedoevents.eventplanner.eventManagement.dtos.CreateServiceBudgetItemDTO;
 import wedoevents.eventplanner.eventManagement.dtos.ServiceBudgetItemDTO;
+import wedoevents.eventplanner.eventManagement.models.Event;
+import wedoevents.eventplanner.eventManagement.services.EventService;
 import wedoevents.eventplanner.eventManagement.services.ServiceBudgetItemService;
+import wedoevents.eventplanner.serviceManagement.models.VersionedService;
+import wedoevents.eventplanner.serviceManagement.services.ServiceService;
 import wedoevents.eventplanner.shared.Exceptions.BuyServiceException;
 import wedoevents.eventplanner.shared.Exceptions.EntityCannotBeDeletedException;
+import wedoevents.eventplanner.shared.services.emailService.IEmailService;
+import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
+import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
+import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
+import wedoevents.eventplanner.userManagement.services.userTypes.SellerService;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -19,10 +30,23 @@ import java.util.UUID;
 public class ServiceBudgetItemController {
 
     private final ServiceBudgetItemService serviceBudgetItemService;
+    private final EventOrganizerService eventOrganizerService;
+    private final SellerService sellerService;
+    private final ServiceService serviceService;
+    private final EventService eventService;
+    private final String recipientEmail = "uvoduvod1@gmail.com";
+    private final IEmailService emailService;
+
 
     @Autowired
-    public ServiceBudgetItemController(ServiceBudgetItemService serviceBudgetItemService) {
+    public ServiceBudgetItemController(ServiceBudgetItemService serviceBudgetItemService, EventOrganizerService eventOrganizerService,
+                                       SellerService sellerService, ServiceService serviceService, EventService eventService, @Qualifier("sendGridEmailService") IEmailService emailService) {
         this.serviceBudgetItemService = serviceBudgetItemService;
+        this.eventOrganizerService = eventOrganizerService;
+        this.sellerService = sellerService;
+        this.serviceService = serviceService;
+        this.eventService = eventService;
+        this.emailService = emailService;
     }
 
     @GetMapping("/{id}")
@@ -74,12 +98,25 @@ public class ServiceBudgetItemController {
     @PostMapping("/buy")
     public ResponseEntity<?> buyService(@RequestBody BuyServiceDTO buyServiceDTO) {
         try {
-            return ResponseEntity.ok(serviceBudgetItemService.buyService(buyServiceDTO));
+            ServiceBudgetItemDTO budgetItem = serviceBudgetItemService.buyService(buyServiceDTO);
+            Optional<EventOrganizer> organizer = eventOrganizerService.getEventOrganizerByEventId(buyServiceDTO.getEventId());
+            Optional<Event> event = eventService.getEventById(buyServiceDTO.getEventId());
+            Optional<VersionedService> versionedService = serviceService.getLatestByStaticServiceIdAndLatestVersion(buyServiceDTO.getServiceId());
+            Optional<Seller> seller = sellerService.getSellerByServiceId(versionedService.get().getStaticServiceId());
+            if(seller.isEmpty() || organizer.isEmpty() || event.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending email");
+            }
+            this.emailService.sendEventOrganizerServiceReservationEmail(recipientEmail,event.get(),versionedService.get(),organizer.get());
+            this.emailService.sendSellerReservationEmail(recipientEmail,event.get(),versionedService.get(),seller.get());
+            return ResponseEntity.ok(budgetItem);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (BuyServiceException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending email");
         }
+
     }
 
     @DeleteMapping ("/{eventId}/{serviceCategoryId}")

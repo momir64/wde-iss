@@ -11,7 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import wedoevents.eventplanner.eventManagement.models.Event;
+import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 import wedoevents.eventplanner.shared.services.emailService.IEmailService;
+import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
+import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
+import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -84,6 +89,28 @@ public class SendGridEmailService implements IEmailService {
         placeholders.put("confirmationUrl", confirmationUrl);
         String htmlContent = loadTemplate(templatePath, placeholders);
         return sendEmail(email, "Quick registration", htmlContent);
+    }
+
+    public String sendEventOrganizerServiceReservationEmail(String email, Event event, VersionedService versionedService, EventOrganizer eventOrganizer) throws IOException{
+        String templatePath = "templates/EventOrganizerReservation.html";
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("name", eventOrganizer.getName());
+        placeholders.put("surname", eventOrganizer.getSurname());
+        placeholders.put("service", versionedService.getName());
+        placeholders.put("event", event.getName());
+        String htmlContent = loadTemplate(templatePath, placeholders);
+        return sendEmail(email, "Reservation confirmation", htmlContent);
+    }
+
+    public String sendSellerReservationEmail(String email, Event event, VersionedService versionedService, Seller seller) throws IOException{
+        String templatePath = "templates/SellerReservation.html";
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("name", seller.getName());
+        placeholders.put("surname", seller.getSurname());
+        placeholders.put("service", versionedService.getName());
+        placeholders.put("event", event.getName());
+        String htmlContent = loadTemplate(templatePath, placeholders);
+        return sendEmail(email, "Reservation confirmation", htmlContent);
     }
 
     public String loadTemplate(String templatePath, Map<String, String> placeholders) throws IOException {
