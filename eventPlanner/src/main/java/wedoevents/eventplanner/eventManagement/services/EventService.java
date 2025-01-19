@@ -15,17 +15,16 @@ import wedoevents.eventplanner.eventManagement.repositories.EventTypeRepository;
 import wedoevents.eventplanner.shared.models.City;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
+import wedoevents.eventplanner.userManagement.dtos.EvenReviewResponseDTO;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
 import wedoevents.eventplanner.userManagement.services.EventReviewService;
+import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
 import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,11 +37,13 @@ public class EventService {
     private final EventReviewService eventReviewService;
     private final GuestService guestService;
     private final ImageService imageService;
+    private final EventOrganizerService eventOrganizerService;
 
     @Autowired
     public EventService(EventRepository eventRepository, EventTypeRepository eventTypeRepository,
                         EventOrganizerRepository eventOrganizerRepository, EventActivityRepository eventActivityRepository,
-                        EventReviewService eventReviewService, GuestService guestService, ImageService imageService) {
+                        EventReviewService eventReviewService, GuestService guestService, ImageService imageService,
+                        EventOrganizerService eventOrganizerService) {
         this.eventRepository = eventRepository;
         this.eventTypeRepository = eventTypeRepository;
         this.eventOrganizerRepository = eventOrganizerRepository;
@@ -50,6 +51,7 @@ public class EventService {
         this.eventReviewService = eventReviewService;
         this.guestService = guestService;
         this.imageService = imageService;
+        this.eventOrganizerService = eventOrganizerService;
     }
 
     public List<EventComplexViewDTO> getEventsFromOrganizer(UUID eventOrganizerId) {
@@ -207,5 +209,75 @@ public class EventService {
             dto.setRating(eventReviewService.getAverageRating(event.getId())); // Get the rating from ReviewService
             return dto;
         }).collect(Collectors.toList());
+    }
+    public EventDetailedViewDTO getDetailedEvent(UUID eventId, boolean isGuest, UUID userId) {
+        Optional<Event> eventOptional = eventRepository.findById(eventId);
+        if (eventOptional.isEmpty()) {
+            return null;
+        }
+        Event event = eventOptional.get();
+        EventDetailedViewDTO response = new EventDetailedViewDTO();
+        List<EvenReviewResponseDTO> reviews = eventReviewService.getAcceptedReviewsByEventId(eventId);
+        response.setReviews(reviews);
+        response.setAverageRating(calculateAverageGrade(reviews));
+        response.setId(event.getId());
+        response.setCity(event.getCity().getName());
+        response.setDescription(event.getDescription());
+        response.setAddress(event.getAddress());
+        response.setIsPublic(event.getIsPublic());
+        response.setDate(event.getDate());
+        response.setTime(event.getTime());
+        response.setName(event.getName());
+        response.setGuestCount(event.getGuestCount());
+        response.setLongitude(event.getLocation().getLongitude());
+        response.setLatitude(event.getLocation().getLatitude());
+        if(isGuest){
+            response.setAccepted(guestService.isEventAccepted(userId,eventId));
+            response.setFavorite(guestService.isEventFavorited(userId,eventId));
+        }else{
+            response.setDeletable(checkIfEventIsDeletable(eventId));
+        }
+        return response;
+    }
+
+    public double calculateAverageGrade(List<EvenReviewResponseDTO> reviews) {
+        if (reviews == null || reviews.isEmpty()) {
+            return 0.0;
+        }
+
+        OptionalDouble average = reviews.stream()
+                .mapToInt(EvenReviewResponseDTO::getGrade)
+                .average();
+
+        return average.orElse(0.0);
+    }
+    public boolean deleteEvent(UUID eventId){
+        if(checkIfEventIsDeletable(eventId)){
+            eventRepository.deleteById(eventId);
+            return true;
+        }
+        return false;
+    }
+    public boolean checkIfEventIsDeletable(UUID eventId) {
+        Optional<Event> eventOptional = eventRepository.findById(eventId);
+        if (eventOptional.isEmpty()) {
+            return false;
+        }
+        Event event = eventOptional.get();
+        if(guestService.checkIfGuestIsInvitedOrAccepted(null,eventId)){
+            return false;
+        }
+        if(event.getServiceBudgetItems().stream()
+                .anyMatch(serviceBudgetItem -> serviceBudgetItem.getService() != null)){
+            return false;
+        }
+        if(event.getProductBudgetItems().stream()
+                .anyMatch(productBudgetItem -> productBudgetItem.getProduct() != null)){
+            return false;
+        }
+        return true;
+    }
+    public List<Event> getAllEvents() {
+        return eventRepository.findAll();
     }
 }

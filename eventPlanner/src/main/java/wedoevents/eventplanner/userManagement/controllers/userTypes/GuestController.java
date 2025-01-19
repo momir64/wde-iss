@@ -4,8 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wedoevents.eventplanner.eventManagement.dtos.CalendarEventDTO;
+import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
 import wedoevents.eventplanner.userManagement.dtos.BasicGuestDTO;
 import wedoevents.eventplanner.userManagement.dtos.FavoriteEventDTO;
+import wedoevents.eventplanner.userManagement.dtos.JoinEventDTO;
 import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
 import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
 
@@ -65,5 +68,38 @@ public class GuestController {
     public ResponseEntity<Void> deleteGuest(@PathVariable UUID id) {
         guestService.deleteGuest(id);
         return ResponseEntity.noContent().build();
+    }
+    @PutMapping("/join-event")
+    public ResponseEntity<?> joinEvent(@RequestBody JoinEventDTO request) {
+        if(guestService.joinEvent(request)) {
+            return ResponseEntity.ok("Event joined successfully");
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request");
+        }
+    }
+    @GetMapping("/{id}/favorite-events")
+    public ResponseEntity<?> getFavoriteEvents(@PathVariable UUID id) {
+        List<EventComplexViewDTO> events = guestService.getFavoriteEvents(id);
+        if(events.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }else{
+            return ResponseEntity.ok(events);
+        }
+    }
+    @PutMapping("/{id}/favorite-events/{eventId}")
+    public ResponseEntity<?> favoriteEvent(@PathVariable UUID id, @PathVariable UUID eventId) {
+        if(guestService.favoriteEvent(id, eventId)) {
+            return ResponseEntity.ok("Event favorited successfully");
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request");
+        }
+    }
+    @GetMapping("/{id}/calendar")
+    public ResponseEntity<?> getGuestCalendar(@PathVariable UUID id) {
+        List<CalendarEventDTO> response = guestService.getCalendarEvents(id);
+        if(response.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(response);
     }
 }

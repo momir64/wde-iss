@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wedoevents.eventplanner.eventManagement.dtos.CalendarEventDTO;
 import wedoevents.eventplanner.userManagement.dtos.FavoriteListingDTO;
 import wedoevents.eventplanner.userManagement.dtos.UserAdditionalInfoDTO;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
@@ -70,5 +71,13 @@ public class EventOrganizerController {
         }
         EventOrganizer organizer = organizerOptional.get();
         return ResponseEntity.ok(new UserAdditionalInfoDTO(organizer.getName(),organizer.getSurname()));
+    }
+    @GetMapping("/{id}/calendar")
+    public ResponseEntity<?> getOrganizerCalendar(@PathVariable UUID id) {
+        List<CalendarEventDTO> response = eventOrganizerService.getCalendarEvents(id);
+        if(response.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(response);
     }
 }
