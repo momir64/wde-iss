@@ -180,62 +180,6 @@ VALUES
     ('d8413682-21f1-4e35-ba8d-276334c9ffab', '70c7425e-c5f0-44f0-9e9d-44e4087fce62', 'Ethan', 'King'),
     ('e078765f-21ee-49c0-90a4-1377fe1386e5', '5a72482a-cd36-46e4-8c09-7b2ff1e22071', 'Madison', 'Green');
 
--- CHAT MESSAGES
-
-INSERT INTO chat_message (id, is_seen, message, time, from_profile_id, to_profile_id)
-VALUES
-    -- BETWEEN GUEST AND EVENT ORGANIZER (GUEST, charles.white@example.com) (EVENT ORGANIZER, jane.smith@example.com)
-    ('ee2ba33e-74c8-4b23-8016-55b1ecdef8f9', true, 'Hey! How have you been?', '2024-11-23T08:30:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('9797b593-84ef-421d-bde7-9fb15f1f534a', true, 'I’ve been good, just busy with work. What about you?', '2024-11-23T08:32:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('4c0f13e7-6bdf-49f5-b028-fea385256a6d', true, 'Same here. Been swamped with projects. Got any plans for the weekend?', '2024-11-23T08:34:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('7db54276-4767-4a05-bdf4-076536d6910b', true, 'Yeah, I’m going hiking on Saturday! Should be fun. What about you?', '2024-11-23T08:35:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('3ee1d615-7512-4b30-9e01-4d22db8cb7ab', true, 'That sounds great! I might just relax at home this time. Haven’t had a lazy weekend in a while.', '2024-11-23T08:37:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('321ae3c4-3f12-473e-9925-eca5dcf42deb', true, 'I get that! Everyone needs some downtime. Have you seen any good shows or movies recently?', '2024-11-23T08:40:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('7c794159-db52-4ce0-a754-eaa15e9bbe09', true, 'I started watching that new thriller series on Netflix. It’s pretty intense.', '2024-11-23T08:42:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('a2f5589c-f524-4d10-bfbf-570670dcb617', true, 'Ooh, sounds interesting! What’s it called?', '2024-11-23T08:44:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('f8c42e0f-3f90-4ae1-8658-4d3d648dd807', true, 'It’s called “The Silent Witness.” Really gripping! You should check it out.', '2024-11-23T08:46:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('42728107-bc12-4823-9195-df6979d8a5fa', true, 'I will! I’ve been looking for something new to watch. Thanks for the recommendation!', '2024-11-23T08:48:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('c98c3cc5-305c-4c24-aaef-e573d845f328', true, 'No problem! Let me know what you think once you start watching it.', '2024-11-23T08:50:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('dc0f9747-2c8c-4924-aa87-fa1592ce6453', true, 'Will do! By the way, have you tried the new restaurant downtown?', '2024-11-23T08:52:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('469fc739-99b5-4672-8686-00e3d059be39', true, 'I haven’t yet. What kind of food do they serve?', '2024-11-23T08:55:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('8f8bbce6-61db-43c0-840f-a65d452147d1', true, 'It’s an Italian place. The pasta there is amazing!', '2024-11-23T08:57:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('ff3bf40c-6f5b-4230-8516-00e1a3250806', true, 'I love Italian food! I’ll have to check it out soon.', '2024-11-23T08:59:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('fb66f9ea-428c-41e9-9cfc-58060b6942dd', true, 'You won’t regret it. The tiramisu is out of this world!', '2024-11-23T09:01:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('81e04a04-8324-4b82-b4b8-f2bb6f8f739a', true, 'Tiramisu? Now I’m definitely sold. I’ll try it next time I’m there.', '2024-11-23T09:03:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('f10cf6a6-db5e-4138-95cd-14de410ec99e', true, 'You’ll love it! Anyway, do you have any exciting trips planned for the holidays?', '2024-11-23T09:05:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('df462078-39bf-49f2-8d66-7c967e8d5514', true, 'I’m thinking of going to the mountains for a few days to unwind. How about you?', '2024-11-23T09:07:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('1928bb0d-2fc4-443e-bf48-b798fab8b8ee', true, 'That sounds amazing. I’m heading to the beach for a week of relaxation.', '2024-11-23T09:09:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('d8b5e4a2-6d27-46fc-806e-6809fc74b6b9', true, 'The beach sounds perfect! Are you going somewhere tropical?', '2024-11-23T09:11:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('3464c8bc-50a0-41d9-839e-9f0465674abd', true, 'Yes, to a small island in the Caribbean. I can’t wait!', '2024-11-23T09:13:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('d52dc504-424f-4738-8f60-4224208c4656', true, 'That sounds like a dream! Take lots of pictures!', '2024-11-23T09:15:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('f576c24a-907e-4ef7-8cd2-69a53a3a01e6', true, 'I definitely will! I’ll send you some when I’m there.', '2024-11-23T09:17:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('882bb87e-3c17-406c-962f-32366f5b44d6', true, 'I’ll look forward to it! Let me know if you need any recommendations for things to do.', '2024-11-23T09:19:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('297759df-84ff-4b15-b8f6-c7f381645693', true, 'Thanks! I’m sure I’ll find plenty to do there. Maybe we can plan a trip together sometime.', '2024-11-23T09:21:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-    ('8037830a-5280-40a9-8260-1847c251fc27', true, 'That would be awesome! We should definitely do that.', '2024-11-23T09:23:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456'),
-    ('0a370703-8daf-40be-870c-1773f5de861b', true, 'I’m going to start researching some destinations. Let’s make it happen!', '2024-11-23T09:25:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
-
-    -- BETWEEN EVENT ORGANIZER AND SELLER (EVENT ORGANIZER susan.brown@example.com) (SELLER, lily.martinez@example.com)
-    ('51f8ca6c-1851-4e12-bf9a-e0994fa950fb', true, 'Hey! How are you doing?', '2024-11-23T10:00:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91'),
-    ('35965c72-6835-4cd0-9a6d-cdcfa5f6890f', true, 'Hey! I’m doing well, thanks for asking. How about you?', '2024-11-23T10:02:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e'),
-    ('8ca62c99-2556-482e-9e66-906fced369da', true, 'I’m good too, just a little tired. Busy week at work.', '2024-11-23T10:04:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91'),
-    ('e2319834-2771-4cbe-97b5-6a79892a55a8', true, 'I hear you. It’s been pretty hectic for me too. Got anything fun planned for the weekend?', '2024-11-23T10:06:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e'),
-    ('0646f9dc-4ada-4d51-b07c-b89e34f5d2b5', true, 'I’m actually going to a concert on Saturday night. Looking forward to it!', '2024-11-23T10:08:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91'),
-    ('2a894bf0-70d1-47af-8fad-539944f2a7d0', true, 'That sounds awesome! Who’s playing?', '2024-11-23T10:10:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e'),
-    ('74171528-3ddd-40e0-8694-8f7673d6f11e', true, 'It’s a local indie band. They’re pretty good! I’ve been listening to them a lot lately.', '2024-11-23T10:12:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91'),
-    ('ac3e7bcd-389b-4bac-b316-4ef7343d5722', true, 'Nice, I bet it’s going to be a great show. I should check them out sometime.', '2024-11-23T10:14:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e'),
-    ('b45e3fe7-f786-4fea-bb53-be59e8eda997', true, 'You totally should! They’re really talented. What about you? Got any plans for the weekend?', '2024-11-23T10:16:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91'),
-    ('eb1c0212-8fb1-4539-9846-ed18d875bad4', true, 'I’m going to a friend’s birthday party. Should be fun!', '2024-11-23T10:18:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e'),
-    ('58051851-5dfb-4f20-b1c8-381155b4deec', true, 'Nice! That sounds like a blast. What kind of party is it?', '2024-11-23T10:20:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91'),
-    ('6bb19501-52af-42db-abd4-eab4a626495f', true, 'It’s a casual get-together with close friends. We’ll probably just hang out, eat, and play some games.', '2024-11-23T10:22:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e'),
-    ('3e530c74-8f04-4574-8ad1-d932542c22ec', true, 'Sounds like a lot of fun! What kind of games do you guys play?', '2024-11-23T10:24:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91'),
-    ('3e81b26f-8a8c-4f2b-b741-91f957dbc07d', true, 'We usually play board games or card games, sometimes some video games. Everyone loves a good competition!', '2024-11-23T10:26:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e'),
-    ('75224460-7445-4d88-85fd-541ed2268766', true, 'That’s awesome! I’ve been really into board games lately too. Got any recommendations?', '2024-11-23T10:28:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91'),
-    ('cf555af8-df91-4bb0-b95f-76b19f727075', true, 'If you like strategy, “Catan” is a classic. Or “Ticket to Ride” for something a bit lighter.', '2024-11-23T10:30:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e'),
-    ('ded44c69-1baf-42d2-8d5c-00ecb0de2cd1', true, 'I love “Catan”! I’ll have to check out “Ticket to Ride.” Thanks for the tip!', '2024-11-23T10:32:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91'),
-    ('e4cf9a34-a413-4ac8-adfd-9d14d342067c', true, 'No problem! I think you’ll really enjoy it. Let me know what you think after you try it out.', '2024-11-23T10:34:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e'),
-    ('a6825c50-22fc-4cce-b914-38cc03111a4a', true, 'Will do! I’m sure we’ll play it this weekend. Have a great time at the party!', '2024-11-23T10:36:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91'),
-    ('ae101a7e-8503-4f8f-ab1c-1736daf11688', true, 'Thanks, you too! Enjoy the concert!', '2024-11-23T10:38:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e');
-
 -- PRODUCTS
 
 INSERT INTO product_category (id, description, is_deleted, is_pending, name)
@@ -321,7 +265,7 @@ VALUES
 INSERT INTO versioned_product (static_product_id, version, is_active, is_available, is_last_version, is_private, name, price, sale_percentage, description)
 VALUES
     -- FIREWORKS CATEGORY
-    ('5a1b07b8-e918-4b0f-bcd2-7f1fd04dbb26', 1, false, true, true,  false, 'Fountain Fireworks', 130.00, 0.1, 'A spectacular display of sparking fireworks that create a fountain of lights and colors.'),
+    ('5a1b07b8-e918-4b0f-bcd2-7f1fd04dbb26', 1, true, true, true,  false, 'Fountain Fireworks', 130.00, 0.1, 'A spectacular display of sparking fireworks that create a fountain of lights and colors.'),
     ('b19a7c35-3d60-4fe2-a8b2-e8a2c2741b3b', 1, true, true,  true, false, 'Roman Candles', 200.00, 0.2, 'Traditional fireworks that shoot colorful stars into the sky with a crackling sound.'),
     ('ca97b729-3035-4170-b5f7-83f1e63e9b8a', 1, false, true, true,  true, 'Firework Shells', 120.00, 0.15, 'Large shells that explode into a colorful burst in the sky, perfect for grand displays.'),
     ('cefe62ba-b263-4db8-8f4f-3b93ebff25cf', 1, true, false, true,  false, 'Sparklers', 50.00, 0.05, 'Small handheld fireworks that emit sparkling lights, ideal for kids and celebrations.'),
@@ -1234,3 +1178,64 @@ VALUES
     ('deca359b-9bfb-4b6f-bc24-3e509f595da4', 1, 'b740de8f-7a23-4fbb-a6ae-5b0e7777cd18'), -- CATERING CATEGORY ('Plated Dinner Service')
     ('9ee88634-aa10-48d1-b2c4-98556eac1684', 1, 'b740de8f-7a23-4fbb-a6ae-5b0e7777cd18'), -- PHOTOGRAPHY CATEGORY ('Event Photography')
     ('9495a42f-fd67-44cf-8de8-1bc4b6df81c1', 1, 'b740de8f-7a23-4fbb-a6ae-5b0e7777cd18'); -- EVENT SECURITY CATEGORY ('Bouncer Security')
+
+-- CHAT
+
+INSERT INTO chat (id, chatter1_profile_id, chatter2_profile_id, product_static_product_id, product_version, service_static_service_id, service_version)
+VALUES
+    ('bfb226cb-6f35-43dc-a096-9fdee2c59f83', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '5a1b07b8-e918-4b0f-bcd2-7f1fd04dbb26', 1, null, null),
+    ('780e7cde-7a99-4854-93b2-0ed2a7931c17', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', '5a1b07b8-e918-4b0f-bcd2-7f1fd04dbb26', 1, null, null);
+
+INSERT INTO chat_message (id, is_seen, message, time, to_profile_id, chat)
+VALUES
+    -- BETWEEN GUEST AND EVENT ORGANIZER (GUEST, john.smith@example.com) (EVENT ORGANIZER, jane.smith@example.com)
+    ('ee2ba33e-74c8-4b23-8016-55b1ecdef8f9', true, 'Hey! How have you been?', '2024-11-23T08:30:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('9797b593-84ef-421d-bde7-9fb15f1f534a', true, 'I’ve been good, just busy with work. What about you?', '2024-11-23T08:32:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('4c0f13e7-6bdf-49f5-b028-fea385256a6d', true, 'Same here. Been swamped with projects. Got any plans for the weekend?', '2024-11-23T08:34:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('7db54276-4767-4a05-bdf4-076536d6910b', true, 'Yeah, I’m going hiking on Saturday! Should be fun. What about you?', '2024-11-23T08:35:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('3ee1d615-7512-4b30-9e01-4d22db8cb7ab', true, 'That sounds great! I might just relax at home this time. Haven’t had a lazy weekend in a while.', '2024-11-23T08:37:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('321ae3c4-3f12-473e-9925-eca5dcf42deb', true, 'I get that! Everyone needs some downtime. Have you seen any good shows or movies recently?', '2024-11-23T08:40:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('7c794159-db52-4ce0-a754-eaa15e9bbe09', true, 'I started watching that new thriller series on Netflix. It’s pretty intense.', '2024-11-23T08:42:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('a2f5589c-f524-4d10-bfbf-570670dcb617', true, 'Ooh, sounds interesting! What’s it called?', '2024-11-23T08:44:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('f8c42e0f-3f90-4ae1-8658-4d3d648dd807', true, 'It’s called “The Silent Witness.” Really gripping! You should check it out.', '2024-11-23T08:46:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('42728107-bc12-4823-9195-df6979d8a5fa', true, 'I will! I’ve been looking for something new to watch. Thanks for the recommendation!', '2024-11-23T08:48:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('c98c3cc5-305c-4c24-aaef-e573d845f328', true, 'No problem! Let me know what you think once you start watching it.', '2024-11-23T08:50:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', 'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('dc0f9747-2c8c-4924-aa87-fa1592ce6453', true, 'Will do! By the way, have you tried the new restaurant downtown?', '2024-11-23T08:52:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('469fc739-99b5-4672-8686-00e3d059be39', true, 'I haven’t yet. What kind of food do they serve?', '2024-11-23T08:55:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('8f8bbce6-61db-43c0-840f-a65d452147d1', true, 'It’s an Italian place. The pasta there is amazing!', '2024-11-23T08:57:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('ff3bf40c-6f5b-4230-8516-00e1a3250806', true, 'I love Italian food! I’ll have to check it out soon.', '2024-11-23T08:59:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('fb66f9ea-428c-41e9-9cfc-58060b6942dd', true, 'You won’t regret it. The tiramisu is out of this world!', '2024-11-23T09:01:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('81e04a04-8324-4b82-b4b8-f2bb6f8f739a', true, 'Tiramisu? Now I’m definitely sold. I’ll try it next time I’m there.', '2024-11-23T09:03:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('f10cf6a6-db5e-4138-95cd-14de410ec99e', true, 'You’ll love it! Anyway, do you have any exciting trips planned for the holidays?', '2024-11-23T09:05:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('df462078-39bf-49f2-8d66-7c967e8d5514', true, 'I’m thinking of going to the mountains for a few days to unwind. How about you?', '2024-11-23T09:07:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('1928bb0d-2fc4-443e-bf48-b798fab8b8ee', true, 'That sounds amazing. I’m heading to the beach for a week of relaxation.', '2024-11-23T09:09:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('d8b5e4a2-6d27-46fc-806e-6809fc74b6b9', true, 'The beach sounds perfect! Are you going somewhere tropical?', '2024-11-23T09:11:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', 'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('3464c8bc-50a0-41d9-839e-9f0465674abd', true, 'Yes, to a small island in the Caribbean. I can’t wait!', '2024-11-23T09:13:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('d52dc504-424f-4738-8f60-4224208c4656', true, 'That sounds like a dream! Take lots of pictures!', '2024-11-23T09:15:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('f576c24a-907e-4ef7-8cd2-69a53a3a01e6', true, 'I definitely will! I’ll send you some when I’m there.', '2024-11-23T09:17:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('882bb87e-3c17-406c-962f-32366f5b44d6', true, 'I’ll look forward to it! Let me know if you need any recommendations for things to do.', '2024-11-23T09:19:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4', 'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('297759df-84ff-4b15-b8f6-c7f381645693', true, 'Thanks! I’m sure I’ll find plenty to do there. Maybe we can plan a trip together sometime.', '2024-11-23T09:21:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('8037830a-5280-40a9-8260-1847c251fc27', true, 'That would be awesome! We should definitely do that.', '2024-11-23T09:23:00', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+    ('0a370703-8daf-40be-870c-1773f5de861b', true, 'I’m going to start researching some destinations. Let’s make it happen!', '2024-11-23T09:25:00', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456',  'bfb226cb-6f35-43dc-a096-9fdee2c59f83'),
+
+    -- BETWEEN EVENT ORGANIZER AND SELLER (EVENT ORGANIZER susan.brown@example.com) (SELLER, lily.martinez@example.com)
+    ('51f8ca6c-1851-4e12-bf9a-e0994fa950fb', true, 'Hey! How are you doing?', '2024-11-23T10:00:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('35965c72-6835-4cd0-9a6d-cdcfa5f6890f', true, 'Hey! I’m doing well, thanks for asking. How about you?', '2024-11-23T10:02:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('8ca62c99-2556-482e-9e66-906fced369da', true, 'I’m good too, just a little tired. Busy week at work.', '2024-11-23T10:04:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('e2319834-2771-4cbe-97b5-6a79892a55a8', true, 'I hear you. It’s been pretty hectic for me too. Got anything fun planned for the weekend?', '2024-11-23T10:06:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('0646f9dc-4ada-4d51-b07c-b89e34f5d2b5', true, 'I’m actually going to a concert on Saturday night. Looking forward to it!', '2024-11-23T10:08:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('2a894bf0-70d1-47af-8fad-539944f2a7d0', true, 'That sounds awesome! Who’s playing?', '2024-11-23T10:10:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('74171528-3ddd-40e0-8694-8f7673d6f11e', true, 'It’s a local indie band. They’re pretty good! I’ve been listening to them a lot lately.', '2024-11-23T10:12:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('ac3e7bcd-389b-4bac-b316-4ef7343d5722', true, 'Nice, I bet it’s going to be a great show. I should check them out sometime.', '2024-11-23T10:14:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('b45e3fe7-f786-4fea-bb53-be59e8eda997', true, 'You totally should! They’re really talented. What about you? Got any plans for the weekend?', '2024-11-23T10:16:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('eb1c0212-8fb1-4539-9846-ed18d875bad4', true, 'I’m going to a friend’s birthday party. Should be fun!', '2024-11-23T10:18:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('58051851-5dfb-4f20-b1c8-381155b4deec', true, 'Nice! That sounds like a blast. What kind of party is it?', '2024-11-23T10:20:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('6bb19501-52af-42db-abd4-eab4a626495f', true, 'It’s a casual get-together with close friends. We’ll probably just hang out, eat, and play some games.', '2024-11-23T10:22:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('3e530c74-8f04-4574-8ad1-d932542c22ec', true, 'Sounds like a lot of fun! What kind of games do you guys play?', '2024-11-23T10:24:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('3e81b26f-8a8c-4f2b-b741-91f957dbc07d', true, 'We usually play board games or card games, sometimes some video games. Everyone loves a good competition!', '2024-11-23T10:26:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('75224460-7445-4d88-85fd-541ed2268766', true, 'That’s awesome! I’ve been really into board games lately too. Got any recommendations?', '2024-11-23T10:28:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('cf555af8-df91-4bb0-b95f-76b19f727075', true, 'If you like strategy, “Catan” is a classic. Or “Ticket to Ride” for something a bit lighter.', '2024-11-23T10:30:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('ded44c69-1baf-42d2-8d5c-00ecb0de2cd1', true, 'I love “Catan”! I’ll have to check out “Ticket to Ride.” Thanks for the tip!', '2024-11-23T10:32:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('e4cf9a34-a413-4ac8-adfd-9d14d342067c', true, 'No problem! I think you’ll really enjoy it. Let me know what you think after you try it out.', '2024-11-23T10:34:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('a6825c50-22fc-4cce-b914-38cc03111a4a', true, 'Will do! I’m sure we’ll play it this weekend. Have a great time at the party!', '2024-11-23T10:36:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
+    ('ae101a7e-8503-4f8f-ab1c-1736daf11688', true, 'Thanks, you too! Enjoy the concert!', '2024-11-23T10:38:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', '780e7cde-7a99-4854-93b2-0ed2a7931c17');
