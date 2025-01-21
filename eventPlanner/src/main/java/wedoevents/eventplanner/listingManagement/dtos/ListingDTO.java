@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
+import wedoevents.eventplanner.productManagement.dtos.VersionedProductDTO;
+import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +42,30 @@ public class ListingDTO {
         this.images = new ArrayList<>(List.of(String.format("%s/api/v1/%ss/%s/%d/images/%s", baseUrl, ((String) data[0]).toLowerCase(), id, version, data[8])));
         this.rating = 0.0; // todo
     }
-
+    public ListingDTO(VersionedProductDTO product) {
+        this.type = ListingType.PRODUCT;
+        this.id = product.getStaticProductId();
+        this.version = product.getVersion();
+        this.name = product.getName();
+        this.description = product.getDescription();
+        this.price = product.getPrice();
+        this.oldPrice = product.getOldPrice();
+        this.rating = product.getRating();
+        this.images = product.getImages(); //TODO check and fix
+        this.isAvailable = product.getIsAvailable();
+    }
+    public ListingDTO(VersionedServiceDTO service) {
+        this.type = ListingType.SERVICE;
+        this.id = service.getStaticServiceId();
+        this.version = service.getVersion();
+        this.name = service.getName();
+        this.description = service.getDescription();
+        this.price = service.getPrice();
+        this.oldPrice = service.getOldPrice();
+        this.rating = service.getRating();
+        this.images = service.getImages(); //TODO check and fix
+        this.isAvailable = service.getIsAvailable();
+    }
     public static ListingDTO appendImages(ListingDTO from, ListingDTO to) {
         to.getImages().addAll(from.getImages());
         return to;

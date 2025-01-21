@@ -5,7 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.dtos.CalendarEventDTO;
+import wedoevents.eventplanner.listingManagement.dtos.ListingDTO;
 import wedoevents.eventplanner.userManagement.dtos.FavoriteListingDTO;
+import wedoevents.eventplanner.userManagement.dtos.FavoritesRequestDTO;
 import wedoevents.eventplanner.userManagement.dtos.UserAdditionalInfoDTO;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
@@ -15,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/eventOrganizers")
+@RequestMapping("/api/v1/event-organizers")
 public class EventOrganizerController {
 
     private final EventOrganizerService eventOrganizerService;
@@ -24,21 +26,6 @@ public class EventOrganizerController {
     public EventOrganizerController(EventOrganizerService eventOrganizerService) {
         this.eventOrganizerService = eventOrganizerService;
     }
-
-    @PutMapping("/{id}/favorite-listings")
-    public ResponseEntity<?> processUuid(@RequestBody FavoriteListingDTO request) {
-        try {
-            // call update event organizer
-            return ResponseEntity.ok("Listing favorited successfully");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request");
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to favorite listing");
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
-        }
-    }
-
     @PostMapping
     public ResponseEntity<EventOrganizer> createEventOrganizer(@RequestBody EventOrganizer eventOrganizer) {
         EventOrganizer savedAttempt = eventOrganizerService.saveEventOrganizer(eventOrganizer);
@@ -79,5 +66,22 @@ public class EventOrganizerController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(response);
+    }
+    @GetMapping("/{id}/favorite-listings")
+    public ResponseEntity<?> getOrganizerFavoriteListings(@PathVariable UUID id) {
+        List<ListingDTO> listings = eventOrganizerService.getFavoriteListings(id);
+        if (listings == null) {
+            return ResponseEntity.notFound().build();
+        }else{
+            return ResponseEntity.ok(listings);
+        }
+    }
+    @PutMapping("/favorite-listings")
+    public ResponseEntity<Void> favoriteListing(@RequestBody FavoritesRequestDTO request) {
+        if(eventOrganizerService.favoriteListing(request)){
+            return ResponseEntity.ok().build();
+        }else{
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

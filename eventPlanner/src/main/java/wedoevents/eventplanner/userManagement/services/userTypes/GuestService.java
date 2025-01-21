@@ -16,10 +16,7 @@ import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.GuestRepository;
 import wedoevents.eventplanner.userManagement.services.EventReviewService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,14 +24,12 @@ public class GuestService {
 
     private final GuestRepository guestRepository;
     private final EventRepository eventRepository;
-    private final EventService eventService;
     private final EventReviewService eventReviewService;
 
     @Autowired
-    public GuestService(GuestRepository guestRepository, EventRepository eventRepository, EventService eventService, EventReviewService eventReviewService) {
+    public GuestService(GuestRepository guestRepository, EventRepository eventRepository, EventReviewService eventReviewService) {
         this.guestRepository = guestRepository;
         this.eventRepository = eventRepository;
-        this.eventService = eventService;
         this.eventReviewService = eventReviewService;
     }
 
@@ -195,7 +190,7 @@ public class GuestService {
         List<EventComplexViewDTO> response = new ArrayList<>();
         for(Event event : events){
             List<EvenReviewResponseDTO> reviews = eventReviewService.getAcceptedReviewsByEventId(event.getId());
-            response.add(new EventComplexViewDTO(event,eventService.calculateAverageGrade(reviews)));
+            response.add(new EventComplexViewDTO(event,calculateAverageGrade(reviews)));
         }
         return response;
     }
@@ -208,10 +203,10 @@ public class GuestService {
         if(event == null){
             return false;
         }
-        if(guest.getAcceptedEvents().contains(event)){
-            guest.getAcceptedEvents().remove(event);
+        if(guest.getFavouriteEvents().contains(event)){
+            guest.getFavouriteEvents().remove(event);
         }else{
-            guest.getAcceptedEvents().add(event);
+            guest.getFavouriteEvents().add(event);
         }
         guestRepository.save(guest);
         return true;
@@ -227,5 +222,15 @@ public class GuestService {
                 .map(CalendarEventMapper::toCalendarEventDTO)
                 .collect(Collectors.toList());
     }
+    public double calculateAverageGrade(List<EvenReviewResponseDTO> reviews) {
+        if (reviews == null || reviews.isEmpty()) {
+            return 0.0;
+        }
 
+        OptionalDouble average = reviews.stream()
+                .mapToInt(EvenReviewResponseDTO::getGrade)
+                .average();
+
+        return average.orElse(0.0);
+    }
 }
