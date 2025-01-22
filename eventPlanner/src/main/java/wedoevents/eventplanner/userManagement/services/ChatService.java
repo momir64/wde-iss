@@ -5,6 +5,10 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
+import wedoevents.eventplanner.productManagement.models.VersionedProduct;
+import wedoevents.eventplanner.productManagement.repositories.VersionedProductRepository;
+import wedoevents.eventplanner.serviceManagement.models.VersionedService;
+import wedoevents.eventplanner.serviceManagement.repositories.VersionedServiceRepository;
 import wedoevents.eventplanner.userManagement.dtos.*;
 import wedoevents.eventplanner.userManagement.models.*;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
@@ -31,15 +35,19 @@ public class ChatService {
     private final SellerRepository sellerRepository;
     private final GuestRepository guestRepository;
     private final ProfileRepository profileRepository;
+    private final VersionedServiceRepository versionedServiceRepository;
+    private final VersionedProductRepository versionedProductRepository;
 
     @Autowired
-    public ChatService(ChatRepository chatRepository, ChatMessageRepository chatMessageRepository, EventOrganizerRepository eventOrganizerRepository, SellerRepository sellerRepository, GuestRepository guestRepository, ProfileRepository profileRepository) {
+    public ChatService(ChatRepository chatRepository, ChatMessageRepository chatMessageRepository, EventOrganizerRepository eventOrganizerRepository, SellerRepository sellerRepository, GuestRepository guestRepository, ProfileRepository profileRepository, VersionedServiceRepository versionedServiceRepository, VersionedProductRepository versionedProductRepository) {
         this.chatRepository = chatRepository;
         this.chatMessageRepository = chatMessageRepository;
         this.eventOrganizerRepository = eventOrganizerRepository;
         this.sellerRepository = sellerRepository;
         this.guestRepository = guestRepository;
         this.profileRepository = profileRepository;
+        this.versionedServiceRepository = versionedServiceRepository;
+        this.versionedProductRepository = versionedProductRepository;
     }
 
     public List<ChatDTO> getChatsFromProfile(UUID profileId) {
@@ -69,6 +77,100 @@ public class ChatService {
         }
 
         return getChatDTO(chatMaybe.get(), profileId);
+    }
+
+    public ChatDTO createChat(CreateChatDTO createChatDTO) {
+        Optional<Profile> chatter1Maybe = profileRepository.findById(createChatDTO.getChatter1Id());
+        Optional<Profile> chatter2Maybe = profileRepository.findById(createChatDTO.getChatter2Id());
+
+        if (chatter1Maybe.isEmpty() || chatter2Maybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        Profile chatter1 = chatter1Maybe.get();
+        Profile chatter2 = chatter2Maybe.get();
+
+        VersionedService versionedService = null;
+        VersionedProduct versionedProduct = null;
+        if (createChatDTO.getListingType().equals(ListingType.SERVICE)) {
+            Optional<VersionedService> versionedServiceMaybe =
+                    versionedServiceRepository.getVersionedServiceByStaticServiceIdAndVersion(createChatDTO.getListingId(), createChatDTO.getListingVersion());
+
+            if (versionedServiceMaybe.isEmpty()) {
+                throw new EntityNotFoundException();
+            }
+
+            versionedService = versionedServiceMaybe.get();
+        } else {
+            Optional<VersionedProduct> versionedProductMaybe =
+                    versionedProductRepository.getVersionedProductByStaticProductIdAndVersion(createChatDTO.getListingId(), createChatDTO.getListingVersion());
+
+            if (versionedProductMaybe.isEmpty()) {
+                throw new EntityNotFoundException();
+            }
+
+            versionedProduct = versionedProductMaybe.get();
+        }
+
+        Chat newChat = new Chat(versionedProduct, versionedService, chatter1, chatter2);
+        newChat = chatRepository.save(newChat);
+
+        return getChatDTO(newChat, chatter1.getId());
+    }
+
+    public ChatMessageDTO createMessage(NewChatMessageDTO newMessage) {
+        Optional<Profile> recipientMaybe = profileRepository.findById(newMessage.getToProfileId());
+
+        if (recipientMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        Profile recipient = recipientMaybe.get();
+
+        Optional<Chat> chatMaybe = chatRepository.findById(newMessage.getChatId());
+
+        if (chatMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        Chat chat = chatMaybe.get();
+
+        ChatMessage newChatMessage = new ChatMessage(
+                LocalDateTime.now(),
+                newMessage.getMessage(),
+                false,
+                recipient
+        );
+
+        chatMessageRepository.addMessageToChat(
+                newChatMessage.getIsSeen(),
+                newChatMessage.getMessage(),
+                newChatMessage.getTime(),
+                newChatMessage.getTo().getId(),
+                chat.getId()
+        );
+
+        return ChatMessageDTO.toDto(newChatMessage);
+    }
+
+    public void makeMessageSeen(UUID chatId, UUID profileId) {
+        Optional<Chat> chatMaybe = chatRepository.findById(chatId);
+
+        if (chatMaybe.isEmpty()) {
+            throw new NotImplementedException();
+        }
+
+        Chat chat = chatMaybe.get();
+
+        Optional<Profile> loggedInChatterMaybe = profileRepository.findById(profileId);
+
+        if (loggedInChatterMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        Profile loggedInChatter = loggedInChatterMaybe.get();
+
+
     }
 
     private ChatDTO getChatDTO(Chat c, UUID profileId) {
@@ -108,49 +210,14 @@ public class ChatService {
 
         return new ChatDTO(
                 c.getId(),
-                lastMessage.getMessage(),
+                lastMessage == null ? null : lastMessage.getMessage(),
                 listingName,
                 listingId,
-                lastMessage.getIsSeen(),
+                lastMessage == null || lastMessage.getIsSeen(),
                 chatPartnerNameAndSurname,
                 chatPartnerId,
-                lastMessage.getTime(),
+                lastMessage == null ? null : lastMessage.getTime(),
                 listingType
         );
-    }
-
-    public ChatMessageDTO createMessage(NewChatMessageDTO newMessage) {
-        Optional<Profile> recipientMaybe = profileRepository.findById(newMessage.getToProfileId());
-
-        if (recipientMaybe.isEmpty()) {
-            throw new EntityNotFoundException();
-        }
-
-        Profile recipient = recipientMaybe.get();
-
-        Optional<Chat> chatMaybe = chatRepository.findById(newMessage.getChatId());
-
-        if (chatMaybe.isEmpty()) {
-            throw new EntityNotFoundException();
-        }
-
-        Chat chat = chatMaybe.get();
-
-        ChatMessage newChatMessage = new ChatMessage(
-                LocalDateTime.now(),
-                newMessage.getMessage(),
-                false,
-                recipient
-        );
-
-        chatMessageRepository.addMessageToChat(
-                newChatMessage.getIsSeen(),
-                newChatMessage.getMessage(),
-                newChatMessage.getTime(),
-                newChatMessage.getTo().getId(),
-                chat.getId()
-        );
-
-        return ChatMessageDTO.toDto(newChatMessage);
     }
 }

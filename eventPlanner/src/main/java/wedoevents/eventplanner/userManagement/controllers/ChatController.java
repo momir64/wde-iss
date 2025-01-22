@@ -9,6 +9,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.userManagement.dtos.ChatDTO;
 import wedoevents.eventplanner.userManagement.dtos.ChatMessageDTO;
+import wedoevents.eventplanner.userManagement.dtos.CreateChatDTO;
 import wedoevents.eventplanner.userManagement.dtos.NewChatMessageDTO;
 import wedoevents.eventplanner.userManagement.services.ChatService;
 
@@ -29,7 +30,7 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    @GetMapping("/chats/{profileId}")
+    @GetMapping("/{profileId}")
     public ResponseEntity<List<ChatDTO>> getChatsFromProfile(@PathVariable UUID profileId) {
         try {
             return ResponseEntity.ok(chatService.getChatsFromProfile(profileId));
@@ -38,10 +39,19 @@ public class ChatController {
         }
     }
 
-    @GetMapping("/chat/{profileId}/{chatId}")
+    @GetMapping("/{profileId}/{chatId}")
     public ResponseEntity<ChatDTO> getChat(@PathVariable UUID profileId, @PathVariable UUID chatId) {
         try {
             return ResponseEntity.ok(chatService.getChat(profileId, chatId));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping()
+    public ResponseEntity<ChatDTO> createChat(@RequestBody CreateChatDTO createChatDTO) {
+        try {
+            return ResponseEntity.ok(chatService.createChat(createChatDTO));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
@@ -51,6 +61,17 @@ public class ChatController {
     public ResponseEntity<List<ChatMessageDTO>> getAllMessagesFromChat(@PathVariable UUID chatId) {
         try {
             return ResponseEntity.ok(chatService.getChatMessagesFromChat(chatId));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/seeMessage/{chatId}/{profileId}")
+    public ResponseEntity<Void> makeMessageSeen(@PathVariable UUID chatId,
+                                                                @PathVariable UUID profileId) {
+        try {
+            chatService.makeMessageSeen(chatId, profileId);
+            return ResponseEntity.ok().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

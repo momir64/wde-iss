@@ -16,4 +16,7 @@ public interface StaticServiceRepository extends JpaRepository<StaticService, UU
     @Modifying
     @Query("UPDATE StaticService ss SET ss.serviceCategory = :replacing WHERE ss.serviceCategory = :toBeReplaced")
     void replacePendingServiceCategory(ServiceCategory toBeReplaced, ServiceCategory replacing);
+
+    @Query(value = "SELECT seller_id FROM static_service WHERE static_service_id = ?1", nativeQuery = true)
+    UUID getIdOfSeller(UUID staticSellerId);
 }
