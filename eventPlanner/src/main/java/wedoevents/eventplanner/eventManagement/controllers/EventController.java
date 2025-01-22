@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.eventManagement.controllers;
 
+import com.google.api.Http;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -9,14 +10,22 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventActivitiesDTO;
+import wedoevents.eventplanner.eventManagement.dtos.EventAdminViewDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.services.EventService;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
 import wedoevents.eventplanner.shared.services.pdfService.PdfGeneratorService;
+import wedoevents.eventplanner.userManagement.dtos.ReviewDistributionDTO;
+import wedoevents.eventplanner.userManagement.models.Profile;
+import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
+import wedoevents.eventplanner.userManagement.services.EventReviewService;
+import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
+import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -28,24 +37,39 @@ public class EventController {
     private final EventService eventService;
     private final ImageService imageService;
     private final PdfGeneratorService pdfService;
+    private final GuestService guestService;
+    private final EventReviewService eventReviewService;
     @Autowired
-    public EventController(EventService eventService, ImageService imageService, PdfGeneratorService pdfService) {
+    public EventController(EventService eventService, ImageService imageService, PdfGeneratorService pdfService, GuestService guestService, EventReviewService eventReviewService) {
         this.eventService = eventService;
         this.imageService = imageService;
         this.pdfService = pdfService;
+        this.guestService = guestService;
+        this.eventReviewService = eventReviewService;
     }
 
 
     @PostMapping
-    public ResponseEntity<EventComplexViewDTO> createEvent(@RequestBody CreateEventDTO createEventDTO) {
+    public ResponseEntity<?> createEvent(@RequestBody CreateEventDTO createEventDTO) {
         try {
             EventComplexViewDTO createdEvent = eventService.createEvent(createEventDTO);
             return ResponseEntity.ok(createdEvent);
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status((HttpStatus.BAD_REQUEST)).body("Error processing request");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending email");
         }
     }
+    @PutMapping("/images")
+    public ResponseEntity<?> putProfileImage(@RequestParam("images") List<MultipartFile> images,
+                                             @RequestParam("eventId") UUID eventId){
+        try {
+            return ResponseEntity.ok(eventService.putEventImages(images, eventId));
+        } catch (Exception e) {
 
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Could not save images");
+        }
+    }
     @GetMapping("/{eventOrganizerId}/my-events")
     public ResponseEntity<List<EventComplexViewDTO>> getEventsFromOrganizer(@PathVariable UUID eventOrganizerId) {
         try {
@@ -117,7 +141,10 @@ public class EventController {
     public ResponseEntity<byte[]> downloadPdf(@PathVariable("id") UUID id) {
         Optional<Event> event = eventService.getEventById(id);
         if (event.isPresent()) {
-            byte[] pdfContent = pdfService.generateEventPdf(event.get());
+            List<Guest> invitedGuests = guestService.getGuestsByInvitedEventId(id);
+            List<Guest> acceptedGuests = guestService.getGuestsByAcceptedEventId(id);
+            ReviewDistributionDTO reviewDistribution = eventReviewService.getReviewCounts(id);
+            byte[] pdfContent = pdfService.generateEventPdf(event.get(),invitedGuests,acceptedGuests,reviewDistribution);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
             headers.setContentDispositionFormData("attachment", "event-details.pdf");
@@ -127,6 +154,11 @@ public class EventController {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(null);
+    }
+    @GetMapping("/public")
+    public ResponseEntity<?> getPublicEvents() {
+        List<EventAdminViewDTO> publicEvents = eventService.getAllPublicEvents();
+        return ResponseEntity.ok(publicEvents);
     }
 
 }

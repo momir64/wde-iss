@@ -3,6 +3,7 @@ package wedoevents.eventplanner.eventManagement.dtos;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -29,5 +30,4 @@ public class CreateEventDTO {
 
     private UUID organizerProfileId;
 
-    // private List<MultipartFile> images; // todo add images with image service
 }

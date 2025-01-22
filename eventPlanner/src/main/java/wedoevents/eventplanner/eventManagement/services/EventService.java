@@ -5,18 +5,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
-import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
-import wedoevents.eventplanner.eventManagement.dtos.EventActivitiesDTO;
-import wedoevents.eventplanner.eventManagement.dtos.EventActivityDTO;
-import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import wedoevents.eventplanner.eventManagement.dtos.*;
 import wedoevents.eventplanner.eventManagement.models.*;
 import wedoevents.eventplanner.eventManagement.repositories.EventActivityRepository;
 import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
 import wedoevents.eventplanner.eventManagement.repositories.EventTypeRepository;
 import wedoevents.eventplanner.shared.models.City;
+import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
+import wedoevents.eventplanner.shared.services.imageService.ImageService;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
+import wedoevents.eventplanner.userManagement.services.EventReviewService;
+import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +35,21 @@ public class EventService {
     private final EventTypeRepository eventTypeRepository;
     private final EventOrganizerRepository eventOrganizerRepository;
     private final EventActivityRepository eventActivityRepository;
+    private final EventReviewService eventReviewService;
+    private final GuestService guestService;
+    private final ImageService imageService;
+
     @Autowired
     public EventService(EventRepository eventRepository, EventTypeRepository eventTypeRepository,
-                        EventOrganizerRepository eventOrganizerRepository, EventActivityRepository eventActivityRepository) {
+                        EventOrganizerRepository eventOrganizerRepository, EventActivityRepository eventActivityRepository,
+                        EventReviewService eventReviewService, GuestService guestService, ImageService imageService) {
         this.eventRepository = eventRepository;
         this.eventTypeRepository = eventTypeRepository;
         this.eventOrganizerRepository = eventOrganizerRepository;
         this.eventActivityRepository = eventActivityRepository;
+        this.eventReviewService = eventReviewService;
+        this.guestService = guestService;
+        this.imageService = imageService;
     }
 
     public List<EventComplexViewDTO> getEventsFromOrganizer(UUID eventOrganizerId) {
@@ -88,7 +100,7 @@ public class EventService {
         return eventRepository.getTopEvents(city).stream().map(EventComplexViewDTO::new).collect(Collectors.toList());
     }
 
-    public EventComplexViewDTO createEvent(CreateEventDTO createEventDTO) {
+    public EventComplexViewDTO createEvent(CreateEventDTO createEventDTO) throws Exception {
         Optional<EventType> eventTypeMaybe = eventTypeRepository.findById(createEventDTO.getEventTypeId());
 
         if (eventTypeMaybe.isEmpty()) {
@@ -125,10 +137,42 @@ public class EventService {
         newEvent.setGuestCount(createEventDTO.getGuestCount());
 
         Event createdEvent = eventRepository.save(newEvent);
+
         eventOrganizer.getMyEvents().add(createdEvent);
         eventOrganizerRepository.save(eventOrganizer);
 
+
         return new EventComplexViewDTO(createdEvent);
+    }
+
+    public List<String> putEventImages(List<MultipartFile> images, UUID eventId) throws Exception {
+        List<String> imageNames = new ArrayList<>();
+        if(images == null || images.isEmpty()){
+            return imageNames;
+        }
+        Optional<Event> eventOptional = eventRepository.findById(eventId);
+        if (eventOptional.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        Event event = eventOptional.get();
+        ImageLocationConfiguration config = new ImageLocationConfiguration("event", event.getId());
+
+        try{
+            for(MultipartFile file: images){
+                String imageName = imageService.saveImageToStorage(file,config);
+                imageNames.add(imageName);
+            }
+        }catch (Exception e){
+            imageNames = new ArrayList<>();
+
+            event.setImages(imageNames);
+            eventRepository.save(event);
+
+            throw new Exception();
+        }
+        event.setImages(imageNames);
+        eventRepository.save(event);
+        return imageNames;
     }
 
     public Optional<Event> getEventById(UUID id) {
@@ -151,5 +195,17 @@ public class EventService {
         }
 
         return createdActivityIds;
+    }
+    public List<EventAdminViewDTO> getAllPublicEvents() {
+        List<Event> events =  eventRepository.findAllPublicEvents();
+        return events.stream().map(event -> {
+            EventAdminViewDTO dto = new EventAdminViewDTO();
+            dto.setId(event.getId());
+            dto.setName(event.getName());
+            dto.setCity(event.getCity().getName());
+            dto.setAttendance(guestService.getAcceptedGuestCount(event.getId()));
+            dto.setRating(eventReviewService.getAverageRating(event.getId())); // Get the rating from ReviewService
+            return dto;
+        }).collect(Collectors.toList());
     }
 }

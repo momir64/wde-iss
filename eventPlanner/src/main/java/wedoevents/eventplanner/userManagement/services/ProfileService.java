@@ -1,10 +1,8 @@
 package wedoevents.eventplanner.userManagement.services;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.shared.models.City;
@@ -24,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProfileService {
@@ -36,8 +35,6 @@ public class ProfileService {
     private final RoleRepository roleRepository;
     private final EventOrganizerRepository eventOrganizerRepository;
     private PasswordEncoder passwordEncoder;
-
-
 
     @Autowired
     public ProfileService(ProfileRepository profileRepository, EventOrganizerRepository eventOrganizerRepository, SellerRepository sellerRepository, GuestRepository guestRepository, AdminRepository adminRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
@@ -198,4 +195,27 @@ public class ProfileService {
     public Profile saveProfile(Profile profile) {
         return profileRepository.save(profile);
     }
+
+    public List<UUID> getBlockedUserIds(Profile profile) {
+        return profile.getBlockedUsers().stream()
+                .map(Profile::getId)
+                .collect(Collectors.toList());
+    }
+    public List<UUID> getBlockingUserIds(UUID profileId) {
+        List<Profile> blockingProfiles = profileRepository.findAllBlockingProfiles(profileId);
+        return blockingProfiles.stream()
+                .map(Profile::getId)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void toggleBlockUser(Profile blocker, Profile toBlock) {
+        if (blocker.getBlockedUsers().contains(toBlock)) {
+            blocker.getBlockedUsers().remove(toBlock);
+        } else {
+            blocker.getBlockedUsers().add(toBlock);
+        }
+        profileRepository.save(blocker);
+    }
+
 }
