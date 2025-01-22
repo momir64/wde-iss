@@ -24,16 +24,13 @@ public class ChatMessage {
 
     private String message;
 
-    private Boolean isSeen;
-
     @ManyToOne
     @JoinColumn(name = "to_profile_id", nullable = false)
     private Profile to;
 
-    public ChatMessage(LocalDateTime time, String message, boolean isSeen, Profile to) {
+    public ChatMessage(LocalDateTime time, String message, Profile to) {
         this.time = time;
         this.message = message;
-        this.isSeen = isSeen;
         this.to = to;
     }
 }

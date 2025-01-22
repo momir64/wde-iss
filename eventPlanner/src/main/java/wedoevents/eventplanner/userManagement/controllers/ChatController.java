@@ -66,17 +66,6 @@ public class ChatController {
         }
     }
 
-    @GetMapping("/seeMessage/{chatId}/{profileId}")
-    public ResponseEntity<Void> makeMessageSeen(@PathVariable UUID chatId,
-                                                                @PathVariable UUID profileId) {
-        try {
-            chatService.makeMessageSeen(chatId, profileId);
-            return ResponseEntity.ok().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     @MessageMapping("/send-message")
     public ChatMessageDTO broadcastChatMessage(String message) {
         NewChatMessageDTO messageConverted = parseMessage(message);

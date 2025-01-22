@@ -18,7 +18,6 @@ public class ChatDTO {
     private String lastMessage;
     private String listingName;
     private UUID listingId;
-    private boolean seen;
     private String chatPartnerNameAndSurname;
     private UUID chatPartnerId;
     private LocalDateTime lastMessageDate;

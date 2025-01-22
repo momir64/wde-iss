@@ -138,12 +138,10 @@ public class ChatService {
         ChatMessage newChatMessage = new ChatMessage(
                 LocalDateTime.now(),
                 newMessage.getMessage(),
-                false,
                 recipient
         );
 
         chatMessageRepository.addMessageToChat(
-                newChatMessage.getIsSeen(),
                 newChatMessage.getMessage(),
                 newChatMessage.getTime(),
                 newChatMessage.getTo().getId(),
@@ -151,26 +149,6 @@ public class ChatService {
         );
 
         return ChatMessageDTO.toDto(newChatMessage);
-    }
-
-    public void makeMessageSeen(UUID chatId, UUID profileId) {
-        Optional<Chat> chatMaybe = chatRepository.findById(chatId);
-
-        if (chatMaybe.isEmpty()) {
-            throw new NotImplementedException();
-        }
-
-        Chat chat = chatMaybe.get();
-
-        Optional<Profile> loggedInChatterMaybe = profileRepository.findById(profileId);
-
-        if (loggedInChatterMaybe.isEmpty()) {
-            throw new EntityNotFoundException();
-        }
-
-        Profile loggedInChatter = loggedInChatterMaybe.get();
-
-
     }
 
     private ChatDTO getChatDTO(Chat c, UUID profileId) {
@@ -213,7 +191,6 @@ public class ChatService {
                 lastMessage == null ? null : lastMessage.getMessage(),
                 listingName,
                 listingId,
-                lastMessage == null || lastMessage.getIsSeen(),
                 chatPartnerNameAndSurname,
                 chatPartnerId,
                 lastMessage == null ? null : lastMessage.getTime(),
