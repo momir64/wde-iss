@@ -1,8 +1,10 @@
 package wedoevents.eventplanner.userManagement.services.userTypes;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import wedoevents.eventplanner.userManagement.dtos.SellerDetailedInfoDTO;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepository;
@@ -35,6 +37,18 @@ public class SellerService {
 
     public void deleteSeller(UUID id) {
         sellerRepository.deleteById(id);
+    }
+
+    public SellerDetailedInfoDTO getSellerDetailedInfo(UUID sellerId) {
+        Optional<Seller> sellerMaybe = sellerRepository.findById(sellerId);
+
+        if (sellerMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        Seller seller = sellerMaybe.get();
+
+        return SellerDetailedInfoDTO.toDto(seller);
     }
 
     public Seller createOrUpdateSeller(Seller seller) {

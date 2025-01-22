@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.serviceManagement.models.VersionedService;
+import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
 
 
 import java.util.List;
@@ -32,17 +33,18 @@ public class VersionedServiceDTO {
     private Double price;
     private Integer minimumDuration;
     private Integer maximumDuration;
-
     private List<UUID> availableEventTypeIds;
-
     private Double rating;
 
+    private String sellerNameAndSurname;
+    private UUID sellerId;
+    private UUID sellerProfileId;
 
-    public static VersionedServiceDTO toDto(VersionedService versionedService) {
-        return toDto(versionedService, 0.0);
+    public static VersionedServiceDTO toDto(VersionedService versionedService, Seller seller) {
+        return toDto(versionedService, 0.0, seller);
     }
 
-    public static VersionedServiceDTO toDto(VersionedService versionedService, Double rating) {
+    public static VersionedServiceDTO toDto(VersionedService versionedService, Double rating, Seller seller) {
         String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).build().toUriString();
 
         return new VersionedServiceDTO(
@@ -67,7 +69,10 @@ public class VersionedServiceDTO {
                 versionedService.getMinimumDuration(),
                 versionedService.getMaximumDuration(),
                 versionedService.getAvailableEventTypes().stream().map(EventType::getId).toList(),
-                rating
+                rating,
+                seller.getName() + " " + seller.getSurname(),
+                seller.getId(),
+                seller.getProfile().getId()
         );
     }
 }
