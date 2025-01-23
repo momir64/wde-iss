@@ -62,7 +62,7 @@ public class EventOrganizerController {
     @GetMapping("/{id}/calendar")
     public ResponseEntity<?> getOrganizerCalendar(@PathVariable UUID id) {
         List<CalendarEventDTO> response = eventOrganizerService.getCalendarEvents(id);
-        if(response.isEmpty()){
+        if(response == null){
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(response);

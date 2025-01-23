@@ -27,7 +27,10 @@ public class EventDetailedViewDTO {
     private Double latitude;
     private Double averageRating;
     private List<EvenReviewResponseDTO> reviews;
-    private boolean isDeletable;
-    private boolean isFavorite;
-    private boolean isAccepted;
+    private Boolean isDeletable;
+    private Boolean isFavorite;
+    private Boolean isAccepted;
+    private Boolean isPdfAvailable;
+    private Boolean isEditable;
+    private String organizerCredentials;
 }

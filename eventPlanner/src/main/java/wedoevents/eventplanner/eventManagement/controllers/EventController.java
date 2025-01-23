@@ -194,9 +194,9 @@ public class EventController {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEvent(@PathVariable("id") UUID eventId) {
-        if(eventService.deleteEvent(eventId)) {
+    @DeleteMapping("/{id}/{userId}")
+    public ResponseEntity<?> deleteEvent(@PathVariable("id") UUID eventId, @PathVariable("userId") UUID userId) {
+        if(eventService.deleteEvent(eventId,userId)) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Event deleted successfully");
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");

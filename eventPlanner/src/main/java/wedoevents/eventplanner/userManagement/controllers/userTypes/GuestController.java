@@ -59,7 +59,7 @@ public class GuestController {
     @PutMapping("/join-event")
     public ResponseEntity<?> joinEvent(@RequestBody JoinEventDTO request) {
         if(guestService.joinEvent(request)) {
-            return ResponseEntity.ok("Event joined successfully");
+            return ResponseEntity.ok().build();
         }else{
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request");
         }
@@ -84,7 +84,7 @@ public class GuestController {
     @GetMapping("/{id}/calendar")
     public ResponseEntity<?> getGuestCalendar(@PathVariable UUID id) {
         List<CalendarEventDTO> response = guestService.getCalendarEvents(id);
-        if(response.isEmpty()) {
+        if(response == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(response);

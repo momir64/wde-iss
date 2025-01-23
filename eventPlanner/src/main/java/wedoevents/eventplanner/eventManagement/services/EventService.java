@@ -218,6 +218,7 @@ public class EventService {
         Event event = eventOptional.get();
         EventDetailedViewDTO response = new EventDetailedViewDTO();
         List<EvenReviewResponseDTO> reviews = eventReviewService.getAcceptedReviewsByEventId(eventId);
+        Optional<EventOrganizer> organizer = eventOrganizerService.getEventOrganizerByEventId(eventId);
         response.setReviews(reviews);
         response.setAverageRating(calculateAverageGrade(reviews));
         response.setId(event.getId());
@@ -231,11 +232,30 @@ public class EventService {
         response.setGuestCount(event.getGuestCount());
         response.setLongitude(event.getLocation().getLongitude());
         response.setLatitude(event.getLocation().getLatitude());
-        if(isGuest){
-            response.setAccepted(guestService.isEventAccepted(userId,eventId));
-            response.setFavorite(guestService.isEventFavorited(userId,eventId));
+        if(organizer.isPresent()){
+            response.setOrganizerCredentials(organizer.get().getName() + "  " + organizer.get().getSurname());
         }else{
-            response.setDeletable(checkIfEventIsDeletable(eventId));
+            response.setOrganizerCredentials("");
+        }
+        if(isGuest){
+            response.setIsDeletable(false);
+            response.setIsFavorite(guestService.isEventFavorited(userId,eventId));
+            response.setIsAccepted(guestService.isEventAccepted(userId,eventId));
+            response.setIsPdfAvailable(false);
+            response.setIsEditable(false);
+        }else{
+            response.setIsFavorite(false);
+            response.setIsAccepted(false);
+            if(organizer.isPresent()){
+                response.setIsEditable(true);
+                response.setIsPdfAvailable(true);
+                response.setIsDeletable(checkIfEventIsDeletable(eventId,organizer.get().getId(),userId));
+            }else{
+                response.setIsDeletable(false);
+                response.setIsEditable(false);
+                response.setIsPdfAvailable(false);
+            }
+
         }
         return response;
     }
@@ -251,14 +271,18 @@ public class EventService {
 
         return average.orElse(0.0);
     }
-    public boolean deleteEvent(UUID eventId){
-        if(checkIfEventIsDeletable(eventId)){
+    public boolean deleteEvent(UUID eventId, UUID userId){
+        Optional<EventOrganizer> organizer = eventOrganizerService.getEventOrganizerById(userId);
+        if(organizer.isEmpty()){
+            return false;
+        }
+        if(checkIfEventIsDeletable(eventId,userId,userId)){
             eventRepository.deleteById(eventId);
             return true;
         }
         return false;
     }
-    public boolean checkIfEventIsDeletable(UUID eventId) {
+    public boolean checkIfEventIsDeletable(UUID eventId, UUID organizerId, UUID userId) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isEmpty()) {
             return false;
@@ -273,6 +297,9 @@ public class EventService {
         }
         if(event.getProductBudgetItems().stream()
                 .anyMatch(productBudgetItem -> productBudgetItem.getProduct() != null)){
+            return false;
+        }
+        if(organizerId != userId){
             return false;
         }
         return true;
