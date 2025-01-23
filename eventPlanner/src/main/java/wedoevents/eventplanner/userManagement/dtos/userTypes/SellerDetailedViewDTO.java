@@ -20,4 +20,5 @@ public class SellerDetailedViewDTO {
     private String email;
     private List<ListingReviewResponseDTO> reviews;
     private Double rating;
+    private String image;
 }

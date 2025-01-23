@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import wedoevents.eventplanner.eventManagement.dtos.CalendarEventDTO;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.services.EventService;
@@ -19,8 +20,11 @@ import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepos
 import wedoevents.eventplanner.userManagement.services.ListingReviewService;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class SellerService {
@@ -52,18 +56,6 @@ public class SellerService {
         sellerRepository.deleteById(id);
     }
 
-    public SellerDetailedInfoDTO getSellerDetailedInfo(UUID sellerId) {
-        Optional<Seller> sellerMaybe = sellerRepository.findById(sellerId);
-
-        if (sellerMaybe.isEmpty()) {
-            throw new EntityNotFoundException();
-        }
-
-        Seller seller = sellerMaybe.get();
-
-        return SellerDetailedInfoDTO.toDto(seller);
-    }
-
     public Seller createOrUpdateSeller(Seller seller) {
         if (seller.getId() != null && sellerRepository.existsById(seller.getId())) {
             Seller existingSeller = sellerRepository.findById(seller.getId()).orElse(null);
@@ -75,20 +67,27 @@ public class SellerService {
         // Create new
         return sellerRepository.save(seller);
     }
+
     public void deleteByProfile(Profile profile){
         sellerRepository.deleteByProfile(profile);
     }
+
     public Optional<Seller> getSellerByServiceId(UUID serviceId) {
         return sellerRepository.findByServiceId(serviceId);
     }
+
     public Optional<Seller> getSellerByProductId(UUID productId) {
         return sellerRepository.findByProductId(productId);
     }
+
     public SellerDetailedViewDTO getSellerDetailedView(UUID id) {
         Optional<Seller> sellerOptional = sellerRepository.findById(id);
         if(sellerOptional.isEmpty()){
             return null;
         }
+
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).build().toUriString();
+
         Seller seller = sellerOptional.get();
         SellerDetailedViewDTO response = new SellerDetailedViewDTO();
         response.setSellerId(seller.getId());
@@ -99,6 +98,9 @@ public class SellerService {
         response.setCity(seller.getCity().getName());
         response.setDescription(seller.getDescription());
         response.setEmail(seller.getProfile().getEmail());
+        response.setImage(
+                String.format("%s/api/v1/profiles/images/%s/%s", baseUrl, seller.getProfile().getId(), seller.getProfile().getImageName())
+        );
         List<ListingReviewResponseDTO> reviews = new ArrayList<>();
         for (StaticProduct product: seller.getMyProducts()){
             List<ListingReviewResponseDTO> productReviews = listingReviewService.getReviewsByListingIdAndStatus(product.getStaticProductId(), PendingStatus.APPROVED,true);
@@ -116,6 +118,7 @@ public class SellerService {
         response.setRating(averageGrade);
         return response;
     }
+
     public List<CalendarEventDTO> getCalendarEvents(UUID id) {
         Optional<Seller> sellerOptional = sellerRepository.findById(id);
         if(sellerOptional.isEmpty()){

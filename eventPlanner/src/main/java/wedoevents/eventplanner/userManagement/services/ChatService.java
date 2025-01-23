@@ -80,6 +80,15 @@ public class ChatService {
     }
 
     public ChatDTO createChat(CreateChatDTO createChatDTO) {
+        Optional<Chat> existingChat = chatRepository.findExistingChat(
+                createChatDTO.getChatter1Id(), createChatDTO.getChatter2Id(), createChatDTO.getListingId(), createChatDTO.getListingVersion()
+        );
+
+        if (existingChat.isPresent()) {
+            return getChatDTO(existingChat.get(), createChatDTO.getChatter1Id());
+        }
+
+        VersionedService versionedService = null;
         Optional<Profile> chatter1Maybe = profileRepository.findById(createChatDTO.getChatter1Id());
         Optional<Profile> chatter2Maybe = profileRepository.findById(createChatDTO.getChatter2Id());
 
@@ -90,7 +99,6 @@ public class ChatService {
         Profile chatter1 = chatter1Maybe.get();
         Profile chatter2 = chatter2Maybe.get();
 
-        VersionedService versionedService = null;
         VersionedProduct versionedProduct = null;
         if (createChatDTO.getListingType().equals(ListingType.SERVICE)) {
             Optional<VersionedService> versionedServiceMaybe =
