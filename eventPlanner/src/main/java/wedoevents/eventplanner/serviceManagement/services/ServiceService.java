@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.eventManagement.services.EventTypeService;
+import wedoevents.eventplanner.productManagement.dtos.VersionedProductDTO;
 import wedoevents.eventplanner.serviceManagement.dtos.*;
 import wedoevents.eventplanner.serviceManagement.models.ServiceCategory;
 import wedoevents.eventplanner.serviceManagement.models.StaticService;
@@ -40,9 +41,6 @@ public class ServiceService {
     private ServiceCategoryRepository serviceCategoryRepository;
 
     @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
     private EventTypeService eventTypeService;
 
     @Autowired
@@ -58,8 +56,13 @@ public class ServiceService {
     }
 
     public List<VersionedServiceDTO> getAllServicesWithLatestVersions() {
-        return versionedServiceRepository.getAllVersionedServicesWithMaxVersions().stream().map(
-                VersionedServiceDTO::toDto
+        return versionedServiceRepository.getAllVersionedServicesWithMaxVersions().stream().map(vs ->
+                {
+                    UUID sellerId = staticServiceRepository.getIdOfSeller(vs.getStaticServiceId());
+                    Seller serviceSeller = sellerRepository.findById(sellerId).get();
+
+                    return VersionedServiceDTO.toDto(vs, serviceSeller);
+                }
         ).toList();
     }
 
@@ -149,8 +152,10 @@ public class ServiceService {
 
         newVersionedService.setImages(imageNames);
 
+        newVersionedService = versionedServiceRepository.save(newVersionedService);
+
         // todo: do backend checks on UUIDs of event types
-        return VersionedServiceDTO.toDto(versionedServiceRepository.save(newVersionedService));
+        return VersionedServiceDTO.toDto(newVersionedService, seller);
     }
 
     public VersionedServiceDTO updateVersionedService(UpdateVersionedServiceDTO updateVersionedServiceDTO, MultipartFile[] images) throws IOException {
@@ -206,8 +211,13 @@ public class ServiceService {
         }
         newVersionedService.setImages(imageNames);
 
+        newVersionedService = versionedServiceRepository.save(newVersionedService);
+
+        UUID sellerId = staticServiceRepository.getIdOfSeller(newVersionedService.getStaticServiceId());
+        Seller serviceSeller = sellerRepository.findById(sellerId).get();
+
         // todo: do backend checks on UUIDs of event types
-        return VersionedServiceDTO.toDto(versionedServiceRepository.save(newVersionedService));
+        return VersionedServiceDTO.toDto(newVersionedService, serviceSeller);
     }
 
     public VersionedServiceDTO getVersionedServiceById(UUID staticServiceId) {
@@ -229,7 +239,10 @@ public class ServiceService {
             // todo prevent regular users from getting unavailable services
         }
 
-        VersionedServiceDTO service = VersionedServiceDTO.toDto(versionedServiceMaybe.get());
+        UUID sellerId = staticServiceRepository.getIdOfSeller(staticServiceId);
+        Seller serviceSeller = sellerRepository.findById(sellerId).get();
+
+        VersionedServiceDTO service = VersionedServiceDTO.toDto(versionedServiceMaybe.get(), serviceSeller);
 
         List<ListingReview> reviews = listingReviewRepository.findByServiceId(staticServiceId);
         double averageRating = reviews.stream()
@@ -265,7 +278,10 @@ public class ServiceService {
             throw new EntityNotFoundException();
         }
 
-        return VersionedServiceDTO.toDto(versionedServiceMaybe.get());
+        UUID sellerId = staticServiceRepository.getIdOfSeller(staticServiceId);
+        Seller serviceSeller = sellerRepository.findById(sellerId).get();
+
+        return VersionedServiceDTO.toDto(versionedServiceMaybe.get(), serviceSeller);
     }
 
     public void deactivateService(UUID staticServiceId) {

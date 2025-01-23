@@ -1,4 +1,6 @@
 package wedoevents.eventplanner.userManagement.controllers;
+import io.jsonwebtoken.Jwt;
+import jakarta.persistence.EntityNotFoundException;
 import org.springdoc.core.service.GenericResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -76,23 +78,23 @@ public class ProfileController {
     }
 
 
-    @GetMapping(value="/{id}/images", produces= MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<?> getProfileImage(@PathVariable("id") UUID profileId) {
-        Optional<Profile> profile = profileService.findProfileById(profileId);
-        if(profile.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Profile not found");
-        }
-        ImageLocationConfiguration config = new ImageLocationConfiguration("profile",profileId);
-        Optional<byte[]> image;
+    @GetMapping(value = "/images/{id}/{image_name}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<?> getProfileImage(@PathVariable("id") UUID id, @PathVariable("image_name") String imageName) {
         try {
-            image =  imageService.getImage(profile.get().getImageName(),config);
-            if(image.isEmpty()){
+            ImageLocationConfiguration config = new ImageLocationConfiguration("profile", id);
+            Optional<byte[]> image = imageService.getImage(imageName, config);
+            if (image.isEmpty())
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image not found");
-            }
+            return ResponseEntity.ok().body(image.get());
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image not found");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
-        return ResponseEntity.ok().body(image.get());
     }
 
     @PutMapping("/images")

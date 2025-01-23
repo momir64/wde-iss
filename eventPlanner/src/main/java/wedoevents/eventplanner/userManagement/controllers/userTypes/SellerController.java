@@ -28,23 +28,13 @@ public class SellerController {
         return ResponseEntity.ok(savedAttempt);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Seller> getSellerById(@PathVariable UUID id) {
-        return sellerService.getSellerById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Seller>> getAllSellers() {
-        return ResponseEntity.ok(sellerService.getAllSellers());
-    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSeller(@PathVariable UUID id) {
         sellerService.deleteSeller(id);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/{id}/detailed-view")
     public ResponseEntity<?> getSellerDetailedView(@PathVariable UUID id) {
         SellerDetailedViewDTO response = sellerService.getSellerDetailedView(id);

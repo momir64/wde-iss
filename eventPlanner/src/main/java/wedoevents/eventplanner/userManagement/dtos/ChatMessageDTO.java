@@ -1,18 +1,23 @@
 package wedoevents.eventplanner.userManagement.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import wedoevents.eventplanner.userManagement.models.ChatMessage;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class ChatMessageDTO {
-    private UUID id;
-    private LocalDateTime time;
     private String message;
-    private boolean isSeen;
-    private UUID userProfileTo;
-    private UUID userProfileFrom;
+    private UUID toProfileId;
+
+    public static ChatMessageDTO toDto(ChatMessage chatMessage) {
+        return new ChatMessageDTO(
+                chatMessage.getMessage(),
+                chatMessage.getTo().getId()
+        );
+    }
 }

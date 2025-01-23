@@ -14,4 +14,7 @@ public interface StaticProductRepository extends JpaRepository<StaticProduct, UU
     @Modifying
     @Query("UPDATE StaticProduct sp SET sp.productCategory = :replacing WHERE sp.productCategory = :toBeReplaced")
     void replacePendingProductCategory(ProductCategory toBeReplaced, ProductCategory replacing);
+
+    @Query(value = "SELECT seller_id FROM static_product WHERE static_product_id = ?1", nativeQuery = true)
+    UUID getIdOfSeller(UUID staticProductId);
 }

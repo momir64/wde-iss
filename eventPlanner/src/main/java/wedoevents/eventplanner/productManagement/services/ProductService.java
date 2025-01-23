@@ -30,7 +30,6 @@ import java.util.*;
 @Service
 public class ProductService {
 
-
     @Autowired
     private ListingReviewRepository listingReviewRepository;
 
@@ -42,9 +41,6 @@ public class ProductService {
 
     @Autowired
     private ProductCategoryRepository productCategoryRepository;
-
-    @Autowired
-    private EntityManager entityManager;
 
     @Autowired
     private EventTypeService eventTypeService;
@@ -62,8 +58,13 @@ public class ProductService {
     }
 
     public List<VersionedProductDTO> getAllProductsWithLatestVersions() {
-        return versionedProductRepository.getAllVersionedProductsWithMaxVersions().stream().map(
-                VersionedProductDTO::toDto
+        return versionedProductRepository.getAllVersionedProductsWithMaxVersions().stream().map(vp ->
+                {
+                    UUID sellerId = staticProductRepository.getIdOfSeller(vp.getStaticProductId());
+                    Seller productSeller = sellerRepository.findById(sellerId).get();
+
+                    return VersionedProductDTO.toDto(vp, productSeller);
+                }
         ).toList();
     }
 
@@ -148,8 +149,10 @@ public class ProductService {
         
         newVersionedProduct.setImages(imageNames);
 
+        newVersionedProduct = versionedProductRepository.save(newVersionedProduct);
+
         // todo: do backend checks on UUIDs of event types
-        return VersionedProductDTO.toDto(versionedProductRepository.save(newVersionedProduct));
+        return VersionedProductDTO.toDto(newVersionedProduct, seller);
     }
 
     public VersionedProductDTO updateVersionedProduct(UpdateVersionedProductDTO updateVersionedProductDTO, MultipartFile[] images) throws IOException {
@@ -200,8 +203,13 @@ public class ProductService {
         }
         newVersionedProduct.setImages(imageNames);
 
+        newVersionedProduct = versionedProductRepository.save(newVersionedProduct);
+
+        UUID sellerId = staticProductRepository.getIdOfSeller(newVersionedProduct.getStaticProductId());
+        Seller productSeller = sellerRepository.findById(sellerId).get();
+
         // todo: do backend checks on UUIDs of event types
-        return VersionedProductDTO.toDto(versionedProductRepository.save(newVersionedProduct));
+        return VersionedProductDTO.toDto(newVersionedProduct, productSeller);
     }
 
     public VersionedProductDTO getVersionedProductById(UUID staticProductId) {
@@ -222,8 +230,11 @@ public class ProductService {
         if (!versionedProductMaybe.get().getIsAvailable()) {
             // todo prevent regular users from getting unavailable services
         }
+
+        UUID sellerId = staticProductRepository.getIdOfSeller(staticProductId);
+        Seller productSeller = sellerRepository.findById(sellerId).get();
         
-        VersionedProductDTO product = VersionedProductDTO.toDto(versionedProductMaybe.get());
+        VersionedProductDTO product = VersionedProductDTO.toDto(versionedProductMaybe.get(), productSeller);
         List<ListingReview> reviews = listingReviewRepository.findByProductId(staticProductId);
         double averageRating = reviews.stream()
                 .mapToInt(ListingReview::getGrade)
@@ -260,7 +271,10 @@ public class ProductService {
             throw new EntityNotFoundException();
         }
 
-        return VersionedProductDTO.toDto(versionedProductMaybe.get());
+        UUID sellerId = staticProductRepository.getIdOfSeller(staticProductId);
+        Seller productSeller = sellerRepository.findById(sellerId).get();
+
+        return VersionedProductDTO.toDto(versionedProductMaybe.get(), productSeller);
     }
 
     public void deactivateProduct(UUID staticProductId) {

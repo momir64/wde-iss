@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.productManagement.models.VersionedProduct;
+import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,11 +31,15 @@ public class VersionedProductDTO {
     private List<UUID> availableEventTypeIds;
     private Double rating;
 
-    public static VersionedProductDTO toDto(VersionedProduct versionedProduct) {
-        return toDto(versionedProduct, 0.0);
+    private String sellerNameAndSurname;
+    private UUID sellerId;
+    private UUID sellerProfileId;
+
+    public static VersionedProductDTO toDto(VersionedProduct versionedProduct, Seller seller) {
+        return toDto(versionedProduct, 0.0, seller);
     }
 
-    public static VersionedProductDTO toDto(VersionedProduct versionedProduct, Double rating) {
+    public static VersionedProductDTO toDto(VersionedProduct versionedProduct, Double rating, Seller seller) {
         String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).build().toUriString();
         return new VersionedProductDTO(
                 versionedProduct.getStaticProductId(),
@@ -53,7 +58,10 @@ public class VersionedProductDTO {
                 versionedProduct.getIsActive(),
                 versionedProduct.getSalePercentage() != null ? (1 - versionedProduct.getSalePercentage()) * versionedProduct.getPrice() : null,
                 versionedProduct.getAvailableEventTypes().stream().map(EventType::getId).toList(),
-                rating
+                rating,
+                seller.getName() + " " + seller.getSurname(),
+                seller.getId(),
+                seller.getProfile().getId()
         );
     }
 }
