@@ -9,6 +9,7 @@ import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
 import wedoevents.eventplanner.productManagement.models.StaticProduct;
 import wedoevents.eventplanner.serviceManagement.models.StaticService;
+import wedoevents.eventplanner.userManagement.dtos.EvenReviewResponseDTO;
 import wedoevents.eventplanner.userManagement.dtos.ListingReviewDTO;
 import wedoevents.eventplanner.userManagement.dtos.ListingReviewResponseDTO;
 import wedoevents.eventplanner.userManagement.models.ListingReview;
@@ -20,6 +21,7 @@ import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepos
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -142,6 +144,17 @@ public class ListingReviewService {
         Long reviewCount = listingReviewRepository.countByServiceIdAndEventOrganizerId(listingId, organizer.getId());
         return purchases > reviewCount;
     }
+    public double calculateAverageGrade(UUID listingId, PendingStatus status, boolean isProduct) {
+        List<ListingReviewResponseDTO> reviews = getReviewsByListingIdAndStatus(listingId, status, isProduct);
+        if (reviews == null || reviews.isEmpty()) {
+            return 0.0;
+        }
 
+        OptionalDouble average = reviews.stream()
+                .mapToInt(ListingReviewResponseDTO::getGrade)
+                .average();
+
+        return average.orElse(0.0);
+    }
 
 }

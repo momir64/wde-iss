@@ -23,23 +23,26 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
                and (:eventTypeId is null or e.eventType.id = :eventTypeId)
                and (:dateRangeStart is null or e.date >= :dateRangeStart)
                and (:dateRangeEnd is null or e.date <= :dateRangeEnd)
+               and (:minRating is null or coalesce((select avg(r.grade) from EventReview r where r.event = e), 0) >= :minRating)
+               and (:maxRating is null or coalesce((select avg(r.grade) from EventReview r where r.event = e), 0) <= :maxRating)
            """)
     Page<Event> searchEvents(@Param("searchTerms") String searchTerms,
                              @Param("city") String city,
                              @Param("eventTypeId") UUID eventTypeId,
-//                             @Param("minRating") Double minRating,
-//                             @Param("maxRating") Double maxRating,
+                             @Param("minRating") Double minRating,
+                             @Param("maxRating") Double maxRating,
                              @Param("dateRangeStart") LocalDate dateRangeStart,
                              @Param("dateRangeEnd") LocalDate dateRangeEnd,
-                             Pageable pageable);  // todo: rating
+                             Pageable pageable);
 
     @Query("""
-               select e from Event e
-               where :city is null or e.city.name = :city
-               order by e.date desc
-               limit 5
-           """)
-    List<Event> getTopEvents(@Param("city") String city);  // todo: sort by rating
+    select e from Event e
+    where :city is null or e.city.name = :city
+    order by coalesce((select avg(r.grade) from EventReview r where r.event = e), 0) desc
+    limit 5
+""")
+    List<Event> getTopEvents(@Param("city") String city);
+
     @Query("SELECT e FROM Event e WHERE e.isPublic = true")
     List<Event> findAllPublicEvents();
 }

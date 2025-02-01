@@ -7,6 +7,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import wedoevents.eventplanner.eventManagement.dtos.*;
 import wedoevents.eventplanner.eventManagement.models.*;
 import wedoevents.eventplanner.eventManagement.repositories.EventActivityRepository;
@@ -88,18 +89,32 @@ public class EventService {
             int start = page * size;
             int end = Math.min(start + size, filteredEvents.size());
             List<Event> paginatedEvents = filteredEvents.subList(start, end);
-
             // Convert filtered and paginated events to DTOs
-            return new PageImpl<>(paginatedEvents.stream().map(EventComplexViewDTO::new).collect(Collectors.toList()), pageable, filteredEvents.size());
+            List<EventComplexViewDTO> events = paginatedEvents.stream().map(EventComplexViewDTO::new).collect(Collectors.toList());
+            for (EventComplexViewDTO event : events) {
+                List<EvenReviewResponseDTO> reviews = eventReviewService.getAcceptedReviewsByEventId(event.getId());
+                event.setRating(calculateAverageGrade(reviews));
+            }
+            return new PageImpl<>(events, pageable, filteredEvents.size());
 
         }else{
-            eventPage = eventRepository.searchEvents(searchTerms, city, eventTypeId, dateRangeStart, dateRangeEnd, pageable);
-            return eventPage.map(EventComplexViewDTO::new);
+            eventPage = eventRepository.searchEvents(searchTerms, city, eventTypeId,minRating,maxRating, dateRangeStart, dateRangeEnd, pageable);
+            Page<EventComplexViewDTO> responsePage = eventPage.map(EventComplexViewDTO::new);
+            for(EventComplexViewDTO event : responsePage.getContent()){
+                List<EvenReviewResponseDTO> reviews = eventReviewService.getAcceptedReviewsByEventId(event.getId());
+                event.setRating(calculateAverageGrade(reviews));
+            }
+            return responsePage;
         }
     }
 
     public List<EventComplexViewDTO> getTopEvents(String city) {
-        return eventRepository.getTopEvents(city).stream().map(EventComplexViewDTO::new).collect(Collectors.toList());
+        List<EventComplexViewDTO> events = eventRepository.getTopEvents(city).stream().map(EventComplexViewDTO::new).collect(Collectors.toList());
+        for (EventComplexViewDTO event : events) {
+            List<EvenReviewResponseDTO> reviews = eventReviewService.getAcceptedReviewsByEventId(event.getId());
+            event.setRating(calculateAverageGrade(reviews));
+        }
+        return events;
     }
 
     public EventComplexViewDTO createEvent(CreateEventDTO createEventDTO) throws Exception {
@@ -123,7 +138,7 @@ public class EventService {
             Optional<EventActivity> activity = eventActivityRepository.findById(id);
             activity.ifPresent(eventActivity -> newEvent.getEventActivities().add(eventActivity));
         }
-        newEvent.setImages(new ArrayList<>()); // todo images with image service
+        newEvent.setImages(new ArrayList<>());
         newEvent.setProductBudgetItems(new ArrayList<>());
         newEvent.setServiceBudgetItems(new ArrayList<>());
 
@@ -135,7 +150,7 @@ public class EventService {
         newEvent.setIsPublic(createEventDTO.getIsPublic());
         newEvent.setDate(createEventDTO.getDate());
         newEvent.setTime(createEventDTO.getTime());
-        newEvent.setLocation(new Location(createEventDTO.getLongitude(), createEventDTO.getLatitude())); // todo map
+        newEvent.setLocation(new Location(createEventDTO.getLongitude(), createEventDTO.getLatitude()));
         newEvent.setGuestCount(createEventDTO.getGuestCount());
 
         Event createdEvent = eventRepository.save(newEvent);
@@ -220,6 +235,7 @@ public class EventService {
         List<EvenReviewResponseDTO> reviews = eventReviewService.getAcceptedReviewsByEventId(eventId);
         Optional<EventOrganizer> organizer = eventOrganizerService.getEventOrganizerByEventId(eventId);
         response.setReviews(reviews);
+        response.setAcceptedGuests((double) guestService.getAcceptedGuestCount(eventId));
         response.setAverageRating(calculateAverageGrade(reviews));
         response.setId(event.getId());
         response.setCity(event.getCity().getName());
@@ -255,8 +271,13 @@ public class EventService {
                 response.setIsEditable(false);
                 response.setIsPdfAvailable(false);
             }
-
         }
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).build().toUriString();
+        response.setImages(event.getImages()
+                .stream()
+                .map(image -> String.format("%s/api/v1/events/%s/images/%s", baseUrl, event.getId(), image))
+                .collect(Collectors.toList()));
+
         return response;
     }
 

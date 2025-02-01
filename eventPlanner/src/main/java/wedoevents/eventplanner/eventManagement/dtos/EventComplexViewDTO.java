@@ -34,7 +34,6 @@ public class EventComplexViewDTO {
     private Double latitude;
     private List<UUID> eventActivityIds;
     private Double rating;
-
     public EventComplexViewDTO(Event event) {
         String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).build().toUriString();
         id = event.getId();
@@ -53,7 +52,7 @@ public class EventComplexViewDTO {
         longitude = event.getLocation().getLongitude();
         latitude = event.getLocation().getLatitude();
         eventActivityIds = new ArrayList<>();  // todo agenda > event.getEventActivities().stream().map(EventActivity::getId).toList()
-        rating = 0.0;  // todo izračunati prosečnu ocenu iz reviewova
+        rating = 0.0;
     }
     public EventComplexViewDTO(Event event, Double rating){
         String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).build().toUriString();

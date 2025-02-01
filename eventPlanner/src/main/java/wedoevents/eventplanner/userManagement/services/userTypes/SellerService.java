@@ -112,8 +112,8 @@ public class SellerService {
         }
         response.setReviews(reviews);
         double averageGrade = reviews.stream()
-                .mapToInt(ListingReviewResponseDTO::getGrade) // Extract grades
-                .average() // Calculate average
+                .mapToInt(ListingReviewResponseDTO::getGrade)
+                .average()
                 .orElse(0);
         response.setRating(averageGrade);
         return response;

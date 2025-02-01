@@ -121,8 +121,6 @@ public class GuestService {
             guest.getInvitedEvents().remove(event);
             guest.getAcceptedEvents().add(event);
             guestRepository.save(guest);
-            event.setGuestCount(event.getGuestCount());
-            eventRepository.save(event);
         }else{
             guest.getAcceptedEvents().remove(event);
             guestRepository.save(guest);
