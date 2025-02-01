@@ -21,6 +21,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, UUID> 
     @Transactional
     @Modifying
     @Query(value = "INSERT INTO chat_message (id, message, time, to_profile_id, chat) VALUES " +
-            "((SELECT gen_random_uuid()), ?2, ?3, ?4, ?5)", nativeQuery = true)
+            "((SELECT gen_random_uuid()), ?1, ?2, ?3, ?4)", nativeQuery = true)
     int addMessageToChat(String message, LocalDateTime time, UUID toProfileId, UUID chatId);
 }

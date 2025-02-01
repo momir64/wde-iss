@@ -1,10 +1,10 @@
 package wedoevents.eventplanner.userManagement.controllers.userTypes;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wedoevents.eventplanner.userManagement.dtos.SellerDetailedInfoDTO;
+import wedoevents.eventplanner.eventManagement.dtos.CalendarEventDTO;
+import wedoevents.eventplanner.userManagement.dtos.userTypes.SellerDetailedViewDTO;
 import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
 import wedoevents.eventplanner.userManagement.services.userTypes.SellerService;
 
@@ -22,12 +22,33 @@ public class SellerController {
         this.sellerService = sellerService;
     }
 
-    @GetMapping("/{sellerId}")
-    public ResponseEntity<SellerDetailedInfoDTO> getSellerDetailedInfo(@PathVariable UUID sellerId) {
-        try {
-            return ResponseEntity.ok(sellerService.getSellerDetailedInfo(sellerId));
-        } catch (EntityNotFoundException e) {
+    @PostMapping
+    public ResponseEntity<Seller> createSeller(@RequestBody Seller seller) {
+        Seller savedAttempt = sellerService.saveSeller(seller);
+        return ResponseEntity.ok(savedAttempt);
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSeller(@PathVariable UUID id) {
+        sellerService.deleteSeller(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/detailed-view")
+    public ResponseEntity<?> getSellerDetailedView(@PathVariable UUID id) {
+        SellerDetailedViewDTO response = sellerService.getSellerDetailedView(id);
+        if (response == null) {
             return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/{id}/calendar")
+    public ResponseEntity<?> getSellerCalendar(@PathVariable UUID id) {
+        List<CalendarEventDTO> response = sellerService.getCalendarEvents(id);
+        if (response == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(response);
     }
 }

@@ -11,10 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
-import wedoevents.eventplanner.eventManagement.dtos.EventActivitiesDTO;
-import wedoevents.eventplanner.eventManagement.dtos.EventAdminViewDTO;
-import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
+import wedoevents.eventplanner.eventManagement.dtos.*;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.services.EventService;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
@@ -161,4 +158,47 @@ public class EventController {
         return ResponseEntity.ok(publicEvents);
     }
 
+    @GetMapping("/{id}/detailed-view/{isGuest}/{userId}")
+    public ResponseEntity<?> getDetailedView(@PathVariable("id") UUID eventId, @PathVariable("isGuest") boolean isGuest, @PathVariable("userId") UUID userId) {
+        EventDetailedViewDTO event = eventService.getDetailedEvent(eventId,isGuest,userId);
+        if(event == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");
+        }
+        return ResponseEntity.ok().body(event);
+    }
+
+    @GetMapping("/{id}/images")
+    public ResponseEntity<?> getImages(@PathVariable("id") UUID eventId) {
+        Optional<Event> event = eventService.getEventById(eventId);
+        if (event.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");
+        }
+        try {
+            List<String> imageNames = event.get().getImages();
+            ImageLocationConfiguration config = new ImageLocationConfiguration("event", eventId);
+            List<byte[]> images = new ArrayList<>();
+            for(String imageName : imageNames) {
+                Optional<byte[]> image = imageService.getImage(imageName, config);
+                if (image.isEmpty())
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image not found");
+                images.add(image.get());
+            }
+            return ResponseEntity.ok().body(new EventImagesDTO(images));
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image not found");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
+    @DeleteMapping("/{id}/{userId}")
+    public ResponseEntity<?> deleteEvent(@PathVariable("id") UUID eventId, @PathVariable("userId") UUID userId) {
+        if(eventService.deleteEvent(eventId,userId)) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Event deleted successfully");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");
+    }
 }

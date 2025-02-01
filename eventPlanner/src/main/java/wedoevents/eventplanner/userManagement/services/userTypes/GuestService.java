@@ -3,27 +3,34 @@ package wedoevents.eventplanner.userManagement.services.userTypes;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import wedoevents.eventplanner.eventManagement.dtos.CalendarEventDTO;
+import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
+import wedoevents.eventplanner.eventManagement.services.EventService;
+import wedoevents.eventplanner.shared.services.mappers.CalendarEventMapper;
+import wedoevents.eventplanner.userManagement.dtos.EvenReviewResponseDTO;
+import wedoevents.eventplanner.userManagement.dtos.JoinEventDTO;
 import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.GuestRepository;
+import wedoevents.eventplanner.userManagement.services.EventReviewService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class GuestService {
 
     private final GuestRepository guestRepository;
     private final EventRepository eventRepository;
+    private final EventReviewService eventReviewService;
 
     @Autowired
-    public GuestService(GuestRepository guestRepository, EventRepository eventRepository) {
+    public GuestService(GuestRepository guestRepository, EventRepository eventRepository, EventReviewService eventReviewService) {
         this.guestRepository = guestRepository;
         this.eventRepository = eventRepository;
+        this.eventReviewService = eventReviewService;
     }
 
     public Guest saveGuest(Guest guest) {
@@ -114,8 +121,6 @@ public class GuestService {
             guest.getInvitedEvents().remove(event);
             guest.getAcceptedEvents().add(event);
             guestRepository.save(guest);
-            event.setGuestCount(event.getGuestCount() + 1);
-            eventRepository.save(event);
         }else{
             guest.getAcceptedEvents().remove(event);
             guestRepository.save(guest);
@@ -132,5 +137,98 @@ public class GuestService {
     public List<Guest> getGuestsByAcceptedEventId(UUID eventId) {
         return guestRepository.findGuestsByAcceptedEventId(eventId);
     }
+    public boolean checkIfGuestIsInvitedOrAccepted(Guest guest, UUID eventId) {
+        if(guest != null) {
+            return guest.getInvitedEvents().stream().anyMatch(event -> event.getId().equals(eventId)) ||
+                    guest.getAcceptedEvents().stream().anyMatch(event -> event.getId().equals(eventId));
+        }else{
+            List<Guest> guests = guestRepository.findAll();
+            return guests.stream()
+                    .anyMatch(g -> g.getInvitedEvents().stream().anyMatch(event -> event.getId().equals(eventId)) ||
+                            g.getAcceptedEvents().stream().anyMatch(event -> event.getId().equals(eventId)));
+        }
+    }
+    public boolean isEventFavorited(UUID guestId, UUID eventId) {
+        Optional<Guest> guest = guestRepository.findById(guestId);
+        if(guest.isEmpty()){
+            return false;
+        }
+        return guest.get().getFavouriteEvents().stream().anyMatch(event -> event.getId().equals(eventId));
+    }
+    public boolean isEventAccepted(UUID guestId, UUID eventId) {
+        Optional<Guest> guest = guestRepository.findById(guestId);
+        if(guest.isEmpty()){
+            return false;
+        }
+        return guest.get().getAcceptedEvents().stream().anyMatch(event -> event.getId().equals(eventId));
+    }
+    public boolean joinEvent(JoinEventDTO joinEventDTO) {
+        Guest guest = guestRepository.findById(joinEventDTO.getGuestId()).orElse(null);
+        if(guest == null){
+            return false;
+        }
+        Event event = eventRepository.findById(joinEventDTO.getEventId()).orElse(null);
+        if(event == null){
+            return false;
+        }
+        if(guest.getAcceptedEvents().contains(event)){
+            guest.getAcceptedEvents().remove(event);
+        }else{
+            guest.getAcceptedEvents().add(event);
+        }
+        guestRepository.save(guest);
+        return true;
+    }
+    public List<EventComplexViewDTO> getFavoriteEvents(UUID guestId) {
+        Guest guest = guestRepository.findById(guestId).orElse(null);
+        if(guest == null){
+            return null;
+        }
+        List<Event> events = guest.getFavouriteEvents();
+        List<EventComplexViewDTO> response = new ArrayList<>();
+        for(Event event : events){
+            List<EvenReviewResponseDTO> reviews = eventReviewService.getAcceptedReviewsByEventId(event.getId());
+            response.add(new EventComplexViewDTO(event,calculateAverageGrade(reviews)));
+        }
+        return response;
+    }
+    public boolean favoriteEvent(UUID guestId, UUID eventId) {
+        Guest guest = guestRepository.findById(guestId).orElse(null);
+        if(guest == null){
+            return false;
+        }
+        Event event = eventRepository.findById(eventId).orElse(null);
+        if(event == null){
+            return false;
+        }
+        if(guest.getFavouriteEvents().contains(event)){
+            guest.getFavouriteEvents().remove(event);
+        }else{
+            guest.getFavouriteEvents().add(event);
+        }
+        guestRepository.save(guest);
+        return true;
+    }
 
+    public List<CalendarEventDTO> getCalendarEvents(UUID guestId) {
+        Guest guest = guestRepository.findById(guestId).orElse(null);
+        if(guest == null){
+            return null;
+        }
+        List<Event> acceptedEvents = guest.getAcceptedEvents();
+        return acceptedEvents.stream()
+                .map(CalendarEventMapper::toCalendarEventDTO)
+                .collect(Collectors.toList());
+    }
+    public double calculateAverageGrade(List<EvenReviewResponseDTO> reviews) {
+        if (reviews == null || reviews.isEmpty()) {
+            return 0.0;
+        }
+
+        OptionalDouble average = reviews.stream()
+                .mapToInt(EvenReviewResponseDTO::getGrade)
+                .average();
+
+        return average.orElse(0.0);
+    }
 }
