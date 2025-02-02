@@ -91,6 +91,7 @@ public class SellerService {
         Seller seller = sellerOptional.get();
         SellerDetailedViewDTO response = new SellerDetailedViewDTO();
         response.setSellerId(seller.getId());
+        response.setSellerProfileId(seller.getProfile().getId());
         response.setName(seller.getName());
         response.setSurname(seller.getSurname());
         response.setAddress(seller.getAddress());

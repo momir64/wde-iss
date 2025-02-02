@@ -145,4 +145,15 @@ public class EventOrganizerService {
                 .map(CalendarEventMapper::toCalendarEventDTO)
                 .collect(Collectors.toList());
     }
+    public boolean isFavoriteListing(EventOrganizer eventOrganizer, boolean isProduct, UUID listingId) {
+        if(isProduct){
+            return eventOrganizer.getFavouriteProducts()
+                    .stream()
+                    .anyMatch(product -> product.getStaticProductId().equals(listingId));
+        }else{
+            return eventOrganizer.getFavouriteServices()
+                    .stream()
+                    .anyMatch(service -> service.getStaticServiceId().equals(listingId));
+        }
+    }
 }

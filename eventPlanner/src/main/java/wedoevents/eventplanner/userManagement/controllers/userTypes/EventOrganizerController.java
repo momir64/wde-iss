@@ -76,6 +76,17 @@ public class EventOrganizerController {
             return ResponseEntity.ok(listings);
         }
     }
+
+    @GetMapping("/{userId}/favorite-listings/{isProduct}/{listingId}")
+    public ResponseEntity<?> isListingFavorited(@PathVariable UUID userId, @PathVariable boolean isProduct, @PathVariable UUID listingId) {
+        Optional<EventOrganizer> organizerOptional = eventOrganizerService.getEventOrganizerById(userId);
+        if(organizerOptional.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(eventOrganizerService.isFavoriteListing(organizerOptional.get(), isProduct, listingId));
+    }
+
+
     @PutMapping("/favorite-listings")
     public ResponseEntity<Void> favoriteListing(@RequestBody FavoritesRequestDTO request) {
         if(eventOrganizerService.favoriteListing(request)){
