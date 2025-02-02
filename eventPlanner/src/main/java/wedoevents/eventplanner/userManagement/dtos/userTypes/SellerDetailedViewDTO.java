@@ -21,4 +21,5 @@ public class SellerDetailedViewDTO {
     private List<ListingReviewResponseDTO> reviews;
     private Double rating;
     private String image;
+    private UUID sellerProfileId;
 }
