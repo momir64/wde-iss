@@ -112,18 +112,21 @@ VALUES
     -- PROFILES OF ADMINS
     ('7a92c4d7-8742-4a25-aee8-750ca987b42e', true, 'john.doe@example.com', true, true, '123','7ed06959-1018-406f-b3c1-2e91c08daa07', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('b2d2e1f0-06ae-4b0f-9cd0-7b5b31b1e9fe', false, 'alice.lee@example.com', true, true, '123','7ed06959-1018-406f-b3c1-2e91c08daa07', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('f591021a-5b30-491f-a87f-02d4bec6d508', false, 'a', true, true, '123','7ed06959-1018-406f-b3c1-2e91c08daa07', '1b385172-3928-4691-9759-d51d2a02b0bf'),
 
     -- PROFILES OF EVENT ORGANIZERS
     ('3d82e9b8-3d9b-4c7d-b244-1e6725b78456', false, 'jane.smith@example.com', true, true, '123','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('91c1e927-9f79-44f4-b12f-bcbf16b16c6f', true, 'mark.jones@example.com', true, true, '123','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', false, 'susan.brown@example.com', true, true, '123','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('0cd13f4e-f7de-4533-9071-c42b7b3b4d45', true, 'tom.williams@example.com', true, true, '1233','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('97910c30-9cc7-4944-89cc-9397c98e0f78', true, 'o', true, true, '123','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
 
     -- PROFILES OF SELLERS
     ('e852c4ff-3d2b-47ea-b1fd-e711cf18b1d7', false, 'emily.davis@example.com', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('fddde66f-9b84-4bb8-b408-eae5b815ae69', true, 'robert.martin@example.com', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('db48e7ac-1d35-4d9d-8e09-bf2e86533b91', false, 'lily.martinez@example.com', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('8bc76c7b-fc9d-469b-a7b1-2d2291d9a9b6', true, 'samuel.jackson@example.com', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('de186d6f-9799-4ab0-a726-5563f51d9889', true, 's', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
 
     -- PROFILES OF GUESTS
     ('9a4531e5-2fda-42bc-8355-d7991bfc8ff4', true, 'john.smith@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
@@ -135,7 +138,8 @@ VALUES
     ('05fdc5be-d59b-468e-8466-d951a4a8d457', true, 'daniel.clark@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('03b88b74-0797-4f35-b15f-ff2a3c3e5c88', false, 'isabella.wright@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('70c7425e-c5f0-44f0-9e9d-44e4087fce62', true, 'ethan.king@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('5a72482a-cd36-46e4-8c09-7b2ff1e22071', false, 'madison.green@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf');
+    ('5a72482a-cd36-46e4-8c09-7b2ff1e22071', false, 'madison.green@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('3cfb1016-0d0e-42f8-924c-324ba2249ded', false, 'g', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf');
 
 INSERT INTO profile_blocked_users (profile_id, blocked_user_id)
 VALUES
@@ -151,21 +155,24 @@ VALUES
 
 INSERT INTO admin (id, profile_id) VALUES
     ('3570d6ff-6472-42a5-90fc-9b143db9f778', '7a92c4d7-8742-4a25-aee8-750ca987b42e'),
-    ('5a5a94d3-443c-4eda-a263-c541647d7b7c', 'b2d2e1f0-06ae-4b0f-9cd0-7b5b31b1e9fe');
+    ('5a5a94d3-443c-4eda-a263-c541647d7b7c', 'b2d2e1f0-06ae-4b0f-9cd0-7b5b31b1e9fe'),
+    ('4f18aa9e-d378-484b-8e90-d6c05c178495', 'f591021a-5b30-491f-a87f-02d4bec6d508');
 
 INSERT INTO event_organizer (id, profile_id, address, city, name, surname, telephone_number)
 VALUES
     ('b38d716b-4d2a-4fd3-b18c-bfa128f24b99', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456', '123 Main St, Suite 5', 'Novi Sad', 'Jane', 'Smith', '+1 212-555-1234'),
     ('47c5fa7c-0d12-48e2-a4ed-9e4f441b383f', '91c1e927-9f79-44f4-b12f-bcbf16b16c6f', '456 Oak Ave', 'Niš', 'Mark', 'Jones', '+1 323-555-5678'),
     ('9c88f9ab-c2c9-4823-bf51-e3e263dcd5b0', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', '789 Pine Rd', 'Novi Sad', 'Susan', 'Brown', '+1 312-555-9101'),
-    ('1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236', '0cd13f4e-f7de-4533-9071-c42b7b3b4d45', '321 Elm Blvd', 'Niš', 'Tom', 'Williams', '+1 415-555-1122');
+    ('1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236', '0cd13f4e-f7de-4533-9071-c42b7b3b4d45', '321 Elm Blvd', 'Niš', 'Tom', 'Williams', '+1 415-555-1122'),
+    ('1109388b-c4ad-4ce2-b99e-57890d8e8ddd', '97910c30-9cc7-4944-89cc-9397c98e0f78', '321 Elm Blvd', 'Niš', 'Tom', 'Williams', '+1 415-555-1122');
 
 INSERT INTO seller (id, profile_id, address, city, name, surname, telephone_number, description)
 VALUES
     ('2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5', 'e852c4ff-3d2b-47ea-b1fd-e711cf18b1d7', '987 Maple Dr', 'Niš', 'Emily', 'Davis', '+1 206-555-3141', 'Specializes in organizing seamless events, from weddings to corporate functions, offering full-service planning, coordination, and vendor management.'),
     ('a1d764df-9b5c-4f62-b0a1-13d8edfcf4a3', 'fddde66f-9b84-4bb8-b408-eae5b815ae69', '654 Birch Blvd', 'Novi Sad', 'Robert', 'Martin', '+1 305-555-7282', 'Provides personalized event decorations, including floral arrangements, backdrops, and themed designs, creating memorable settings for every occasion.'),
     ('6e0c99f4-226f-49fb-bc4b-1f59ff671b95', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', '321 Cedar Ln', 'Novi Sad', 'Lily', 'Martinez', '+1 617-555-9865', 'Delivers high-quality catering with customized menus, including dietary options, to elevate the culinary experience at your event.'),
-    ('c5e2a004-83b0-4f91-9ff2-c235f2166b72', '8bc76c7b-fc9d-469b-a7b1-2d2291d9a9b6', '543 Pinehill St', 'Niš', 'Samuel', 'Jackson', '+1 512-555-3746', 'Offers top-notch sound, lighting, and projection equipment for events, ensuring optimal performance for conferences, weddings, and live performances.');
+    ('c5e2a004-83b0-4f91-9ff2-c235f2166b72', '8bc76c7b-fc9d-469b-a7b1-2d2291d9a9b6', '543 Pinehill St', 'Niš', 'Samuel', 'Jackson', '+1 512-555-3746', 'Offers top-notch sound, lighting, and projection equipment for events, ensuring optimal performance for conferences, weddings, and live performances.'),
+    ('f70321a0-5620-44e5-a92f-53427522562c', 'de186d6f-9799-4ab0-a726-5563f51d9889', '543 Pinehill St', 'Niš', 'Samuel', 'Jackson', '+1 512-555-3746', 'Offers top-notch sound, lighting, and projection equipment for events, ensuring optimal performance for conferences, weddings, and live performances.');
 
 INSERT INTO guest (id, profile_id, name, surname)
 VALUES
@@ -178,7 +185,8 @@ VALUES
     ('f4618423-15ac-4772-96ac-7144e240b584', '05fdc5be-d59b-468e-8466-d951a4a8d457', 'Daniel', 'Clark'),
     ('70e77225-b0a3-403c-b900-0f1788c93780', '03b88b74-0797-4f35-b15f-ff2a3c3e5c88', 'Isabella', 'Wright'),
     ('d8413682-21f1-4e35-ba8d-276334c9ffab', '70c7425e-c5f0-44f0-9e9d-44e4087fce62', 'Ethan', 'King'),
-    ('e078765f-21ee-49c0-90a4-1377fe1386e5', '5a72482a-cd36-46e4-8c09-7b2ff1e22071', 'Madison', 'Green');
+    ('e078765f-21ee-49c0-90a4-1377fe1386e5', '5a72482a-cd36-46e4-8c09-7b2ff1e22071', 'Madison', 'Green'),
+    ('60fb3470-137c-4761-9da4-9aa014daa42f', '3cfb1016-0d0e-42f8-924c-324ba2249ded', 'Madison', 'Green');
 
 -- PRODUCTS
 
