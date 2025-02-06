@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.eventManagement.dtos.*;
@@ -76,7 +77,14 @@ public class EventController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    @GetMapping("/{eventOrganizerId}/my-events/{eventId}")
+    public ResponseEntity<EventEditViewDTO> getEventFromOrganizer(@PathVariable UUID eventOrganizerId, @PathVariable UUID eventId) {
+        EventEditViewDTO event = eventService.getEventFromOrganizer(eventOrganizerId, eventId);
+        if (event == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(event);
+    }
     @GetMapping("/top")
     public ResponseEntity<?> getTopEvents(@RequestParam(value = "city", required = false) String city) {
         try {
@@ -133,7 +141,14 @@ public class EventController {
     public ResponseEntity<List<UUID>> createAgenda(@RequestBody EventActivitiesDTO eventActivitiesDTO) {
         return ResponseEntity.ok().body(eventService.createAgenda(eventActivitiesDTO));
     }
-
+    @GetMapping("/agenda/{eventId}")
+    public ResponseEntity<List<EventActivityDTO>> getAgenda(@PathVariable UUID eventId) {
+        List<EventActivityDTO> response = eventService.getAgenda(eventId);
+        if(response == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(response);
+    }
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> downloadPdf(@PathVariable("id") UUID id) {
         Optional<Event> event = eventService.getEventById(id);

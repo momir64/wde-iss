@@ -62,6 +62,20 @@ public class EventService {
                                        .toList();
     }
 
+    public EventEditViewDTO getEventFromOrganizer(UUID eventOrganizerId, UUID eventId) {
+        Optional<EventOrganizer> organizer = eventOrganizerRepository.findById(eventOrganizerId);
+        if (organizer.isEmpty()) {
+            return null;
+        }
+        Optional<Event> event = eventRepository.findById(eventId);
+        if (event.isEmpty() || !organizer.get().getMyEvents().contains(event.get())) {
+            return null;
+        }
+        EventEditViewDTO response =  new EventEditViewDTO(event.get());
+        response.setMinGuestCount(eventRepository.countPossibleGuestsByEventId(eventId));
+        return response;
+    }
+
     public Page<EventComplexViewDTO> searchEvents(String searchTerms, String city, UUID eventTypeId, Double minRating, Double maxRating,
                                                   LocalDate dateRangeStart, LocalDate dateRangeEnd, String sortBy, String order, int page, int size, UUID organizerId) {
         Pageable pageable;
@@ -81,9 +95,10 @@ public class EventService {
                         boolean matchesEventType = eventTypeId == null || event.getEventType().getId().equals(eventTypeId);
                         boolean matchesDateRange = (dateRangeStart == null || !event.getDate().isBefore(dateRangeStart)) &&
                                 (dateRangeEnd == null || !event.getDate().isAfter(dateRangeEnd));
-//                        boolean matchesRating = (minRating == null || event.getRating() >= minRating) &&
-//                                (maxRating == null || event.getRating() <= maxRating);
-                        return matchesSearchTerms && matchesCity && matchesEventType && matchesDateRange; //&& matchesRating;
+                        double eventRating = calculateAverageGrade(eventReviewService.getAcceptedReviewsByEventId(event.getId()));
+                        boolean matchesRating = (minRating == null || eventRating >= minRating) &&
+                                (maxRating == null || eventRating <= maxRating);
+                        return matchesSearchTerms && matchesCity && matchesEventType && matchesDateRange && matchesRating;
                     })
                     .collect(Collectors.toList());
             int start = page * size;
@@ -212,6 +227,23 @@ public class EventService {
         }
 
         return createdActivityIds;
+    }
+    public List<EventActivityDTO> getAgenda(UUID eventId){
+        Optional<Event> eventOptional = eventRepository.findById(eventId);
+        if (eventOptional.isEmpty()) {
+            return null;
+        }
+        List<EventActivityDTO> response = new ArrayList<>();
+        for(EventActivity activity: eventOptional.get().getEventActivities()){
+            EventActivityDTO activityDTO = new EventActivityDTO();
+            activityDTO.setName(activity.getName());
+            activityDTO.setDescription(activity.getDescription());
+            activityDTO.setLocation(activity.getLocation());
+            activityDTO.setStartTime(activity.getStartTime());
+            activityDTO.setEndTime(activity.getEndTime());
+            response.add(activityDTO);
+        }
+        return response;
     }
     public List<EventAdminViewDTO> getAllPublicEvents() {
         List<Event> events =  eventRepository.findAllPublicEvents();
