@@ -58,6 +58,15 @@ public class EventController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending email");
         }
     }
+    @PutMapping
+    public ResponseEntity<?> updateEvent(@RequestBody CreateEventDTO createEventDTO){
+        try {
+            eventService.updateEvent(createEventDTO);
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status((HttpStatus.BAD_REQUEST)).body("Error processing request");
+        }
+    }
     @PutMapping("/images")
     public ResponseEntity<?> putProfileImage(@RequestParam("images") List<MultipartFile> images,
                                              @RequestParam("eventId") UUID eventId){
@@ -140,6 +149,10 @@ public class EventController {
     @PostMapping("/agenda")
     public ResponseEntity<List<UUID>> createAgenda(@RequestBody EventActivitiesDTO eventActivitiesDTO) {
         return ResponseEntity.ok().body(eventService.createAgenda(eventActivitiesDTO));
+    }
+    @PutMapping("/agenda")
+    public ResponseEntity<?> updateAgenda(@RequestBody EventActivitiesDTO eventActivitiesDTO) {
+        return eventService.updateAgenda(eventActivitiesDTO) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
     @GetMapping("/agenda/{eventId}")
     public ResponseEntity<List<EventActivityDTO>> getAgenda(@PathVariable UUID eventId) {

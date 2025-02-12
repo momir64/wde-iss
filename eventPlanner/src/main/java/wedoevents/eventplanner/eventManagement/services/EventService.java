@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -25,6 +26,7 @@ import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -176,6 +178,38 @@ public class EventService {
 
         return new EventComplexViewDTO(createdEvent);
     }
+    public void updateEvent(CreateEventDTO createEventDTO) throws EntityNotFoundException {
+        Optional<EventType> eventTypeMaybe = eventTypeRepository.findById(createEventDTO.getEventTypeId());
+
+        if (eventTypeMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        Optional<EventOrganizer> eventOrganizerMaybe = this.eventOrganizerRepository.findById(createEventDTO.getOrganizerProfileId());
+
+        if (eventOrganizerMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        EventOrganizer eventOrganizer = eventOrganizerMaybe.get();
+
+        Optional<Event> eventOptional = eventRepository.findById(createEventDTO.getEventId());
+        if (eventOptional.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        Event event = eventOptional.get();
+        event.setEventType(eventTypeMaybe.get());
+        event.setDescription(createEventDTO.getDescription());
+        event.setName(createEventDTO.getName());
+        event.setCity(new City(createEventDTO.getCity()));
+        event.setAddress(createEventDTO.getAddress());
+        event.setIsPublic(createEventDTO.getIsPublic());
+        event.setDate(createEventDTO.getDate());
+        event.setLocation(new Location(createEventDTO.getLongitude(), createEventDTO.getLatitude()));
+        event.setGuestCount(createEventDTO.getGuestCount());
+
+        eventRepository.save(event);
+    }
 
     public List<String> putEventImages(List<MultipartFile> images, UUID eventId) throws Exception {
         List<String> imageNames = new ArrayList<>();
@@ -227,6 +261,52 @@ public class EventService {
         }
 
         return createdActivityIds;
+    }
+    @Transactional
+    public boolean updateAgenda(EventActivitiesDTO agenda){
+        Optional<Event> eventOptional = eventRepository.findById(agenda.getEventId());
+        if (eventOptional.isEmpty()) {
+            return false;
+        }
+        Event event = eventOptional.get();
+        //clear previous agenda
+        event.getEventActivities().clear();
+        eventRepository.save(event);
+
+        for (EventActivityDTO activityDTO : agenda.getEventActivities()) {
+            EventActivity eventActivity = new EventActivity();
+
+            eventActivity.setName(activityDTO.getName());
+            eventActivity.setDescription(activityDTO.getDescription());
+            eventActivity.setLocation(activityDTO.getLocation());
+            eventActivity.setStartTime(activityDTO.getStartTime());
+            eventActivity.setEndTime(activityDTO.getEndTime());
+            eventActivity = eventActivityRepository.save(eventActivity);
+            event.getEventActivities().add(eventActivity);
+        }
+        //set earliest as start
+        LocalTime earliestStartTime = findEarliestStartTime(event.getEventActivities());
+        if (earliestStartTime != null) {
+            event.setTime(earliestStartTime);
+        }
+
+        eventRepository.save(event);
+
+        return true;
+    }
+    private LocalTime findEarliestStartTime(List<EventActivity> eventActivities) {
+        if (eventActivities == null || eventActivities.isEmpty()) {
+            return null;
+        }
+
+        LocalTime earliestStartTime = eventActivities.get(0).getStartTime();
+        for (EventActivity activity : eventActivities) {
+            if (activity.getStartTime().isBefore(earliestStartTime)) {
+                earliestStartTime = activity.getStartTime();
+            }
+        }
+
+        return earliestStartTime;
     }
     public List<EventActivityDTO> getAgenda(UUID eventId){
         Optional<Event> eventOptional = eventRepository.findById(eventId);
