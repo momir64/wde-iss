@@ -25,7 +25,9 @@ public class ListingService {
         for(ListingDTO listing : listings) {
             listing.setRating(listingReviewService.calculateAverageGrade(listing.getId(), PendingStatus.APPROVED,listing.getType()==ListingType.PRODUCT));
         }
-        return new ArrayList<>(listings.stream().collect(Collectors.toMap(ListingDTO::getId, Function.identity(), ListingDTO::appendImages)).values());
+        listings = new ArrayList<>(listings.stream().collect(Collectors.toMap(ListingDTO::getId, Function.identity(), ListingDTO::appendImages)).values());
+        listings.forEach(listing -> listing.getImages().sort(String::compareTo));
+        return listings;
     }
 
     public Map<String, Object> getListings(String searchTerms, ListingType type, UUID category, Double minPrice, Double maxPrice, Double minRating, Double maxRating, String sortBy, String order, int page, int size) {

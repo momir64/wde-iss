@@ -361,7 +361,7 @@ public class EventService {
         response.setLongitude(event.getLocation().getLongitude());
         response.setLatitude(event.getLocation().getLatitude());
         if(organizer.isPresent()){
-            response.setOrganizerCredentials(organizer.get().getName() + "  " + organizer.get().getSurname());
+            response.setOrganizerCredentials(organizer.get().getName() + " " + organizer.get().getSurname());
         }else{
             response.setOrganizerCredentials("");
         }
