@@ -87,7 +87,7 @@ public class ServiceBudgetItemController {
 //      return new ResponseEntity<>(serviceBudgetItem, HttpStatus.BAD_REQUEST);
 //  }
         try {
-            return ResponseEntity.ok(ServiceBudgetItemDTO.toDto(serviceBudgetItemService.createServiceBudgetItem(serviceBudgetItem)));
+            return ResponseEntity.ok(serviceBudgetItemService.createServiceBudgetItem(serviceBudgetItem));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (BuyServiceException e) {

@@ -68,7 +68,7 @@ public class ProductBudgetItemService {
                 .stream()
                 .anyMatch(e ->
                         e.getProductCategory().getId().equals(createProductBudgetItemDTO.getProductCategoryId()))) {
-            throw new BuyProductException("Event type not in event's available event types");
+            throw new BuyProductException("Event already contains that category");
         }
 
         ProductBudgetItem newProductBudgetItem = new ProductBudgetItem();
@@ -85,7 +85,7 @@ public class ProductBudgetItemService {
     }
 
     public ProductBudgetItemDTO buyProduct(BuyProductDTO buyProductDTO) {
-        Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getVersionedProductByStaticProductIdAndLatestVersion(buyProductDTO.getProductId());
+        Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getLatestByStaticProductIdAndLatestVersion(buyProductDTO.getProductId());
 
         if (versionedProductMaybe.isEmpty()) {
             throw new EntityNotFoundException();

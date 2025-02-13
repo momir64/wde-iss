@@ -19,7 +19,7 @@ public interface ServiceBudgetItemRepository extends JpaRepository<ServiceBudget
                    "WHERE " +
                    "event_id = ?1 AND " +
                    "service_category_id = ?2 AND " +
-                   "versioned_service_static_service_id IS NOT NULL", nativeQuery = true)
+                   "versioned_service_static_service_id IS NULL", nativeQuery = true)
     @Modifying
     @Transactional
     int removeEventEmptyServiceCategory(UUID eventId, UUID serviceCategoryId);
