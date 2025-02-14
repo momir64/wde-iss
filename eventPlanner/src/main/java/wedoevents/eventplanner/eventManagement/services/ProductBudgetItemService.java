@@ -145,8 +145,14 @@ public class ProductBudgetItemService {
             throw new EntityNotFoundException();
         }
 
-        if (productBudgetItemRepository.removeEventEmptyProductCategory(eventId, productCategoryId) != 0) {
+        if (!productCategoryRepository.existsById(productCategoryId)) {
+            throw new EntityNotFoundException();
+        }
+
+        if (productBudgetItemRepository.hasBoughtProductByEventIdAndProductCategoryId(eventId, productCategoryId)) {
             throw new EntityCannotBeDeletedException();
         }
+
+        productBudgetItemRepository.removeEventEmptyProductCategory(eventId, productCategoryId);
     }
 }

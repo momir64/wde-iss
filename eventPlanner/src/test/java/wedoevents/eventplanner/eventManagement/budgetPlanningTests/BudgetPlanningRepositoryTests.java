@@ -10,7 +10,6 @@ import wedoevents.eventplanner.eventManagement.models.ServiceBudgetItem;
 import wedoevents.eventplanner.eventManagement.repositories.ProductBudgetItemRepository;
 import wedoevents.eventplanner.eventManagement.repositories.ServiceBudgetItemRepository;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,12 +36,14 @@ public class BudgetPlanningRepositoryTests {
         ProductBudgetItem matchingProductBudgetItem = productBudgetItemRepository.findById(productBudgetItemId).get();
 
         assertNull(matchingProductBudgetItem.getProduct());
-        
+
         UUID eventId = UUID.fromString("ea0d1c1b-67fa-4f7e-b00d-78129d742d01");
         UUID productCategoryId = matchingProductBudgetItem.getProductCategory().getId();
 
-        int rowsDeleted = productBudgetItemRepository.removeEventEmptyProductCategory(eventId, productCategoryId);
-        assertEquals(1, rowsDeleted);
+        boolean hasProduct = productBudgetItemRepository.hasBoughtProductByEventIdAndProductCategoryId(eventId, productCategoryId);
+        assertFalse(hasProduct);
+
+        productBudgetItemRepository.removeEventEmptyProductCategory(eventId, productCategoryId);
 
         assertFalse(productBudgetItemRepository.existsById(productBudgetItemId));
     }
@@ -60,10 +61,8 @@ public class BudgetPlanningRepositoryTests {
         UUID eventId = UUID.fromString("ea0d1c1b-67fa-4f7e-b00d-78129d742d01");
         UUID productCategoryId = matchingProductBudgetItem.getProductCategory().getId();
 
-        int rowsDeleted = productBudgetItemRepository.removeEventEmptyProductCategory(eventId, productCategoryId);
-        assertEquals(0, rowsDeleted);
-
-        assertTrue(productBudgetItemRepository.existsById(productBudgetItemId));
+        boolean hasProduct = productBudgetItemRepository.hasBoughtProductByEventIdAndProductCategoryId(eventId, productCategoryId);
+        assertTrue(hasProduct);
     }
 
     // tests that delete a planned serviceBudgetItem
@@ -83,8 +82,10 @@ public class BudgetPlanningRepositoryTests {
         UUID eventId = UUID.fromString("ea0d1c1b-67fa-4f7e-b00d-78129d742d01");
         UUID serviceCategoryId = matchingServiceBudgetItem.getServiceCategory().getId();
 
-        int rowsDeleted = serviceBudgetItemRepository.removeEventEmptyServiceCategory(eventId, serviceCategoryId);
-        assertEquals(1, rowsDeleted);
+        boolean hasService = serviceBudgetItemRepository.hasBoughtServiceByEventIdAndServiceCategoryId(eventId, serviceCategoryId);
+        assertFalse(hasService);
+
+        serviceBudgetItemRepository.removeEventEmptyServiceCategory(eventId, serviceCategoryId);
 
         assertFalse(serviceBudgetItemRepository.existsById(serviceBudgetItemId));
     }
@@ -102,9 +103,7 @@ public class BudgetPlanningRepositoryTests {
         UUID eventId = UUID.fromString("ea0d1c1b-67fa-4f7e-b00d-78129d742d01");
         UUID serviceCategoryId = matchingServiceBudgetItem.getServiceCategory().getId();
 
-        int rowsDeleted = serviceBudgetItemRepository.removeEventEmptyServiceCategory(eventId, serviceCategoryId);
-        assertEquals(0, rowsDeleted);
-
-        assertTrue(serviceBudgetItemRepository.existsById(serviceBudgetItemId));
+        boolean hasService = serviceBudgetItemRepository.hasBoughtServiceByEventIdAndServiceCategoryId(eventId, serviceCategoryId);
+        assertTrue(hasService);
     }
 }

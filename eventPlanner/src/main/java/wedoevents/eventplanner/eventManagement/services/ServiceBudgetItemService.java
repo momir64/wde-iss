@@ -114,8 +114,15 @@ public class ServiceBudgetItemService {
         if (!eventRepository.existsEventById(eventId))
             throw new EntityNotFoundException();
 
-        if (serviceBudgetItemRepository.removeEventEmptyServiceCategory(eventId, serviceCategoryId) != 0)
+        if (!serviceCategoryRepository.existsById(serviceCategoryId)) {
+            throw new EntityNotFoundException();
+        }
+
+        if (serviceBudgetItemRepository.hasBoughtServiceByEventIdAndServiceCategoryId(eventId, serviceCategoryId)) {
             throw new EntityCannotBeDeletedException();
+        }
+
+        serviceBudgetItemRepository.removeEventEmptyServiceCategory(eventId, serviceCategoryId);
     }
 
     public List<BookingSlotsDTO> getSlots(UUID serviceId, UUID organizerId) {
