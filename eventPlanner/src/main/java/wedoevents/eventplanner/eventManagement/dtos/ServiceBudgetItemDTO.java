@@ -1,6 +1,7 @@
 package wedoevents.eventplanner.eventManagement.dtos;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import wedoevents.eventplanner.eventManagement.models.ServiceBudgetItem;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
+@EqualsAndHashCode
 public class ServiceBudgetItemDTO {
     private UUID id;
     private UUID serviceCategoryId;
