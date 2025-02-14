@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.eventManagement.dtos.*;
@@ -57,6 +58,15 @@ public class EventController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending email");
         }
     }
+    @PutMapping
+    public ResponseEntity<?> updateEvent(@RequestBody CreateEventDTO createEventDTO){
+        try {
+            eventService.updateEvent(createEventDTO);
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status((HttpStatus.BAD_REQUEST)).body("Error processing request");
+        }
+    }
     @PutMapping("/images")
     public ResponseEntity<?> putProfileImage(@RequestParam("images") List<MultipartFile> images,
                                              @RequestParam("eventId") UUID eventId){
@@ -76,7 +86,14 @@ public class EventController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    @GetMapping("/{eventOrganizerId}/my-events/{eventId}")
+    public ResponseEntity<EventEditViewDTO> getEventFromOrganizer(@PathVariable UUID eventOrganizerId, @PathVariable UUID eventId) {
+        EventEditViewDTO event = eventService.getEventFromOrganizer(eventOrganizerId, eventId);
+        if (event == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(event);
+    }
     @GetMapping("/top")
     public ResponseEntity<?> getTopEvents(@RequestParam(value = "city", required = false) String city) {
         try {
@@ -133,7 +150,18 @@ public class EventController {
     public ResponseEntity<List<UUID>> createAgenda(@RequestBody EventActivitiesDTO eventActivitiesDTO) {
         return ResponseEntity.ok().body(eventService.createAgenda(eventActivitiesDTO));
     }
-
+    @PutMapping("/agenda")
+    public ResponseEntity<?> updateAgenda(@RequestBody EventActivitiesDTO eventActivitiesDTO) {
+        return eventService.updateAgenda(eventActivitiesDTO) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+    @GetMapping("/agenda/{eventId}")
+    public ResponseEntity<List<EventActivityDTO>> getAgenda(@PathVariable UUID eventId) {
+        List<EventActivityDTO> response = eventService.getAgenda(eventId);
+        if(response == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(response);
+    }
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> downloadPdf(@PathVariable("id") UUID id) {
         Optional<Event> event = eventService.getEventById(id);

@@ -45,4 +45,14 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 
     @Query("SELECT e FROM Event e WHERE e.isPublic = true")
     List<Event> findAllPublicEvents();
+
+    @Query(value = """
+        SELECT CAST(COUNT(DISTINCT guest_id) AS INTEGER) FROM (
+            SELECT id AS guest_id FROM guest_invited_events WHERE event_id = :eventId
+            UNION
+            SELECT id AS guest_id FROM guest_accepted_events WHERE event_id = :eventId
+        ) AS combined
+        """, nativeQuery = true)
+    int countPossibleGuestsByEventId(@Param("eventId") UUID eventId);
+
 }

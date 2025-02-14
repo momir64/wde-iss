@@ -29,5 +29,5 @@ public class CreateEventDTO {
     private List<UUID> agenda;
 
     private UUID organizerProfileId;
-
+    private UUID eventId;
 }
