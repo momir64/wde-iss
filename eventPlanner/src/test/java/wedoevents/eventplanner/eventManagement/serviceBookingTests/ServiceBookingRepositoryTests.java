@@ -1,4 +1,4 @@
 package wedoevents.eventplanner.eventManagement.serviceBookingTests;
 
-public class ServiceBookingTests {
+public class ServiceBookingRepositoryTests {
 }
