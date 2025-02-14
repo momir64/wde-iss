@@ -49,20 +49,6 @@
 -- event_review
 -- notification
 
-CREATE OR REPLACE FUNCTION truncate_tables() RETURNS void AS $$
-DECLARE
-    statements CURSOR FOR
-        SELECT tablename FROM pg_tables
-        WHERE tableowner = 'admin' AND schemaname = 'public';
-BEGIN
-    FOR stmt IN statements LOOP
-            EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' CASCADE;';
-        END LOOP;
-END;
-$$ LANGUAGE plpgsql;
-SELECT truncate_tables();
-
-
 -- ROLES
 INSERT INTO role (id,name)
 VALUES
@@ -70,7 +56,6 @@ VALUES
     ('9150703f-0449-40e1-b1fb-f0cb0a31b7b0','ROLE_GUEST'),
     ('4e3484cf-382f-448d-a1db-1c1063ab41ee','ROLE_SELLER'),
     ('7ed06959-1018-406f-b3c1-2e91c08daa07','ROLE_ADMIN');
-
 
 -- CITIES
 INSERT INTO city (name)
@@ -104,7 +89,6 @@ VALUES
     ('Vlajkovac'),('Vlase'),('Vlasotince'),('Vlaška'),('Vodanj'),('Voganj'),('Vojka'),('Vojska'),('Vojvoda Stepa'),('Vojvodinci'),('Voluja'),('Voždovac'),('Vranić'),('Vranje'),('Vranjska Banja'),('Vranovo'),('Vratarnica'),('Vraćevšnica'),('Vračar'),('Vračev Gaj'),('Vražogrnac'),('Vrba'),('Vrbas'),('Vrbica'),('Vrbovac'),('Vrdnik'),('Vreoci'),('Vrhpolje'),('Vrmdža'),('Vrnjačka Banja'),('Vrnjci'),('Vrćenovica'),('Vršac'),('Vukovac'),('Vučje'),('Zablaće'),('Zabojnica'),('Zabrežje'),('Zagajica'),('Zajača'),('Zaječar'),('Zaplanjska Toponica'),
     ('Zasavica'),('Zavlaka'),('Zdravinje'),('Zemun'),('Zlatibor'),('Zlatica'),('Zlodol'),('Zlot'),('Zmajevo'),('Zminjak'),('Zrenjanin'),('Zubin Potok'),('Zuce'),('Zvezdan'),('Zvezdara'),('Zvečan'),('Zvonce'),('Ćićevac'),('Ćuprija'),('Čajetina'),('Čalma'),('Čantavir'),('Čačak'),('Čelarevo'),('Čenej'),('Čenta'),('Čerević'),('Čestereg'),('Čečina'),('Čitluk'),('Čoka'),('Čonoplja'),('Čortanovci'),('Čukarica'),('Čukojevac'),('Čumić'),('Čurug'),('Đala'),('Đunis'),('Đurđevo'),('Đurđin'),('Šabac'),('Šajkaš'),('Šarbanovac'),
     ('Šarbanovac-Timok'),('Šašinci'),('Šepšin'),('Šetonje'),('Šid'),('Šilovo'),('Šimanovci'),('Šljivovac'),('Šljivovica'),('Šljivovo'),('Štavalj'),('Štitar'),('Štitare'),('Štrpce'),('Štubik'),('Šupljak'),('Šurjan'),('Žabalj'),('Žabari'),('Žagubica'),('Željuše'),('Žirovnica'),('Žitište'),('Žitkovac'),('Žitni Potok'),('Žitorađa'),('Žiča'),('Žuč');
-
 
 -- PROFILE
 INSERT INTO profile (id, are_notifications_muted, email, is_active, is_verified, password, role_id, image_name)
@@ -211,6 +195,10 @@ VALUES
     ('cefe62ba-b263-4db8-8f4f-3b93ebff25cf', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b', false, '6e0c99f4-226f-49fb-bc4b-1f59ff671b95'),
     ('9271b6be-64bc-4cfe-bf57-dfa4a0cdad44', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b', false, 'c5e2a004-83b0-4f91-9ff2-c235f2166b72'),
 
+    ('8e862226-257d-473c-94eb-aedff374dedf', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b', false, '2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5'),
+    ('fdf4285e-1619-4f13-819a-0dc6843c4ce1', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b', false, '2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5'),
+    ('11460238-d909-4b1e-ba1b-651904b36eb0', 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b', false, '2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5'),
+
     -- DRINKS CATEGORY
     ('763b0d82-81de-4a8c-8bba-45c19e688b31', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false, 'a1d764df-9b5c-4f62-b0a1-13d8edfcf4a3'),
     ('04fe2f92-7732-43c9-b9d6-2d801f47b0e0', 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', false, '6e0c99f4-226f-49fb-bc4b-1f59ff671b95'),
@@ -269,7 +257,6 @@ VALUES
     -- PENDING PRODUCT CATEGORY 1
     ('8abe1d3f-3815-4b7f-a9c4-1ea9a86a703c', 'e5ad2f36-0d76-43dc-9645-531381c5d29c', true, 'a1d764df-9b5c-4f62-b0a1-13d8edfcf4a3');
 
-
 INSERT INTO versioned_product (static_product_id, version, is_active, is_available, is_last_version, is_private, name, price, sale_percentage, description)
 VALUES
     -- FIREWORKS CATEGORY
@@ -278,6 +265,10 @@ VALUES
     ('ca97b729-3035-4170-b5f7-83f1e63e9b8a', 1, false, true, true,  true, 'Firework Shells', 120.00, 0.15, 'Large shells that explode into a colorful burst in the sky, perfect for grand displays.'),
     ('cefe62ba-b263-4db8-8f4f-3b93ebff25cf', 1, true, false, true,  false, 'Sparklers', 50.00, 0.05, 'Small handheld fireworks that emit sparkling lights, ideal for kids and celebrations.'),
     ('9271b6be-64bc-4cfe-bf57-dfa4a0cdad44', 1, false, true,  true, false, 'Confetti Cannons', 77.00, 0.0, 'Cannons that shoot colorful confetti into the air, perfect for celebrations and events.'),
+
+    ('8e862226-257d-473c-94eb-aedff374dedf', 1, false, true, true,  false, 'not active', 130.00, 0.1, 'desc.'),
+    ('fdf4285e-1619-4f13-819a-0dc6843c4ce1', 1, true, true, true,  true, 'not public', 130.00, 0.1, 'desc.'),
+    ('11460238-d909-4b1e-ba1b-651904b36eb0', 1, true, false, true,  false, 'not available', 130.00, 0.1, 'desc.'),
 
     -- DRINKS CATEGORY
     ('763b0d82-81de-4a8c-8bba-45c19e688b31', 1, true, true,  true, false, 'Champagne', 930.00, 0.0, 'A premium sparkling wine to celebrate special moments with style.'),
@@ -336,7 +327,6 @@ VALUES
 
     -- PENDING PRODUCT CATEGORY 1
     ('8abe1d3f-3815-4b7f-a9c4-1ea9a86a703c', 1, true, true, true, false, 'Pending Product 1', 600.00, 0.0, 'A product that is currently under review and pending approval for the catalog.');
-
 
 INSERT INTO public.versioned_product_images(
     versioned_product_static_product_id, versioned_product_version, images)
@@ -495,7 +485,6 @@ VALUES
     ('c92a9ef9-c5e6-4ac5-b990-1c499f7a9cc3', 1, 'd22e863f-592d-4431-ac76-bf1041a25056'),
     ('c92a9ef9-c5e6-4ac5-b990-1c499f7a9cc3', 1, '7decfcd5-075f-4c8e-965a-4d3c5bc1f356');
 
-
 INSERT INTO event_organizer_favourite_products (id, static_product_id)
 VALUES
     -- EVENT ORGANIZER FAVOURITE PRODUCTS
@@ -539,6 +528,10 @@ VALUES
     ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false, 'c5e2a004-83b0-4f91-9ff2-c235f2166b72'),
     ('f501fea8-7903-4ff0-a3d3-49493282a69e', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false, '2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5'),
     ('fe2e0eb8-29fa-448b-aace-8af9ccb101f9', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false, 'a1d764df-9b5c-4f62-b0a1-13d8edfcf4a3'),
+
+    ('db3fc51a-0775-44ba-b031-955503ed74d1', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false, '2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5'),
+    ('f6bb3ca6-cd9c-42dc-9fe0-fd0b84dd79ca', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false, '2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5'),
+    ('96997487-e316-46f0-8868-d795b80157ba', 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', false, '2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5'),
 
     -- CATERING
     ('deca359b-9bfb-4b6f-bc24-3e509f595da4', 'd46e1f95-8a90-4745-8000-629f412bdbab', false, '6e0c99f4-226f-49fb-bc4b-1f59ff671b95'),
@@ -592,6 +585,10 @@ VALUES
     ('f501fea8-7903-4ff0-a3d3-49493282a69e', 1, 16, 'Jazz ensemble with a variety of instruments for high-class receptions and dinner events.', true, true, true, false, false, 'Jazz Ensemble', 120, 25, 0.05, 105, 105),
     ('fe2e0eb8-29fa-448b-aace-8af9ccb101f9', 1, 22, 'Solo guitarist offering a mix of classical and contemporary acoustic guitar for elegant gatherings.', true, true, true, false, false, 'Solo Guitarist', 550, 20, 0.03, 465, 30),
 
+    ('db3fc51a-0775-44ba-b031-955503ed74d1', 1, 22, 'desc.', false, true, true, false, false, 'not active', 550, 20, 0.03, 465, 30),
+    ('f6bb3ca6-cd9c-42dc-9fe0-fd0b84dd79ca', 1, 22, 'desc.', true, true, true, false, true, 'not public', 550, 20, 0.03, 465, 30),
+    ('96997487-e316-46f0-8868-d795b80157ba', 1, 22, 'desc.', true, false, true, false, false, 'not available', 550, 20, 0.03, 465, 30),
+
     -- CATERING
     ('deca359b-9bfb-4b6f-bc24-3e509f595da4', 1, 25, 'Elegant plated dinner service for weddings and formal events.', true, true, true, false, false, 'Plated Dinner Service', 200, 15, 0.03, 105, 105),
     ('8ec60ce2-d646-43bf-abf1-01e2d6c5c202', 1, 18, 'Casual BBQ catering, perfect for outdoor events and summer parties.', true, true, true, false, false, 'BBQ Catering', 120, 20, 0.04, 30, 30),
@@ -612,6 +609,7 @@ VALUES
     ('2c358e12-19f2-4a16-a198-ece7c11f7863', 1, 18, 'Highlight reel video for birthdays and private parties, showcasing the best moments with a cinematic touch.', true, true, true, false, false, 'Event Highlight Videography', 120, 20, 0.04, 195, 30),
     ('8fb67698-2344-4b1d-950e-478c14f477cd', 1, 10, 'Live streaming videography for events, including weddings, conferences, or other occasions, with multi-camera setup.', true, true, true, false, false, 'Live Streaming Videography', 150, 12, 0.02, 60, 60),
     ('f38ad3b7-2b26-4762-9f64-892953ba5207', 1, 22, 'Maternity and baby shower videography, documenting key moments and emotional speeches during the event.', true, true, true, false, false, 'Maternity & Baby Shower Videography', 750, 20, 0.03, 90, 90),
+
     -- GUEST TRANSPORTATION
     ('8d92004c-ce17-4248-ac60-e0a3750bf083', 1, 15, 'Luxury limousine service for weddings, including red carpet, drinks, and personalized decor.', true, true, true, false, false, 'Wedding Limousine', 150, 20, 0.05, 210, 45),
     ('38db314c-ce21-4f96-a2b5-5a6284b1b7b1', 1, 25, 'Shuttle bus service for corporate events, transporting attendees between venues or from hotels to event sites.', true, true, true, false, false, 'Corporate Shuttle Service', 120, 15, 0.03, 60, 60),
@@ -628,7 +626,6 @@ VALUES
 
     -- PENDING SERVICE CATEGORY 1
     ('e98baa49-e3b0-49d9-830f-596b87d8fbfe', 1, 19, 'Pending service 1', true, true, true, false, false, 'Pending service 1', 900, 20, 0.04, 60, 60);
-
 
 INSERT INTO versioned_service_images(versioned_service_static_service_id, versioned_service_version, images)
 VALUES ('daa22294-5377-487a-aa3f-7cd5a42cc568', 1, '4c1e5662-32aa-40d0-8905-321e285055bf'),
@@ -805,7 +802,6 @@ VALUES
     ('33a8ecb0-81a5-44a0-b07d-028b209ef4fd', 'A themed event with costumes, music, and dance, typically celebrating Halloween or other occasions.', true, 'Costume Party'),
     ('b740de8f-7a23-4fbb-a6ae-5b0e7777cd18', 'A ceremony and celebration marking a major religious or cultural milestone in a person’s life, such as a baptism or bar mitzvah.', true, 'Religious Ceremony');
 
-
 INSERT INTO event (id, name, description, address, city, date, time, guest_count, is_public, latitude, longitude, event_type_id, event_organizer_id)
 VALUES
     ('ea0d1c1b-67fa-4f7e-b00d-78129d742d01', 'Smith Wedding', 'A beautiful wedding ceremony with a reception to follow.', 'Terazije 20', 'Beograd', '2025-05-15', '15:00', 150, true, 44.8150, 20.4606, 'a8b8d5b9-d1b2-47e1-b5a6-3efac3b6b832', 'b38d716b-4d2a-4fd3-b18c-bfa128f24b99'),
@@ -845,6 +841,15 @@ VALUES
     ('bcc16eba-53df-42e9-b3cd-5d41bf581d94', 'Book Fair 2025', 'An annual book fair with author signings.', 'Skadarlija 27', 'Beograd', '2025-10-10', '10:00', 400, true, 44.8176, 20.4569, 'b740de8f-7a23-4fbb-a6ae-5b0e7777cd18', '1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236'),
     ('379c96eb-7391-48b4-adc3-f07095576d3b', 'Tech Career Fair', 'Connecting job seekers with tech companies.', 'Kopitareva 5', 'Niš', '2025-11-05', '09:00', 250, true, 43.3209, 21.8958, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93', 'b38d716b-4d2a-4fd3-b18c-bfa128f24b99');
 
+INSERT INTO product_budget_item(id, max_price, versioned_product_static_product_id, versioned_product_version, product_category_id, event_id)
+VALUES
+    ('9f1fed25-b54b-4322-b206-341c9e2daa47', 100, null, null, 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', 'ea0d1c1b-67fa-4f7e-b00d-78129d742d01'),
+    ('e3565a02-8603-4ed7-b207-467b6f4d2120', 500, '5a1b07b8-e918-4b0f-bcd2-7f1fd04dbb26', 1, 'fa8e6d4f-3f57-45d9-b44f-bc0b7580c82b', 'ea0d1c1b-67fa-4f7e-b00d-78129d742d01');
+
+INSERT INTO service_budget_item(id, end_time, max_price, start_time, versioned_service_static_service_id, versioned_service_version, service_category_id, event_id)
+VALUES
+    ('be10be60-9ab2-46a6-acbf-a310b018cdfa', null, 100, null, null, null, 'd46e1f95-8a90-4745-8000-629f412bdbab', 'ea0d1c1b-67fa-4f7e-b00d-78129d742d01'),
+    ('89d39b80-997d-4ffe-ba9d-74fc4e6c0e0b', '2025-05-15 16:30:00', 500, '2025-05-15 15:30:00', 'daa22294-5377-487a-aa3f-7cd5a42cc568', 1, 'a0c5c0b4-e85e-4655-8c62-5a5d9170b8b3', 'ea0d1c1b-67fa-4f7e-b00d-78129d742d01');
 
 INSERT INTO event_images (event_id, images)
 VALUES
@@ -963,7 +968,6 @@ VALUES
     ('379c96eb-7391-48b4-adc3-f07095576d3b', '083c65e2-d557-4f5e-a899-6cc243e86fcf'),
     ('379c96eb-7391-48b4-adc3-f07095576d3b', '7256d04b-d111-4d1f-87cd-1f3009c20942'),
     ('379c96eb-7391-48b4-adc3-f07095576d3b', 'e350ee23-e8fa-44dd-8304-ce1c84141efa');
-
 
 -- RECOMMENDED CATEGORIES OF PRODUCTS PER EVENT TYPE
 
@@ -1104,6 +1108,10 @@ VALUES
     ('763b0d82-81de-4a8c-8bba-45c19e688b31', 1, '2a3fbe6a-d495-4090-9e2e-09e2a4043460'), -- DRINKS CATEGORY ('Champagne')
     ('e4042b8b-1a71-46fc-a4ca-289d39a9b575', 1, '2a3fbe6a-d495-4090-9e2e-09e2a4043460'), -- FOOD CATEGORY ('Finger Foods & Canapés')
     ('a3f5b299-1bc5-45ec-bb6e-b564e0d11c94', 1, '2a3fbe6a-d495-4090-9e2e-09e2a4043460'), -- DECORATION CATEGORY ('Flower Arrangements')
+
+    ('8e862226-257d-473c-94eb-aedff374dedf', 1, '2a3fbe6a-d495-4090-9e2e-09e2a4043460'),
+    ('fdf4285e-1619-4f13-819a-0dc6843c4ce1', 1, '2a3fbe6a-d495-4090-9e2e-09e2a4043460'),
+    ('11460238-d909-4b1e-ba1b-651904b36eb0', 1, '2a3fbe6a-d495-4090-9e2e-09e2a4043460'),
 
     -- OUTDOOR FESTIVAL
     ('5a1b07b8-e918-4b0f-bcd2-7f1fd04dbb26', 1, '15c1de85-50a4-4b60-a5c2-bb349d3173ab'), -- FIREWORK CATEGORY ('Fountain Fireworks')

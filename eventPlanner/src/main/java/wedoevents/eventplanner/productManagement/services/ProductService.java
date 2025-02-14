@@ -1,6 +1,5 @@
 package wedoevents.eventplanner.productManagement.services;
 
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,15 +11,11 @@ import wedoevents.eventplanner.productManagement.models.*;
 import wedoevents.eventplanner.productManagement.repositories.ProductCategoryRepository;
 import wedoevents.eventplanner.productManagement.repositories.StaticProductRepository;
 import wedoevents.eventplanner.productManagement.repositories.VersionedProductRepository;
-import wedoevents.eventplanner.serviceManagement.dtos.VersionedServiceDTO;
-import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 import wedoevents.eventplanner.shared.Exceptions.UpdatePriceException;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
-import wedoevents.eventplanner.userManagement.models.EventReview;
 import wedoevents.eventplanner.userManagement.models.ListingReview;
 import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
-import wedoevents.eventplanner.userManagement.repositories.EventReviewRepository;
 import wedoevents.eventplanner.userManagement.repositories.ListingReviewRepository;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepository;
 
@@ -159,7 +154,7 @@ public class ProductService {
         // todo check for fields that must be non-null
 
         Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository
-                .getVersionedProductByStaticProductIdAndLatestVersion(updateVersionedProductDTO.getStaticProductId());
+                .getLatestByStaticProductIdAndLatestVersion(updateVersionedProductDTO.getStaticProductId());
         
         if (versionedProductMaybe.isEmpty()) {
             throw new EntityNotFoundException();
@@ -213,7 +208,7 @@ public class ProductService {
     }
 
     public VersionedProductDTO getVersionedProductById(UUID staticProductId) {
-        Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getVersionedProductByStaticProductIdAndLatestVersion(staticProductId);
+        Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getLatestByStaticProductIdAndLatestVersion(staticProductId);
 
         if (versionedProductMaybe.isEmpty()) {
             throw new EntityNotFoundException();
@@ -245,7 +240,7 @@ public class ProductService {
     }
 
     public VersionedProductForSellerDTO getVersionedProductEditableById(UUID staticProductId) throws IOException {
-        Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getVersionedProductByStaticProductIdAndLatestVersion(staticProductId);
+        Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getLatestByStaticProductIdAndLatestVersion(staticProductId);
 
         // todo prevent getting deleted services
 
@@ -278,7 +273,7 @@ public class ProductService {
     }
 
     public void deactivateProduct(UUID staticProductId) {
-        Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getVersionedProductByStaticProductIdAndLatestVersion(staticProductId);
+        Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getLatestByStaticProductIdAndLatestVersion(staticProductId);
 
         if (versionedProductMaybe.isEmpty()) {
             throw new EntityNotFoundException();

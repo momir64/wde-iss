@@ -57,12 +57,12 @@ public class ServiceBudgetItemService {
         return ServiceBudgetItemDTO.toDto(serviceBudgetItemMaybe.get());
     }
 
-    public ServiceBudgetItem createServiceBudgetItem(CreateServiceBudgetItemDTO createServiceBudgetItemDTO) {
+    public ServiceBudgetItemDTO createServiceBudgetItem(CreateServiceBudgetItemDTO createServiceBudgetItemDTO) {
         ServiceCategory serviceCategory = serviceCategoryRepository.findById(createServiceBudgetItemDTO.getServiceCategoryId()).orElseThrow(EntityNotFoundException::new);
         Event event = eventRepository.findById(createServiceBudgetItemDTO.getEventId()).orElseThrow(EntityNotFoundException::new);
 
         if (event.getServiceBudgetItems().stream().anyMatch(e -> e.getServiceCategory().getId().equals(createServiceBudgetItemDTO.getServiceCategoryId())))
-            throw new BuyServiceException("Event type not in event's available event types");
+            throw new BuyServiceException("Event already contains that category");
 
         ServiceBudgetItem newServiceBudgetItem = new ServiceBudgetItem();
         newServiceBudgetItem.setServiceCategory(serviceCategory);
@@ -72,7 +72,7 @@ public class ServiceBudgetItemService {
         event.getServiceBudgetItems().add(createdServiceBudgetItem);
         eventRepository.save(event);
 
-        return createdServiceBudgetItem;
+        return ServiceBudgetItemDTO.toDto(createdServiceBudgetItem);
     }
 
     public ServiceBudgetItemDTO buyService(BuyServiceDTO buyServiceDTO) {
@@ -91,11 +91,15 @@ public class ServiceBudgetItemService {
             throw new BuyServiceException("Service is unavailable at that time");
 
         ServiceBudgetItem sbi = event.getServiceBudgetItems().stream().filter(
-                s -> s.getService().getStaticServiceId().equals(buyServiceDTO.getServiceId())).findFirst().orElse(null);
+                s -> s.getServiceCategory().equals(service.getStaticService().getServiceCategory()))
+                .findFirst()
+                .orElse(null);
 
         if (sbi == null) {
             UUID serviceCategoryId = service.getStaticService().getServiceCategory().getId();
-            sbi = createServiceBudgetItem(new CreateServiceBudgetItemDTO(buyServiceDTO.getEventId(), serviceCategoryId, 0.0));
+            ServiceBudgetItemDTO created = createServiceBudgetItem(new CreateServiceBudgetItemDTO(buyServiceDTO.getEventId(), serviceCategoryId, 0.0));
+
+            sbi = serviceBudgetItemRepository.findById(created.getId()).get();
         } else if (sbi.getMaxPrice() < service.getPrice() * (1 - service.getSalePercentage()))
             throw new BuyServiceException("Service too expensive");
 
@@ -110,8 +114,15 @@ public class ServiceBudgetItemService {
         if (!eventRepository.existsEventById(eventId))
             throw new EntityNotFoundException();
 
-        if (serviceBudgetItemRepository.removeEventEmptyServiceCategory(eventId, serviceCategoryId) != 0)
+        if (!serviceCategoryRepository.existsById(serviceCategoryId)) {
+            throw new EntityNotFoundException();
+        }
+
+        if (serviceBudgetItemRepository.hasBoughtServiceByEventIdAndServiceCategoryId(eventId, serviceCategoryId)) {
             throw new EntityCannotBeDeletedException();
+        }
+
+        serviceBudgetItemRepository.removeEventEmptyServiceCategory(eventId, serviceCategoryId);
     }
 
     public List<BookingSlotsDTO> getSlots(UUID serviceId, UUID organizerId) {

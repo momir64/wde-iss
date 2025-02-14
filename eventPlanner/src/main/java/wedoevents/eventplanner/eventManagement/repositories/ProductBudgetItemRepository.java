@@ -14,9 +14,15 @@ public interface ProductBudgetItemRepository extends JpaRepository<ProductBudget
     @Query(value = "DELETE FROM product_budget_item " +
             "WHERE " +
             "event_id = ?1 AND " +
-            "product_category_id = ?2 AND " +
-            "versioned_product_static_product_id IS NULL", nativeQuery = true)
+            "product_category_id = ?2", nativeQuery = true)
     @Modifying
     @Transactional
-    int removeEventEmptyProductCategory(UUID eventId, UUID productCategoryId);
+    void removeEventEmptyProductCategory(UUID eventId, UUID productCategoryId);
+
+    @Query(value = "SELECT COUNT(*) > 0 FROM product_budget_item " +
+            "WHERE " +
+            "event_id = ?1 AND " +
+            "product_category_id = ?2 AND " +
+            "versioned_product_static_product_id IS NOT NULL", nativeQuery = true)
+    boolean hasBoughtProductByEventIdAndProductCategoryId(UUID eventId, UUID productCategoryId);
 }

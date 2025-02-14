@@ -18,11 +18,17 @@ public interface ServiceBudgetItemRepository extends JpaRepository<ServiceBudget
     @Query(value = "DELETE FROM service_budget_item " +
                    "WHERE " +
                    "event_id = ?1 AND " +
-                   "service_category_id = ?2 AND " +
-                   "versioned_service_static_service_id IS NOT NULL", nativeQuery = true)
+                   "service_category_id = ?2", nativeQuery = true)
     @Modifying
     @Transactional
-    int removeEventEmptyServiceCategory(UUID eventId, UUID serviceCategoryId);
+    void removeEventEmptyServiceCategory(UUID eventId, UUID serviceCategoryId);
+
+    @Query(value = "SELECT COUNT(*) > 0 FROM service_budget_item " +
+            "WHERE " +
+            "event_id = ?1 AND " +
+            "service_category_id = ?2 AND " +
+            "service_budget_item.versioned_service_static_service_id IS NOT NULL", nativeQuery = true)
+    boolean hasBoughtServiceByEventIdAndServiceCategoryId(UUID eventId, UUID serviceCategoryId);
 
     @Query("""
             select sbi from ServiceBudgetItem sbi
