@@ -1,5 +1,6 @@
 package wedoevents.eventplanner.shared.services.mappers;
 
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import wedoevents.eventplanner.eventManagement.dtos.CalendarEventDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventActivityDTO;
 import wedoevents.eventplanner.eventManagement.models.Event;
@@ -24,19 +25,25 @@ public class CalendarEventMapper {
         dto.setTime(event.getTime());
         dto.setLocation(event.getAddress());
 
-        dto.setActivities(event.getEventActivities().stream()
+        dto.setActivites(event.getEventActivities().stream()
                 .map(CalendarEventMapper::toEventActivityDTO)
                 .collect(Collectors.toList()));
 
         List<ListingDTO> listings = new ArrayList<>();
-        listings.addAll(event.getServiceBudgetItems().stream()
-                .map(CalendarEventMapper::toListingDTO)
-                .collect(Collectors.toList()));
-        listings.addAll(event.getProductBudgetItems().stream()
-                .map(CalendarEventMapper::toListingDTO)
-                .collect(Collectors.toList()));
-
+        if(!event.getServiceBudgetItems().isEmpty()){
+            listings.addAll(event.getNonEmptyServiceBudgetItems().stream()
+                    .map(CalendarEventMapper::toListingDTO)
+                    .toList());
+        }
+        if(!event.getProductBudgetItems().isEmpty()){
+            listings.addAll(event.getNonEmptyProductBudgetItems().stream()
+                    .map(CalendarEventMapper::toListingDTO)
+                    .toList());
+        }
         dto.setListings(listings);
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).build().toUriString();
+        dto.setImages(event.getImages().stream().map(image -> String.format("%s/api/v1/events/%s/images/%s", baseUrl, event.getId(), image)).collect(Collectors.toList()));
+
 
         return dto;
     }
@@ -54,8 +61,10 @@ public class CalendarEventMapper {
 
     private static ListingDTO toListingDTO(ServiceBudgetItem serviceItem) {
         ListingDTO dto = new ListingDTO();
-        StaticService service = serviceItem.getService().getStaticService();
-        dto.setId(service.getStaticServiceId());
+        if(serviceItem.getService() != null){
+            StaticService service = serviceItem.getService().getStaticService();
+            dto.setId(service.getStaticServiceId());
+        }
         dto.setType(ListingType.SERVICE);
         dto.setName(serviceItem.getService().getName());
         dto.setDescription(serviceItem.getService().getDescription());

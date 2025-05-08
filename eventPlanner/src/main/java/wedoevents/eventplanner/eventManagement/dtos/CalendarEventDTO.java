@@ -19,6 +19,7 @@ public class CalendarEventDTO {
     private LocalTime time;
     private Double rating;
     private String location;
-    private List<EventActivityDTO> activities;
+    private List<EventActivityDTO> activites;
     private List<ListingDTO> listings;
+    private List<String> images;
 }
