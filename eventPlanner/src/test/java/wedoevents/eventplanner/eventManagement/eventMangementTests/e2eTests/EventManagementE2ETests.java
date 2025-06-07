@@ -2,6 +2,7 @@ package wedoevents.eventplanner.eventManagement.eventMangementTests.e2eTests;
 
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
@@ -78,10 +79,6 @@ public class EventManagementE2ETests {
         StepperPOM stepperPOM = new StepperPOM(webDriver);
 
         assertTrue(stepperPOM.isOnSecondStep(), "The second step should be active.");
-
-
-        // Optionally verify that the next step was navigated correctly
-        // (this can be checked via a URL change, page title, etc. depending on your app)
     }
     @Test
     public void testEmptyNameField() {
@@ -223,16 +220,121 @@ public class EventManagementE2ETests {
         eventBaseInfoPage.toggleIsPublic(true);
         assertTrue(stepperPOM.isGuestsStepVisible(), "Guests step should be visible again when isPublic is true");
     }
+    @Test
+    public void TestValidCategoriesSuggestion() {
 
+        EventTestData validEventData = new EventTestData(
+                "My Event", 50, "Novi Sad", "Ntp FTN",
+                "2025-12-25", "18:00", "Corporate Event", "A special event",
+                true
+        );
+
+        EventBaseInfoPage eventBaseInfoPage = new EventBaseInfoPage(webDriver);
+
+        eventBaseInfoPage.fillEventForm(validEventData);
+
+        eventBaseInfoPage.submitForm();
+
+        StepperPOM stepperPOM = new StepperPOM(webDriver);
+
+        assertTrue(stepperPOM.isOnSecondStep(), "The second step should be active.");
+
+        EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
+        eventBudgetPage.clickRecommendedCategoriesButton();
+
+        EventRecommendedCategoriesModal recommendedCategoriesModal = new EventRecommendedCategoriesModal(webDriver);
+        assertTrue(recommendedCategoriesModal.areProductCategoriesPresent(
+                recommendedCategoriesModal.productCategories
+        ), "Product categories should be present in the modal");
+
+        assertTrue(recommendedCategoriesModal.areServiceCategoriesPresent(recommendedCategoriesModal.serviceCategories), "Service categories should be present in the modal");
+    }
+
+    @Test
+    public void TestInvalidAgendaRow() {
+        goToAgenda();
+
+        EventAgendaPage table = new EventAgendaPage(webDriver);
+        Assertions.assertEquals(2, table.getRowCount(), "Should start with one row");
+
+        int row = 1;
+        Assertions.assertTrue(table.hasInvalidTimeClass(row, "name"));
+        Assertions.assertTrue(table.hasInvalidTimeClass(row, "description"));
+        Assertions.assertTrue(table.hasInvalidTimeClass(row, "location"));
+        Assertions.assertTrue(table.hasInvalidTimeClass(row, "startTime"));
+        Assertions.assertTrue(table.hasInvalidTimeClass(row, "endTime"));
+        Assertions.assertFalse(table.isDeleteButtonEnabled(row));
+        Assertions.assertEquals("18:00", table.getStartTime(row));
+    }
+
+    @Test
+    public void TestAllValidAgendaRow() {
+        goToAgenda();
+
+        EventAgendaPage table = new EventAgendaPage(webDriver);
+        int row = 1;
+
+        table.setName(row, "Team Meeting");
+        table.setDescription(row, "Sprint review");
+        table.setLocation(row, "Room 1");
+        table.setStartTime(row, "18:00");
+        table.setEndTime(row, "19:00");
+
+        Assertions.assertFalse(table.hasInvalidTimeClass(row, "name"));
+        Assertions.assertFalse(table.hasInvalidTimeClass(row, "description"));
+        Assertions.assertFalse(table.hasInvalidTimeClass(row, "location"));
+        Assertions.assertFalse(table.hasInvalidTimeClass(row, "startTime"));
+        Assertions.assertFalse(table.hasInvalidTimeClass(row, "endTime"));
+
+        assertFalse(table.isNextButtonDisabled(), "Finish button should be enabled when all fields are valid");
+    }
+
+
+    private void goToAgenda(){
+        EventTestData validEventData = new EventTestData(
+                "My Event", 50, "Novi Sad", "Ntp FTN",
+                "2025-12-25", "18:00", "Corporate Event", "A special event",
+                true
+        );
+
+        EventBaseInfoPage eventBaseInfoPage = new EventBaseInfoPage(webDriver);
+
+        eventBaseInfoPage.fillEventForm(validEventData);
+
+        eventBaseInfoPage.submitForm();
+
+        StepperPOM stepperPOM = new StepperPOM(webDriver);
+
+        assertTrue(stepperPOM.isOnSecondStep(), "The second step should be active.");
+
+        EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
+        eventBudgetPage.clickAddCategoryButton();
+
+        EventBudgetRow eventBudgetRow = new EventBudgetRow(webDriver);
+        eventBudgetRow.setBudget("1000");
+        eventBudgetRow.selectFirstTypeOption();
+        eventBudgetRow.selectFirstCategoryOption();
+
+        eventBudgetRow.submitForm();
+    }
+    // before each: add category, choose type, category, insert budget, click next
+
+    // 1 make sure you cant finish and cant delete first row, then make sure everything is red and start time is the same
+    // 2 insert valid and check if you can finish
+    // 3 insert valid and change start time, check it is red and cant finish
+    // 4 check if empty row is red for each input and insert to change to okay
+    // 5 add new row and check new start time is like previous end, change new row end time and check for the first row that end time changed
+    // 6 check that you can delete the first row, delete it, check you cant delete the fierst row anymore, check its start time
+    // 7 finish and go to my events, search it and its over
 
     @AfterEach
     public void tearDown() {
         //debugging
-        try {
-            Thread.sleep(100000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            Thread.sleep(100000);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
 
         //webDriver.quit();
     }

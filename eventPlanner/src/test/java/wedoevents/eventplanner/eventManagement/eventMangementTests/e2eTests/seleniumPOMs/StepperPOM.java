@@ -29,7 +29,6 @@ public class StepperPOM {
         WebElement nextButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//button[@matStepperNext]")));
         return nextButton.isEnabled();
     }
-
     public boolean isOnSecondStep() {
         try {
             // Wait for the second step header to be selected and active
