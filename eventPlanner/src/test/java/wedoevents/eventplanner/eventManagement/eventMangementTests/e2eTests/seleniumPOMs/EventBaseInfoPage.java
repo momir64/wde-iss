@@ -63,9 +63,8 @@ public class EventBaseInfoPage {
         WebElement cityDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("mat-select[formControlName='city']")));
         cityDropdown.click();
 
-        // Optional: Add a small delay to wait for any lingering overlay or transitions
         try {
-            Thread.sleep(500); // Adjust the time as necessary
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -113,7 +112,7 @@ public class EventBaseInfoPage {
         WebElement eventTypeDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("mat-select[formControlName='eventTypeId']")));
         eventTypeDropdown.click();
         try {
-            Thread.sleep(500); // Adjust the time as necessary
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -131,6 +130,11 @@ public class EventBaseInfoPage {
         WebElement isPublicToggle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("mat-slide-toggle[formControlName='isPublic']")));
         String currentState = isPublicToggle.getAttribute("aria-checked");
         if (isPublic) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             isPublicToggle.click();
         }
     }

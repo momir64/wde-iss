@@ -1,6 +1,7 @@
 package wedoevents.eventplanner.eventManagement.eventMangementTests.e2eTests.seleniumPOMs;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -15,10 +16,8 @@ import java.util.NoSuchElementException;
 public class EventAgendaPage {
 
     private final WebDriver driver;
-    private WebDriverWait wait;
+    private final WebDriverWait wait;
 
-    @FindBy(css = "mat-table mat-row")
-    private List<WebElement> tableRows;
 
     public EventAgendaPage(WebDriver driver) {
         this.driver = driver;
@@ -27,12 +26,14 @@ public class EventAgendaPage {
     }
 
     private WebElement getRow(int index) {
-        return tableRows.get(index);
+        List<WebElement> rows = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("mat-table mat-row")));
+        return rows.get(index);
     }
 
     private WebElement getCellInput(int rowIndex, String columnClass) {
         WebElement row = getRow(rowIndex);
-        return row.findElement(By.cssSelector(".cdk-column-" + columnClass + " input, .cdk-column-" + columnClass + " textarea"));
+        By inputLocator = By.cssSelector(".cdk-column-" + columnClass + " input, .cdk-column-" + columnClass + " textarea");
+        return wait.until(ExpectedConditions.visibilityOf(row.findElement(inputLocator)));
     }
 
     public void setName(int rowIndex, String value) {
@@ -93,23 +94,41 @@ public class EventAgendaPage {
     public boolean isDeleteButtonEnabled(int rowIndex) {
         WebElement row = getRow(rowIndex);
         try {
-            WebElement btn = row.findElement(By.cssSelector(".icon-disabled"));
+            // Wait up to 1s for presence of icon-disabled. If not found, it's enabled.
+            wait.withTimeout(Duration.ofSeconds(1))
+                    .until(ExpectedConditions.presenceOfNestedElementLocatedBy(row, By.cssSelector(".icon-disabled")));
             return false;
-        } catch (NoSuchElementException e) {
+        } catch (Exception e) {
             return true;
+        } finally {
+            wait.withTimeout(Duration.ofSeconds(4)); // Reset default timeout
         }
     }
 
     public void clickDeleteButton(int rowIndex) {
         WebElement row = getRow(rowIndex);
-        WebElement btn = row.findElement(By.cssSelector(".cdk-column-trash button"));
+        By btnLocator = By.cssSelector(".cdk-column-trash button");
+        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(row.findElement(btnLocator)));
         btn.click();
     }
+
     public boolean isNextButtonDisabled() {
         WebElement nextButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//button[@matStepperNext]")));
         return !nextButton.isEnabled();
     }
+
     public int getRowCount() {
-        return tableRows.size();
+        List<WebElement> rows = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("mat-table mat-row")));
+        return rows.size();
+    }
+    public void clickAddAgendaRowButton() {
+        By addButtonLocator = By.cssSelector(".row.action-buttons button");
+
+        WebElement addButton = wait.until(ExpectedConditions.elementToBeClickable(addButtonLocator));
+        addButton.click();
+    }
+    public void submitForm() {
+        WebElement nextButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[.//span[text()='Finish']]")));
+        nextButton.click();
     }
 }

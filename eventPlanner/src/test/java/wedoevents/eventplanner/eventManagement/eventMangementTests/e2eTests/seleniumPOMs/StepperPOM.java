@@ -18,13 +18,11 @@ public class StepperPOM {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(4));
     }
 
-    // Method to click the Next button
     public void clickNext() {
         WebElement nextButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@matStepperNext]")));
         nextButton.click();
     }
 
-    // Check if the next button is enabled
     public boolean isNextButtonEnabled() {
         WebElement nextButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//button[@matStepperNext]")));
         return nextButton.isEnabled();
