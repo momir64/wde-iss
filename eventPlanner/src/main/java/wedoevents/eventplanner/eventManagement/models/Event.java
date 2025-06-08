@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -51,4 +52,15 @@ public class Event {
 
     @ElementCollection
     private List<String> images;
+
+    public List<ServiceBudgetItem> getNonEmptyServiceBudgetItems(){
+        return this.serviceBudgetItems.stream()
+                .filter(item -> item.getService() != null)
+                .collect(Collectors.toList());
+    }
+    public List<ProductBudgetItem> getNonEmptyProductBudgetItems(){
+        return this.productBudgetItems.stream()
+                .filter(item -> item.getProduct() != null)
+                .collect(Collectors.toList());
+    }
 }
