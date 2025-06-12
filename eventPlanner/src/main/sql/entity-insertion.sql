@@ -841,6 +841,25 @@ VALUES
     ('bcc16eba-53df-42e9-b3cd-5d41bf581d94', 'Book Fair 2025', 'An annual book fair with author signings.', 'Skadarlija 27', 'Beograd', '2025-10-10', '10:00', 400, true, 44.8176, 20.4569, 'b740de8f-7a23-4fbb-a6ae-5b0e7777cd18', '1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236'),
     ('379c96eb-7391-48b4-adc3-f07095576d3b', 'Tech Career Fair', 'Connecting job seekers with tech companies.', 'Kopitareva 5', 'Niš', '2025-11-05', '09:00', 250, true, 43.3209, 21.8958, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93', 'b38d716b-4d2a-4fd3-b18c-bfa128f24b99');
 
+
+
+--GUEST LISTS
+
+INSERT INTO guest_invited_events (id, event_id) VALUES
+                                                    ('634182f1-9a18-433b-82d8-dad5aa4069f8', 'ea0d1c1b-67fa-4f7e-b00d-78129d742d01'),
+                                                    ('634182f1-9a18-433b-82d8-dad5aa4069f8', 'f00de5a9-8c76-4a87-b2cb-1c0b7bc4c9c7'),
+                                                    ('c633e080-fad0-4195-8a52-688c149700a1', 'ea0d1c1b-67fa-4f7e-b00d-78129d742d01'),
+                                                    ('c633e080-fad0-4195-8a52-688c149700a1', 'f00de5a9-8c76-4a87-b2cb-1c0b7bc4c9c7'),
+                                                    ('95a4669b-9ee6-4608-a4d1-ae52da25be36', 'ea0d1c1b-67fa-4f7e-b00d-78129d742d01'),
+                                                    ('95a4669b-9ee6-4608-a4d1-ae52da25be36', 'f00de5a9-8c76-4a87-b2cb-1c0b7bc4c9c7');
+
+INSERT INTO guest_accepted_events (id, event_id) VALUES
+                                                     ('0f0e83c6-6764-4c27-bca6-7369aea6acaa', '2c9f1c4d-1cb5-48f2-8618-78e3be06f27f'),
+                                                     ('0f0e83c6-6764-4c27-bca6-7369aea6acaa', 'f00de5a9-8c76-4a87-b2cb-1c0b7bc4c9c7'),
+                                                     ('4b423147-32cf-4a90-9238-a3a5934aaee9', '2c9f1c4d-1cb5-48f2-8618-78e3be06f27f'),
+                                                     ('4b423147-32cf-4a90-9238-a3a5934aaee9', 'f00de5a9-8c76-4a87-b2cb-1c0b7bc4c9c7');
+
+
 INSERT INTO product_budget_item(id, max_price, versioned_product_static_product_id, versioned_product_version, product_category_id, event_id)
 VALUES
     ('9f1fed25-b54b-4322-b206-341c9e2daa47', 100, null, null, 'd13a78bc-9256-4e7f-90b5-354e3f7ab5db', 'ea0d1c1b-67fa-4f7e-b00d-78129d742d01'),

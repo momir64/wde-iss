@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.eventManagement.dtos.*;
@@ -30,6 +31,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @RestController
+@Validated
 @RequestMapping("/api/v1/events")
 public class EventController {
     private final EventService eventService;
@@ -147,7 +149,7 @@ public class EventController {
     }
 
     @PostMapping("/agenda")
-    public ResponseEntity<List<UUID>> createAgenda(@RequestBody EventActivitiesDTO eventActivitiesDTO) {
+    public ResponseEntity<List<UUID>> createAgenda(@Validated @RequestBody EventActivitiesDTO eventActivitiesDTO) {
         return ResponseEntity.ok().body(eventService.createAgenda(eventActivitiesDTO));
     }
     @PutMapping("/agenda")
