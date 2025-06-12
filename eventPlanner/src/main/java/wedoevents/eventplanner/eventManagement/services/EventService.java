@@ -250,34 +250,8 @@ public class EventService {
     public List<UUID> createAgenda(EventActivitiesDTO agenda){
         List<EventActivityDTO> activities = new ArrayList<>(agenda.getEventActivities());
 
-        // check start and end times
-        for (EventActivityDTO a : activities) {
-            if (!a.getStartTime().isBefore(a.getEndTime())) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        String.format("Activity '%s' has start time %s which is not before end time %s",
-                                a.getName(), a.getStartTime(), a.getEndTime())
-                );
-            }
-        }
-
-        activities.sort(Comparator.comparing(EventActivityDTO::getStartTime));
-
-        // check for overlapping activities
-        for (int i = 1; i < activities.size(); i++) {
-            LocalTime prevEnd = activities.get(i-1).getEndTime();
-            LocalTime thisStart = activities.get(i).getStartTime();
-            if (!thisStart.equals(prevEnd)) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        String.format("Activity '%s' must start at %s to follow '%s' ending at %s",
-                                activities.get(i).getName(),
-                                thisStart,
-                                activities.get(i-1).getName(),
-                                prevEnd)
-                );
-            }
-        }
+        validateActivityTimes(activities);
+        validateSequentialActivities(activities);
 
         List<UUID> createdIds = new ArrayList<>();
         for (EventActivityDTO dto : activities) {
@@ -298,6 +272,11 @@ public class EventService {
         if (eventOptional.isEmpty()) {
             return false;
         }
+
+        List<EventActivityDTO> activities = new ArrayList<>(agenda.getEventActivities());
+        validateActivityTimes(activities);
+        validateSequentialActivities(activities);
+
         Event event = eventOptional.get();
         //clear previous agenda
         event.getEventActivities().clear();
@@ -324,6 +303,36 @@ public class EventService {
 
         return true;
     }
+    private void validateActivityTimes(List<EventActivityDTO> activities) {
+        for (EventActivityDTO a : activities) {
+            if (!a.getStartTime().isBefore(a.getEndTime())) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        String.format("Activity '%s' has start time %s which is not before end time %s",
+                                a.getName(), a.getStartTime(), a.getEndTime())
+                );
+            }
+        }
+    }
+
+    private void validateSequentialActivities(List<EventActivityDTO> activities) {
+        activities.sort(Comparator.comparing(EventActivityDTO::getStartTime));
+        for (int i = 1; i < activities.size(); i++) {
+            LocalTime prevEnd = activities.get(i - 1).getEndTime();
+            LocalTime thisStart = activities.get(i).getStartTime();
+            if (!thisStart.equals(prevEnd)) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        String.format("Activity '%s' must start at %s to follow '%s' ending at %s",
+                                activities.get(i).getName(),
+                                thisStart,
+                                activities.get(i - 1).getName(),
+                                prevEnd)
+                );
+            }
+        }
+    }
+
     private LocalTime findEarliestStartTime(List<EventActivity> eventActivities) {
         if (eventActivities == null || eventActivities.isEmpty()) {
             return null;

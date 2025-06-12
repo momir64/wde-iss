@@ -153,7 +153,7 @@ public class EventController {
         return ResponseEntity.ok().body(eventService.createAgenda(eventActivitiesDTO));
     }
     @PutMapping("/agenda")
-    public ResponseEntity<?> updateAgenda(@RequestBody EventActivitiesDTO eventActivitiesDTO) {
+    public ResponseEntity<?> updateAgenda(@Validated @RequestBody EventActivitiesDTO eventActivitiesDTO) {
         return eventService.updateAgenda(eventActivitiesDTO) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
     @GetMapping("/agenda/{eventId}")
