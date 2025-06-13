@@ -30,4 +30,7 @@ public interface EventOrganizerRepository extends JpaRepository<EventOrganizer, 
 
     @Query("SELECT eo FROM EventOrganizer eo JOIN eo.myEvents e WHERE e.id = :eventId")
     Optional<EventOrganizer> findByEventId(@Param("eventId") UUID eventId);
+
+    @Query("SELECT o FROM EventOrganizer o LEFT JOIN FETCH o.myEvents WHERE o.profile.id = :profileId")
+    Optional<EventOrganizer> findByProfileIdWithEvents(@Param("profileId") UUID profileId);
 }

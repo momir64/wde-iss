@@ -10,6 +10,7 @@ import wedoevents.eventplanner.eventManagement.models.Event;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -54,5 +55,8 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
         ) AS combined
         """, nativeQuery = true)
     int countPossibleGuestsByEventId(@Param("eventId") UUID eventId);
+
+    @Query("SELECT e FROM Event e LEFT JOIN FETCH e.eventActivities WHERE e.id = :id")
+    Optional<Event> findByIdWithActivities(@Param("id") UUID id);
 
 }

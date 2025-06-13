@@ -2,6 +2,7 @@ package wedoevents.eventplanner.eventManagement.controllers;
 
 import com.google.api.Http;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
@@ -50,7 +51,7 @@ public class EventController {
 
 
     @PostMapping
-    public ResponseEntity<?> createEvent(@RequestBody CreateEventDTO createEventDTO) {
+    public ResponseEntity<?> createEvent(@RequestBody @Valid CreateEventDTO createEventDTO) {
         try {
             EventComplexViewDTO createdEvent = eventService.createEvent(createEventDTO);
             return ResponseEntity.ok(createdEvent);

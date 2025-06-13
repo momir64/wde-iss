@@ -842,7 +842,19 @@ VALUES
     ('379c96eb-7391-48b4-adc3-f07095576d3b', 'Tech Career Fair', 'Connecting job seekers with tech companies.', 'Kopitareva 5', 'Niš', '2025-11-05', '09:00', 250, true, 43.3209, 21.8958, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93', 'b38d716b-4d2a-4fd3-b18c-bfa128f24b99');
 
 
+INSERT INTO event_activity (id, name, description, start_time, end_time, location, event_id)
+VALUES
+    ('c68e6b75-31a3-4f9c-a2ec-5f15246ad2a1', 'Ceremony', 'Wedding ceremony in the garden', '15:00', '16:00', 'Garden Venue', NULL),
+    ('ae2c6d3f-8ff7-41ec-b1be-1fa0931c3902', 'Reception', 'Dinner and dancing with guests', '16:30', '20:00', 'Banquet Hall', NULL),
 
+    ('bfa9d7fc-11c6-4e83-8615-6a4e39d10c44', 'Opening DJ Set', 'Opening techno beats by local DJs', '22:00', '23:30', 'Main Stage', NULL),
+    ('f729e5ef-99f5-4664-90db-7e31eebbf250', 'Headliner Performance', 'Top DJ performance with visuals', '23:45', '02:00', 'Main Stage', NULL),
+
+    ('ed8a78c7-89f0-4c15-b865-58fc8132b221', 'Welcome Speech', 'Opening remarks by CEO', '19:00', '19:30', 'Grand Ballroom', NULL),
+    ('7d89b90f-b8cd-47c7-a1b3-5566cbf3a5d6', 'Dinner & Awards', 'Formal dinner with award ceremony', '19:30', '22:00', 'Banquet Hall', NULL),
+
+    ('e538d6d4-7881-4b20-8717-5b35f4bfa8fc', 'Games & Drinks', 'Interactive games and open bar', '18:30', '20:00', 'Terrace', NULL),
+    ('06d4748f-bf3b-4a6f-93b2-58e4d19b7f45', 'Dance Party', 'Birthday celebration and dancing', '20:00', '23:00', 'Dance Floor', NULL);
 --GUEST LISTS
 
 INSERT INTO guest_invited_events (id, event_id) VALUES

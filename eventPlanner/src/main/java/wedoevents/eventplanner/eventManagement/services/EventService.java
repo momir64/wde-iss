@@ -136,7 +136,7 @@ public class EventService {
         return events;
     }
 
-    public EventComplexViewDTO createEvent(CreateEventDTO createEventDTO) throws Exception {
+    public EventComplexViewDTO createEvent(CreateEventDTO createEventDTO){
         Optional<EventType> eventTypeMaybe = eventTypeRepository.findById(createEventDTO.getEventTypeId());
 
         if (eventTypeMaybe.isEmpty()) {
@@ -153,9 +153,11 @@ public class EventService {
 
         Event newEvent = new Event();
         newEvent.setEventActivities(new ArrayList<>());
+        long a = eventActivityRepository.count();
+        long b = eventRepository.count();
         for(UUID id: createEventDTO.getAgenda()){
             Optional<EventActivity> activity = eventActivityRepository.findById(id);
-            activity.ifPresent(eventActivity -> newEvent.getEventActivities().add(eventActivity));
+            activity.ifPresent(eventActivity -> newEvent. getEventActivities().add(eventActivity));
         }
         newEvent.setImages(new ArrayList<>());
         newEvent.setProductBudgetItems(new ArrayList<>());
