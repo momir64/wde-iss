@@ -84,4 +84,15 @@ public class ProductBudgetItemController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PutMapping("/{productBudgetItemId}")
+    public ResponseEntity<?> changeProductBudgetItemMaxPrice(@PathVariable UUID productBudgetItemId,
+                                                             @RequestBody Double newPrice) {
+        try {
+            productBudgetItemService.changeProductBudgetItemMaxPrice(productBudgetItemId, newPrice);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
