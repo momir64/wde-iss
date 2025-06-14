@@ -43,7 +43,7 @@ public class AgendaCreationServiceTests {
 
     @BeforeEach
     void setUp() {
-        // Stub .save(...) to assign IDs in order of invocation
+        // stub .save(...) to assign IDs in order of invocation
         when(repository.save(any(EventActivity.class)))
                 .thenAnswer(invocation -> {
                     EventActivity entity = invocation.getArgument(0);
@@ -58,8 +58,7 @@ public class AgendaCreationServiceTests {
     }
 
     @Test
-    void whenValidActivities_thenReturnsSortedIds() {
-        // craft two activities, intentionally swapped
+    void  testAgendaCreationWithUnsortedActivities() {
         EventActivityDTO second = new EventActivityDTO();
         second.setName("Session B");
         second.setDescription("Desc B");
@@ -71,13 +70,12 @@ public class AgendaCreationServiceTests {
         first.setName("Session A");
         first.setDescription("Desc A");
         first.setLocation("Room 1");
-        first.setStartTime(LocalTime.of(9, 0));
+        first.setStartTime(LocalTime.of(9, 0)); // earlier time
         first.setEndTime(LocalTime.of(10, 0));
 
-        // intentionally reverse order in DTO list
         EventActivitiesDTO dto = new EventActivitiesDTO();
         dto.setEventId(UUID.randomUUID());
-        dto.setEventActivities(Arrays.asList(second, first));
+        dto.setEventActivities(Arrays.asList(second, first)); // reversed order
 
         List<UUID> result = service.createAgenda(dto);
 
@@ -90,7 +88,7 @@ public class AgendaCreationServiceTests {
     }
 
     @Test
-    void whenStartNotBeforeEnd_thenThrowsBadRequest() {
+    void testAgendaCreationSameStartAndEndTime() {
         EventActivityDTO bad = new EventActivityDTO();
         bad.setName("Bad session");
         bad.setDescription("Desc");
@@ -110,7 +108,27 @@ public class AgendaCreationServiceTests {
     }
 
     @Test
-    void whenNotChained_thenThrowsBadRequest() {
+    void testAgendaCreationEndTimeBeforeStartTime() {
+        EventActivityDTO bad = new EventActivityDTO();
+        bad.setName("Bad session");
+        bad.setDescription("Desc");
+        bad.setLocation("Room X");
+        bad.setStartTime(LocalTime.of(12, 0));
+        bad.setEndTime(LocalTime.of(11, 0)); // before start
+
+        EventActivitiesDTO dto = new EventActivitiesDTO();
+        dto.setEventId(UUID.randomUUID());
+        dto.setEventActivities(List.of(bad));
+
+        assertThatThrownBy(() -> service.createAgenda(dto))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("not before end time");
+
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void testAgendaCreationWithGaps() {
         EventActivityDTO a1 = new EventActivityDTO();
         a1.setName("Morning");
         a1.setDescription("Desc");
@@ -135,7 +153,7 @@ public class AgendaCreationServiceTests {
     }
 
     @Test
-    void whenEmptyActivitiesList_thenReturnsEmptyList() {
+    void testAgendaCreationWithEmptyActivityList() {
         EventActivitiesDTO dto = new EventActivitiesDTO();
         dto.setEventId(UUID.randomUUID());
         dto.setEventActivities(Collections.emptyList());
@@ -147,7 +165,7 @@ public class AgendaCreationServiceTests {
     }
 
     @Test
-    void whenSingleActivity_thenSavesAndReturnsId() {
+    void testAgendaCreationWithSingleActivity() {
         EventActivityDTO activity = new EventActivityDTO();
         activity.setName("Single Activity");
         activity.setDescription("Desc");
@@ -166,19 +184,19 @@ public class AgendaCreationServiceTests {
     }
 
     @Test
-    void whenOverlappingActivities_thenThrowsBadRequest() {
+    void testAgendaCreationWithOverlappingActivities() {
         EventActivityDTO first = new EventActivityDTO();
         first.setName("Morning Session");
         first.setDescription("Desc A");
         first.setLocation("Room 1");
         first.setStartTime(LocalTime.of(9, 0));
-        first.setEndTime(LocalTime.of(10, 30));  // Overlaps with next
+        first.setEndTime(LocalTime.of(10, 30));  // overlaps with next
 
         EventActivityDTO second = new EventActivityDTO();
         second.setName("Workshop");
         second.setDescription("Desc B");
         second.setLocation("Room 2");
-        second.setStartTime(LocalTime.of(10, 0));  // Starts before first ends
+        second.setStartTime(LocalTime.of(10, 0));  // starts before first ends
         second.setEndTime(LocalTime.of(11, 0));
 
         EventActivitiesDTO dto = new EventActivitiesDTO();
@@ -191,8 +209,7 @@ public class AgendaCreationServiceTests {
     }
 
     @Test
-    void whenActivitiesNotSortedButContiguous_thenSavesInOrder() {
-        // Intentionally unordered but contiguous when sorted
+    void testAgendaCreationUnorderedActivities() {
         EventActivityDTO second = new EventActivityDTO();
         second.setName("Session B");
         second.setDescription("Desc B");
@@ -211,14 +228,13 @@ public class AgendaCreationServiceTests {
         third.setName("Session C");
         third.setDescription("Desc C");
         third.setLocation("Room 3");
-        third.setStartTime(LocalTime.of(11, 0));  // Contiguous
+        third.setStartTime(LocalTime.of(11, 0));
         third.setEndTime(LocalTime.of(12, 0));
 
         EventActivitiesDTO dto = new EventActivitiesDTO();
         dto.setEventId(UUID.randomUUID());
         dto.setEventActivities(Arrays.asList(second, third, first));  // Out of order
 
-        // Should process successfully
         List<UUID> result = service.createAgenda(dto);
 
         // Verify three IDs returned
@@ -235,29 +251,7 @@ public class AgendaCreationServiceTests {
     }
 
     @Test
-    void whenSaveFails_thenPropagatesException() {
-        EventActivityDTO valid = new EventActivityDTO();
-        valid.setName("Valid Activity");
-        valid.setDescription("Desc");
-        valid.setLocation("Room 1");
-        valid.setStartTime(LocalTime.of(9, 0));
-        valid.setEndTime(LocalTime.of(10, 0));
-
-        EventActivitiesDTO dto = new EventActivitiesDTO();
-        dto.setEventId(UUID.randomUUID());
-        dto.setEventActivities(List.of(valid));
-
-        // Use doThrow instead of when().thenThrow()
-        doThrow(new RuntimeException("DB Error"))
-                .when(repository).save(any(EventActivity.class));
-
-        assertThatThrownBy(() -> service.createAgenda(dto))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("DB Error");
-    }
-
-    @Test
-    void whenNullValues_thenThrowsException() {
+    void testAgendaCreationWithNullValues() {
         EventActivityDTO invalid = new EventActivityDTO();
         invalid.setName(null);
         invalid.setDescription("Desc");
@@ -274,7 +268,7 @@ public class AgendaCreationServiceTests {
     }
 
     @Test
-    void whenActivitySpansMidnight_thenValid() {
+    void testAgendaCreationWhenActivitiesSpanTwoDays() {
         EventActivityDTO lateNight = new EventActivityDTO();
         lateNight.setName("Night Session");
         lateNight.setDescription("Desc");

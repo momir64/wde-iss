@@ -65,10 +65,8 @@ public class AgendaEditingIntegrationTests {
     }
 
     private UUID createEventWithActivities() {
-        // Use a predefined event ID from your dataset
         UUID eventId = UUID.fromString("ea0d1c1b-67fa-4f7e-b00d-78129d742d01");
 
-        // Create activities for the event
         EventActivity activity1 = new EventActivity(
                 UUID.randomUUID(),
                 "Ceremony",
@@ -87,7 +85,6 @@ public class AgendaEditingIntegrationTests {
                 "Garden"
         );
 
-        // Insert activities
         jdbcTemplate.update(
                 "INSERT INTO event_activity (id, name, description, start_time, end_time, location, event_id) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -109,11 +106,9 @@ public class AgendaEditingIntegrationTests {
 
     @Test
     @Sql({"classpath:entity-insertion.sql"})
-    void updateAgenda_withValidActivities_returnsOkAndUpdatesDatabase() {
-        // Setup existing event with activities
+    void testValidAgendaEditing() {
         existingEventId = createEventWithActivities();
 
-        // Prepare update data
         EventActivityDTO updatedActivity1 = createActivityDTO(
                 "Updated Morning", "New desc", "New Room",
                 LocalTime.of(8, 30), LocalTime.of(9, 30)
@@ -128,7 +123,6 @@ public class AgendaEditingIntegrationTests {
         request.setEventId(existingEventId);
         request.setEventActivities(List.of(updatedActivity1, updatedActivity2));
 
-        // Execute PUT request
         ResponseEntity<Void> response = restTemplate.exchange(
                 baseUrl,
                 HttpMethod.PUT,
@@ -136,11 +130,9 @@ public class AgendaEditingIntegrationTests {
                 Void.class
         );
 
-        // Verify response
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        // Verify database state
-        // Check old activities are deleted
+
         Integer activityCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_activity WHERE event_id = ?",
                 Integer.class,
@@ -148,7 +140,6 @@ public class AgendaEditingIntegrationTests {
         );
         assertEquals(2, activityCount);
 
-        // Check new activities saved
         List<EventActivity> savedActivities = jdbcTemplate.query(
                 "SELECT * FROM event_activity WHERE event_id = ? ORDER BY start_time",
                 (rs, rowNum) -> new EventActivity(
@@ -168,7 +159,6 @@ public class AgendaEditingIntegrationTests {
         assertEquals("Extended Workshop", savedActivities.get(1).getName());
         assertEquals(LocalTime.of(9, 30), savedActivities.get(1).getStartTime());
 
-        // Verify event time updated
         LocalTime eventTime = jdbcTemplate.queryForObject(
                 "SELECT time FROM event WHERE id = ?",
                 LocalTime.class,
@@ -179,7 +169,7 @@ public class AgendaEditingIntegrationTests {
 
     @Test
     @Sql({"classpath:entity-insertion.sql"})
-    void updateAgenda_eventNotFound_returnsNotFound() {
+    void testAgendaEditingWithUnknownEventId() {
         UUID nonExistentId = UUID.randomUUID();
 
         EventActivityDTO updatedActivity1 = createActivityDTO(
@@ -209,13 +199,12 @@ public class AgendaEditingIntegrationTests {
 
     @Test
     @Sql({"classpath:entity-insertion.sql"})
-    void updateAgenda_invalidActivityTimes_returnsBadRequest() {
+    void testAgendaEditingWithSameStartAndEndTime() {
         existingEventId = createEventWithActivities();
 
-        // Create invalid activity (start = end)
         EventActivityDTO invalidActivity = createActivityDTO(
                 "Invalid", "Desc", "Room",
-                LocalTime.of(10, 0), LocalTime.of(10, 0)
+                LocalTime.of(10, 0), LocalTime.of(10, 0) // Same start and end time
         );
 
         EventActivitiesDTO request = new EventActivitiesDTO();
@@ -229,10 +218,8 @@ public class AgendaEditingIntegrationTests {
                 String.class
         );
 
-        // Verify response
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
-        // Verify old activities still exist
         Integer activityCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_activity WHERE event_id = ?",
                 Integer.class,
@@ -243,10 +230,41 @@ public class AgendaEditingIntegrationTests {
 
     @Test
     @Sql({"classpath:entity-insertion.sql"})
-    void updateAgenda_nonSequentialActivities_returnsBadRequest() {
+    void testAgendaEditingWithEndTimeBeforeStartTime() {
         existingEventId = createEventWithActivities();
 
-        // Create activities with gap
+        EventActivityDTO invalidActivity = createActivityDTO(
+                "Invalid", "Desc", "Room",
+                LocalTime.of(10, 0), LocalTime.of(9, 0) // End time before start time
+        );
+
+        EventActivitiesDTO request = new EventActivitiesDTO();
+        request.setEventId(existingEventId);
+        request.setEventActivities(List.of(invalidActivity));
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                baseUrl,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                String.class
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+        Integer activityCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM event_activity WHERE event_id = ?",
+                Integer.class,
+                existingEventId
+        );
+        assertEquals(2, activityCount);
+    }
+
+
+    @Test
+    @Sql({"classpath:entity-insertion.sql"})
+    void testAgendaEditingWithGaps() {
+        existingEventId = createEventWithActivities();
+
         EventActivityDTO activity1 = createActivityDTO(
                 "Activity 1", "Desc", "Room",
                 LocalTime.of(13, 0), LocalTime.of(14, 0)
@@ -268,10 +286,8 @@ public class AgendaEditingIntegrationTests {
                 String.class
         );
 
-        // Verify response
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
-        // Verify old activities unchanged
         List<EventActivity> activities = jdbcTemplate.query(
                 "SELECT * FROM event_activity WHERE event_id = ?",
                 (rs, rowNum) -> new EventActivity(
@@ -290,10 +306,9 @@ public class AgendaEditingIntegrationTests {
     @Test
     @Sql({"classpath:entity-insertion.sql"})
 
-    void updateAgenda_withUnorderedActivities_savesInTimeOrder() {
+    void testAgendaEditingWithUnorderedActivities() {
         existingEventId = createEventWithActivities();
 
-        // Prepare unordered activities
         EventActivityDTO activity2 = createActivityDTO(
                 "Later Activity", "Desc", "Room",
                 LocalTime.of(14, 0), LocalTime.of(15, 0)
@@ -315,10 +330,8 @@ public class AgendaEditingIntegrationTests {
                 Void.class
         );
 
-        // Verify response
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        // Verify saved order matches time sequence
         List<EventActivity> savedActivities = jdbcTemplate.query(
                 "SELECT * FROM event_activity WHERE event_id = ? ORDER BY start_time",
                 (rs, rowNum) -> new EventActivity(
@@ -341,10 +354,9 @@ public class AgendaEditingIntegrationTests {
 
     @Test
     @Sql({"classpath:entity-insertion.sql"})
-    void updateAgenda_changesEventTime_updatesEventCorrectly() {
+    void testAgendaEditingWithDifferentTime() {
         existingEventId = createEventWithActivities();
 
-        // Get original event time
         LocalTime originalTime = jdbcTemplate.queryForObject(
                 "SELECT time FROM event WHERE id = ?",
                 LocalTime.class,
@@ -352,7 +364,6 @@ public class AgendaEditingIntegrationTests {
         );
         assertEquals(LocalTime.of(15, 0), originalTime);
 
-        // Create activity with later start time
         EventActivityDTO activity = createActivityDTO(
                 "Afternoon Session", "Desc", "Room",
                 LocalTime.of(13, 0), LocalTime.of(15, 0)
@@ -369,10 +380,8 @@ public class AgendaEditingIntegrationTests {
                 Void.class
         );
 
-        // Verify response
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        // Verify new event time
         LocalTime updatedTime = jdbcTemplate.queryForObject(
                 "SELECT time FROM event WHERE id = ?",
                 LocalTime.class,
@@ -383,17 +392,15 @@ public class AgendaEditingIntegrationTests {
 
     @Test
     @Sql({"classpath:entity-insertion.sql"})
-    void updateAgenda_orphanActivities_deletesOldActivities() {
+    void testAgendaEditingOldActivitiesDeletion() {
         existingEventId = createEventWithActivities();
 
-        // Get original activity IDs
         List<UUID> originalIds = jdbcTemplate.queryForList(
                 "SELECT id FROM event_activity WHERE event_id = ?",
                 UUID.class,
                 existingEventId
         );
 
-        // Create new activity
         EventActivityDTO newActivity = createActivityDTO(
                 "New Activity", "Desc", "Room",
                 LocalTime.of(12, 0), LocalTime.of(13, 0)
@@ -410,10 +417,8 @@ public class AgendaEditingIntegrationTests {
                 Void.class
         );
 
-        // Verify response
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        // Verify old activities deleted
         for (UUID id : originalIds) {
             Integer count = jdbcTemplate.queryForObject(
                     "SELECT COUNT(*) FROM event_activity WHERE id = ?",
@@ -423,7 +428,6 @@ public class AgendaEditingIntegrationTests {
             assertEquals(0, count, "Old activity should be deleted");
         }
 
-        // Verify new activity created
         Integer newCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_activity WHERE event_id = ?",
                 Integer.class,

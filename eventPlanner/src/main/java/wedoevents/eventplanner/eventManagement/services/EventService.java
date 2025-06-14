@@ -153,8 +153,6 @@ public class EventService {
 
         Event newEvent = new Event();
         newEvent.setEventActivities(new ArrayList<>());
-        long a = eventActivityRepository.count();
-        long b = eventRepository.count();
         for(UUID id: createEventDTO.getAgenda()){
             Optional<EventActivity> activity = eventActivityRepository.findById(id);
             activity.ifPresent(eventActivity -> newEvent. getEventActivities().add(eventActivity));

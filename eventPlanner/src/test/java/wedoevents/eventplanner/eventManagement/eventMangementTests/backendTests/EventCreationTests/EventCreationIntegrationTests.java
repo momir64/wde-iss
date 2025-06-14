@@ -1,7 +1,4 @@
 package wedoevents.eventplanner.eventManagement.eventMangementTests.backendTests.EventCreationTests;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hibernate.Hibernate;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,7 +11,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
 import wedoevents.eventplanner.eventManagement.dtos.CreateEventDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
 import wedoevents.eventplanner.eventManagement.models.Event;
@@ -27,9 +23,6 @@ import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrgani
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -103,15 +96,49 @@ public class EventCreationIntegrationTests {
         return dto;
     }
 
+    private void createAgendaForEvent() {
+
+        EventActivity activity1 = new EventActivity(
+                activityIds.get(0),
+                "Ceremony",
+                "Wedding ceremony",
+                LocalTime.of(15, 0),
+                LocalTime.of(16, 0),
+                "Main Hall"
+        );
+
+        EventActivity activity2 = new EventActivity(
+                activityIds.get(1),
+                "Reception",
+                "Wedding reception",
+                LocalTime.of(16, 0),
+                LocalTime.of(17, 0),
+                "Garden"
+        );
+
+        jdbcTemplate.update(
+                "INSERT INTO event_activity (id, name, description, start_time, end_time, location, event_id) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                activity1.getId(), activity1.getName(), activity1.getDescription(),
+                activity1.getStartTime(), activity1.getEndTime(), activity1.getLocation(),
+                null
+        );
+
+        jdbcTemplate.update(
+                "INSERT INTO event_activity (id, name, description, start_time, end_time, location, event_id) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                activity2.getId(), activity2.getName(), activity2.getDescription(),
+                activity2.getStartTime(), activity2.getEndTime(), activity2.getLocation(),
+                null
+        );
+    }
+
+
     @Test
     @Sql({"classpath:entity-insertion.sql"})
-    public void createEvent_WithValidData_ReturnsCreatedEvent() {
-        // Arrange
+    public void testValidEventCreation() {
         CreateEventDTO dto = createValidEventDTO();
         HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
-
-
-        // Act
 
         ResponseEntity<EventComplexViewDTO> response = restTemplate.exchange(
                 baseUrl,
@@ -120,18 +147,15 @@ public class EventCreationIntegrationTests {
                 EventComplexViewDTO.class
         );
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         EventComplexViewDTO createdEvent = response.getBody();
         assertNotNull(createdEvent);
         assertEquals(dto.getName(), createdEvent.getName());
         assertEquals(dto.getAddress(), createdEvent.getAddress());
 
-        // Verify database state
         Optional<Event> savedEvent = eventRepository.findById(createdEvent.getId());
         assertTrue(savedEvent.isPresent());
 
-        // Verify organizer association
         EventOrganizer organizer = eventOrganizerRepository.findByProfileIdWithEvents(eventOrganizerProfileId).orElseThrow();
         assertTrue(organizer.getMyEvents().stream()
                 .anyMatch(e -> e.getId().equals(createdEvent.getId())));
@@ -139,13 +163,11 @@ public class EventCreationIntegrationTests {
 
     @Test
     @Sql({"classpath:entity-insertion.sql"})
-    public void createEvent_WithInvalidEventType_ReturnsBadRequest() {
-        // Arrange
+    public void testEventCreationWithUnknownEventTypeId() {
         CreateEventDTO dto = createValidEventDTO();
         dto.setEventTypeId(UUID.randomUUID()); // Invalid ID
         HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        // Act
         ResponseEntity<String> response = restTemplate.exchange(
                 baseUrl,
                 HttpMethod.POST,
@@ -153,19 +175,16 @@ public class EventCreationIntegrationTests {
                 String.class
         );
 
-        // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
     @Sql({"classpath:entity-insertion.sql"})
-    public void createEvent_WithInvalidOrganizer_ReturnsBadRequest() {
-        // Arrange
+    public void testEventCreationWithUnknownOrganizerId() {
         CreateEventDTO dto = createValidEventDTO();
         dto.setOrganizerProfileId(UUID.randomUUID()); // Invalid ID
         HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        // Act
         ResponseEntity<String> response = restTemplate.exchange(
                 baseUrl,
                 HttpMethod.POST,
@@ -173,15 +192,14 @@ public class EventCreationIntegrationTests {
                 String.class
         );
 
-        // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("Error processing request", response.getBody());
     }
 
     @Test
     @Sql({"classpath:entity-insertion.sql"})
-    public void createEvent_WithMixedValidAndInvalidActivities_IgnoresInvalidActivities() {
-        // Arrange
+    public void testEventCreationWithValidAndInvalidActivities() {
+        createAgendaForEvent();
         CreateEventDTO dto = createValidEventDTO();
         UUID invalidActivityId = UUID.randomUUID();
         List<UUID> mixedAgenda = new ArrayList<>(activityIds);
@@ -189,7 +207,6 @@ public class EventCreationIntegrationTests {
         dto.setAgenda(mixedAgenda);
         HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        // Act
         ResponseEntity<EventComplexViewDTO> response = restTemplate.exchange(
                 baseUrl,
                 HttpMethod.POST,
@@ -197,7 +214,6 @@ public class EventCreationIntegrationTests {
                 EventComplexViewDTO.class
         );
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         EventComplexViewDTO createdEvent = response.getBody();
         assertNotNull(createdEvent);
@@ -209,19 +225,16 @@ public class EventCreationIntegrationTests {
         assertEquals(activityIds.size(), savedActivityIds.size());
         assertTrue(savedActivityIds.containsAll(activityIds));
 
-// Verify invalid activity exclusion
         assertFalse(savedActivityIds.contains(invalidActivityId));
     }
 
 
     @Test
-    public void createEvent_WithPastDate_ReturnsBadRequest() {
-        // Arrange
+    public void testEventCreationWithPastDate() {
         CreateEventDTO dto = createValidEventDTO();
         dto.setDate(LocalDate.now().minusDays(1)); // Past date
         HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        // Act
         ResponseEntity<Map> response = restTemplate.exchange(
                 baseUrl,
                 HttpMethod.POST,
@@ -229,18 +242,15 @@ public class EventCreationIntegrationTests {
                 Map.class
         );
 
-        // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    public void createEvent_WithInvalidGuestCount_ReturnsBadRequest() {
-        // Arrange
+    public void testEventCreationWithZeroGuestCount() {
         CreateEventDTO dto = createValidEventDTO();
         dto.setGuestCount(0); // Invalid count
         HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        // Act
         ResponseEntity<Map> response = restTemplate.exchange(
                 baseUrl,
                 HttpMethod.POST,
@@ -248,18 +258,31 @@ public class EventCreationIntegrationTests {
                 Map.class
         );
 
-        // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    public void testEventCreationWithNegativeGuestCount() {
+        CreateEventDTO dto = createValidEventDTO();
+        dto.setGuestCount(-1); // Invalid count
+        HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                baseUrl,
+                HttpMethod.POST,
+                request,
+                Map.class
+        );
+
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
     @Sql({"classpath:entity-insertion.sql"})
-    public void createEvent_WithMissingRequiredFields_ReturnsValidationErrors() {
-        // Arrange
+    public void testEventCreationWithMissingFields() {
         CreateEventDTO dto = new CreateEventDTO(); // Missing required fields
         HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        // Act
         ResponseEntity<Map> response = restTemplate.exchange(
                 baseUrl,
                 HttpMethod.POST,
@@ -267,7 +290,6 @@ public class EventCreationIntegrationTests {
                 Map.class
         );
 
-        // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 

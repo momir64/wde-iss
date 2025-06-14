@@ -59,8 +59,7 @@ public class AgendaCreationIntegrationTests {
         }
     }
     @Test
-    void createAgenda_withValidActivities_returnsCreatedIds() {
-        // Prepare valid contiguous activities (intentionally unsorted)
+    void testValidAgendaCreation() {
         EventActivityDTO activity1 = createActivityDTO("Session A", "Desc A", "Room 1",
                 LocalTime.of(10, 0), LocalTime.of(11, 0));
 
@@ -71,14 +70,12 @@ public class AgendaCreationIntegrationTests {
         request.setEventId(UUID.randomUUID());
         request.setEventActivities(List.of(activity1, activity2));
 
-        // Execute request
         ResponseEntity<List> response = restTemplate.postForEntity(
                 baseUrl,
                 request,
                 List.class
         );
 
-        // Verify response
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<UUID> responseIds = response.getBody();
         assertNotNull(responseIds);
@@ -105,7 +102,7 @@ public class AgendaCreationIntegrationTests {
     }
 
     @Test
-    void createAgenda_withEmptyActivities_returnsBadRequest() {
+    void testAgendaCreationWithEmptyValues() {
         EventActivitiesDTO request = new EventActivitiesDTO();
         request.setEventId(UUID.randomUUID());
         request.setEventActivities(Collections.emptyList());
@@ -120,7 +117,7 @@ public class AgendaCreationIntegrationTests {
     }
 
     @Test
-    void createAgenda_withInvalidTimes_returnsBadRequest() {
+    void testAgendaCreationWithSameStartAndEndTime() {
         // Start time equals end time
         EventActivityDTO invalidActivity = createActivityDTO("Invalid", "Desc", "Room X",
                 LocalTime.of(10, 0), LocalTime.of(10, 0));
@@ -137,9 +134,26 @@ public class AgendaCreationIntegrationTests {
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
-
     @Test
-    void createAgenda_withGapBetweenActivities_returnsBadRequest() {
+    void testAgendaCreationWithEndTimeBeforeStartTime() {
+        // Start time is after end time
+        EventActivityDTO invalidActivity = createActivityDTO("Invalid", "Desc", "Room X",
+                LocalTime.of(10, 0), LocalTime.of(9, 0));
+
+        EventActivitiesDTO request = new EventActivitiesDTO();
+        request.setEventId(UUID.randomUUID());
+        request.setEventActivities(List.of(invalidActivity));
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                baseUrl,
+                request,
+                String.class
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+    @Test
+    void testAgendaCreationWithActivityGaps() {
         EventActivityDTO activity1 = createActivityDTO("Morning", "Desc", "Room A",
                 LocalTime.of(9, 0), LocalTime.of(10, 0));
 
@@ -160,7 +174,7 @@ public class AgendaCreationIntegrationTests {
     }
 
     @Test
-    void createAgenda_withOverlappingActivities_returnsBadRequest() {
+    void testAgendaCreationWithOverlappingActivities() {
         EventActivityDTO activity1 = createActivityDTO("Session 1", "Desc", "Room 1",
                 LocalTime.of(9, 0), LocalTime.of(10, 30));
 
@@ -181,7 +195,7 @@ public class AgendaCreationIntegrationTests {
     }
 
     @Test
-    void createAgenda_withMissingRequiredFields_returnsBadRequest() {
+    void testAgendaCreationWithMissingValues() {
         EventActivityDTO invalidActivity = new EventActivityDTO();
         invalidActivity.setStartTime(LocalTime.of(9, 0));
         invalidActivity.setEndTime(LocalTime.of(10, 0));
@@ -201,9 +215,9 @@ public class AgendaCreationIntegrationTests {
     }
 
     @Test
-    void createAgenda_withMidnightActivity_returnsBadRequest() {
+    void testAgendaCreationWithActivitiesSpanningTwoDays() {
         EventActivityDTO activity = createActivityDTO("Night", "Desc", "Hall",
-                LocalTime.of(23, 0), LocalTime.of(1, 0));  // Spans midnight
+                LocalTime.of(23, 0), LocalTime.of(1, 0));  // Spans two days
 
         EventActivitiesDTO request = new EventActivitiesDTO();
         request.setEventId(UUID.randomUUID());
@@ -219,7 +233,7 @@ public class AgendaCreationIntegrationTests {
     }
 
     @Test
-    void createAgenda_withSingleActivity_createsSuccessfully() {
+    void testAgendaCreationWIthSingleActivity() {
         EventActivityDTO activity = createActivityDTO("Single", "Desc", "Room",
                 LocalTime.of(9, 0), LocalTime.of(10, 0));
 

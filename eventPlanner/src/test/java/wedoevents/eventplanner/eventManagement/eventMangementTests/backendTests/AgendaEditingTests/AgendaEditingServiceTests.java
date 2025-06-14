@@ -64,7 +64,6 @@ public class AgendaEditingServiceTests {
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(existingEvent));
         when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Stub activity saving to return new UUIDs
         when(eventActivityRepository.save(any(EventActivity.class)))
                 .thenAnswer(invocation -> {
                     EventActivity ea = invocation.getArgument(0);
@@ -74,7 +73,7 @@ public class AgendaEditingServiceTests {
     }
 
     @Test
-    void whenEventNotFound_thenReturnsFalse() {
+    void testAgendaEditingWithUnknownId() {
         UUID nonExistentId = UUID.randomUUID();
         when(eventRepository.findById(nonExistentId)).thenReturn(Optional.empty());
 
@@ -87,7 +86,7 @@ public class AgendaEditingServiceTests {
     }
 
     @Test
-    void whenInvalidActivityTimes_thenThrowsAndPreservesOldActivities() {
+    void testAgendaEditingWithSameStartAndEndTime() {
         EventActivityDTO invalid = createActivityDTO("Invalid", LocalTime.of(12,0), LocalTime.of(11,0));
         EventActivitiesDTO dto = createAgendaDTO(eventId, invalid);
 
@@ -102,9 +101,25 @@ public class AgendaEditingServiceTests {
     }
 
     @Test
-    void whenNonSequentialActivities_thenThrowsAndPreservesState() {
+    void testAgendaEditingWithEndTimeBeforeStartTime() {
+        EventActivityDTO invalid = createActivityDTO("Invalid", LocalTime.of(12,0), LocalTime.of(12,0));
+        EventActivitiesDTO dto = createAgendaDTO(eventId, invalid);
+
+        assertThatThrownBy(() -> service.updateAgenda(dto))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("not before end time");
+
+        // Verify no changes persisted
+        assertEquals(2, existingEvent.getEventActivities().size());
+        verify(eventRepository, never()).save(any());
+        verify(eventActivityRepository, never()).save(any());
+    }
+
+
+    @Test
+    void testAgendaEditingWithUnorderedActivities() {
         EventActivityDTO a1 = createActivityDTO("A1", LocalTime.of(13,0), LocalTime.of(14,0));
-        EventActivityDTO a2 = createActivityDTO("A2", LocalTime.of(14,15), LocalTime.of(15,0)); // Gap
+        EventActivityDTO a2 = createActivityDTO("A2", LocalTime.of(14,15), LocalTime.of(15,0)); // 15 minute gap
         EventActivitiesDTO dto = createAgendaDTO(eventId, a1, a2);
 
         assertThatThrownBy(() -> service.updateAgenda(dto))
@@ -118,7 +133,7 @@ public class AgendaEditingServiceTests {
 
 
     @Test
-    void whenActivitySaveFails_thenRollsBackTransaction() {
+    void testAgendaEditingWithCorruptedSave() {
         EventActivityDTO valid = createActivityDTO("Valid", LocalTime.of(13,0), LocalTime.of(14,0));
         EventActivitiesDTO dto = createAgendaDTO(eventId, valid);
 
@@ -133,7 +148,6 @@ public class AgendaEditingServiceTests {
         verify(eventRepository, never()).save(any());
     }
 
-    // Helper methods
     private EventActivityDTO createActivityDTO(String name, LocalTime start, LocalTime end) {
         EventActivityDTO dto = new EventActivityDTO();
         dto.setName(name);

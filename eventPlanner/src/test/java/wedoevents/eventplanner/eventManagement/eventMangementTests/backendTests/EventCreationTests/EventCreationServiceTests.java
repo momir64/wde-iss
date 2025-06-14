@@ -69,7 +69,6 @@ public class EventCreationServiceTests {
         request.setContextPath("/api");
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
-        // Setup valid DTO
         validCreateEventDTO = new CreateEventDTO();
         validCreateEventDTO.setName("Summer Festival");
         validCreateEventDTO.setDescription("Annual summer event");
@@ -85,7 +84,6 @@ public class EventCreationServiceTests {
         validCreateEventDTO.setAgenda(Arrays.asList(UUID.randomUUID()));
         validCreateEventDTO.setOrganizerProfileId(UUID.randomUUID());
 
-        // Setup mock entities
         mockEventType = new EventType();
         mockEventType.setId(validCreateEventDTO.getEventTypeId());
 
@@ -112,7 +110,7 @@ public class EventCreationServiceTests {
         ));
         savedEvent.setEventType(mockEventType);
         savedEvent.setEventActivities(new ArrayList<>(Arrays.asList(mockActivity)));
-        savedEvent.setImages(new ArrayList<>());  // Critical fix
+        savedEvent.setImages(new ArrayList<>());
         savedEvent.setProductBudgetItems(new ArrayList<>());
         savedEvent.setServiceBudgetItems(new ArrayList<>());
         savedEvent.setEventActivities(new ArrayList<>());
@@ -120,15 +118,12 @@ public class EventCreationServiceTests {
 
     @AfterEach
     public void tearDown() {
-        // Clean up request context
         RequestContextHolder.resetRequestAttributes();
         reset(eventRepository);
 
     }
-    // Happy Path Test
     @Test
-    public void createEvent_WithValidData_ReturnsDTO() {
-        // Arrange
+    public void testValidEventCreation() {
         when(eventTypeRepository.findById(validCreateEventDTO.getEventTypeId()))
                 .thenReturn(Optional.of(mockEventType));
         when(eventOrganizerRepository.findByProfileId(validCreateEventDTO.getOrganizerProfileId()))
@@ -138,10 +133,8 @@ public class EventCreationServiceTests {
         when(eventRepository.save(any(Event.class)))
                 .thenReturn(savedEvent);
 
-        // Act
         EventComplexViewDTO result = eventService.createEvent(validCreateEventDTO);
 
-        // Assert
         assertNotNull(result);
         assertEquals(savedEvent.getId(), result.getId());
         assertEquals(validCreateEventDTO.getName(), result.getName());
@@ -152,36 +145,30 @@ public class EventCreationServiceTests {
         assertTrue(mockOrganizer.getMyEvents().contains(savedEvent));
     }
 
-    // EntityNotFoundException Tests
     @Test
-    public void createEvent_WithInvalidEventTypeId_ThrowsEntityNotFoundException() {
-        // Arrange
+    public void testEventCreationWithUnknownEventTypeId() {
         when(eventTypeRepository.findById(any(UUID.class)))
                 .thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(EntityNotFoundException.class, () -> {
             eventService.createEvent(validCreateEventDTO);
         });
     }
 
     @Test
-    public void createEvent_WithInvalidOrganizerId_ThrowsEntityNotFoundException() {
-        // Arrange
+    public void testEventCreationWithUnknownOrganizerId() {
         when(eventTypeRepository.findById(validCreateEventDTO.getEventTypeId()))
                 .thenReturn(Optional.of(mockEventType));
         when(eventOrganizerRepository.findByProfileId(validCreateEventDTO.getOrganizerProfileId()))
                 .thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(EntityNotFoundException.class, () -> {
             eventService.createEvent(validCreateEventDTO);
         });
     }
 
     @Test
-    public void createEvent_WithPartiallyValidAgenda_OnlyAddsValidActivities() {
-        // Arrange
+    public void testEventCreationWIthPartiallyValidAgenda() {
         UUID validId = UUID.randomUUID();
         UUID invalidId = UUID.randomUUID();
         validCreateEventDTO.setAgenda(Arrays.asList(validId, invalidId));
@@ -204,14 +191,11 @@ public class EventCreationServiceTests {
                     return savedEvent;
                 });
 
-        // Act
         eventService.createEvent(validCreateEventDTO);
     }
 
-    // Organizer Update Verification
     @Test
-    public void createEvent_ShouldAddEventToOrganizerAndSave() {
-        // Arrange
+    public void testEventCreationOrganizerGetsNewEvent() {
         when(eventTypeRepository.findById(validCreateEventDTO.getEventTypeId()))
                 .thenReturn(Optional.of(mockEventType));
         when(eventOrganizerRepository.findByProfileId(validCreateEventDTO.getOrganizerProfileId()))
@@ -221,17 +205,14 @@ public class EventCreationServiceTests {
         when(eventRepository.save(any(Event.class)))
                 .thenReturn(savedEvent);
 
-        // Act
         eventService.createEvent(validCreateEventDTO);
 
-        // Assert
         verify(eventOrganizerRepository).save(mockOrganizer);
         assertTrue(mockOrganizer.getMyEvents().contains(savedEvent));
     }
 
     @Test
-    public void createEvent_WithImages_BuildsCorrectImageUrls() {
-        // Arrange
+    public void testEventCreationWithValidImages() {
         List<String> imageNames = Arrays.asList("img1.jpg", "img2.png");
         savedEvent.setImages(imageNames);
 
@@ -244,10 +225,8 @@ public class EventCreationServiceTests {
         when(eventRepository.save(any(Event.class)))
                 .thenReturn(savedEvent);
 
-        // Act
         EventComplexViewDTO result = eventService.createEvent(validCreateEventDTO);
 
-        // Assert
         assertNotNull(result.getImages());
         assertEquals(2, result.getImages().size());
         var imageBaseUrl = "http://localhost:8080/api/v1/events/" + savedEvent.getId();
@@ -255,8 +234,7 @@ public class EventCreationServiceTests {
         assertEquals(imageBaseUrl + "/images/img2.png", result.getImages().get(1));
     }
     @Test
-    public void createEvent_WhenOrganizerHasNoEventList_InitializesList() {
-        // Arrange
+    public void testEventCreationWithOrganizerWithNoEvents() {
         mockOrganizer.setMyEvents(new ArrayList<>());
 
         when(eventTypeRepository.findById(validCreateEventDTO.getEventTypeId()))
@@ -268,16 +246,13 @@ public class EventCreationServiceTests {
         when(eventRepository.save(any(Event.class)))
                 .thenReturn(savedEvent);
 
-        // Act
         eventService.createEvent(validCreateEventDTO);
 
-        // Assert
         assertNotNull(mockOrganizer.getMyEvents());
         assertTrue(mockOrganizer.getMyEvents().contains(savedEvent));
     }
     @Test
-    public void createEvent_CorrectlyMapsEventType() {
-        // Arrange
+    public void testEventCreationWIthValidEventType() {
         UUID eventTypeId = UUID.randomUUID();
         validCreateEventDTO.setEventTypeId(eventTypeId);
         mockEventType.setId(eventTypeId);
@@ -291,10 +266,8 @@ public class EventCreationServiceTests {
         when(eventRepository.save(any(Event.class)))
                 .thenReturn(savedEvent);
 
-        // Act
         EventComplexViewDTO result = eventService.createEvent(validCreateEventDTO);
 
-        // Assert
         assertEquals(eventTypeId, result.getEventTypeId());
     }
 }
