@@ -112,7 +112,6 @@ public class ProfileService {
         dto.setProfileId(profile.getId());
         dto.setEmail(profile.getEmail());
         dto.setAreNotificationsMuted(profile.isAreNotificationsMuted());
-        dto.setPassword(profile.getPassword()); // need hashing later on
 
         sellerRepository.findByProfile(profile).ifPresent(seller -> {
             dto.setName(seller.getName());
@@ -153,7 +152,7 @@ public class ProfileService {
         profile.setAreNotificationsMuted(updateDto.isAreNotificationsMuted());
 
         if (updateDto.getPassword() != null && !updateDto.getPassword().isEmpty()) {
-            String hashedPassword = updateDto.getPassword(); // add hashing later on
+            String hashedPassword = this.passwordEncoder.encode(updateDto.getPassword());
             profile.setPassword(hashedPassword);
         }
 
