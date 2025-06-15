@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.dtos.BuyProductDTO;
 import wedoevents.eventplanner.eventManagement.dtos.CreateProductBudgetItemDTO;
@@ -36,23 +37,8 @@ public class ProductBudgetItemController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> createProductBudgetItem(@RequestBody CreateProductBudgetItemDTO productBudgetItem) {
-        // todo clean up this comment after checking
-//  if (adding new budget item - event doesn't have item with that category) { --
-//      return new ResponseEntity<>(productBudgetItem, HttpStatus.CREATED);
-//  } else if (error - some id isn't null but doesn't exist) { --
-//      return new ResponseEntity<>(productBudgetItem, HttpStatus.NOT_FOUND);
-//  } else if (error - user doesn't have necessary permissions) { --
-//      return new ResponseEntity<>(productBudgetItem, HttpStatus.FORBIDDEN);
-//  } else if (changing budget item max price, category or product - item id isn't null and exists) {
-//      return new ResponseEntity<>(productBudgetItem, HttpStatus.OK);
-//  } else if (buying product - product id isn't null, event has item with that category and without product id) { --
-//      return new ResponseEntity<>(productBudgetItem, HttpStatus.OK);
-//  } else if (buying product - product id isn't null, event doesn't have item with that category) { --
-//      return new ResponseEntity<>(productBudgetItem, HttpStatus.CREATED);
-//  } else if (buying product error - product id isn't null, event has item with that category and with product id) { --
-//      return new ResponseEntity<>(productBudgetItem, HttpStatus.BAD_REQUEST);
-//  }
         try {
             return ResponseEntity.ok(productBudgetItemService.createProductBudgetItem(productBudgetItem));
         } catch (EntityNotFoundException e) {
@@ -63,6 +49,7 @@ public class ProductBudgetItemController {
     }
 
     @PostMapping("/buy")
+    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> buyProduct(@RequestBody BuyProductDTO buyProductDTO) {
         try {
             return ResponseEntity.ok(productBudgetItemService.buyProduct(buyProductDTO));
@@ -74,6 +61,7 @@ public class ProductBudgetItemController {
     }
 
     @DeleteMapping ("/{eventId}/{productCategoryId}")
+    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> deleteEventEmptyProductCategoryFromBudget(@PathVariable UUID eventId, @PathVariable UUID productCategoryId) {
         try {
             productBudgetItemService.deleteEventEmptyProductCategoryFromBudget(eventId, productCategoryId);
@@ -86,6 +74,7 @@ public class ProductBudgetItemController {
     }
 
     @PutMapping("/{productBudgetItemId}")
+    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> changeProductBudgetItemMaxPrice(@PathVariable UUID productBudgetItemId,
                                                              @RequestBody Double newPrice) {
         try {

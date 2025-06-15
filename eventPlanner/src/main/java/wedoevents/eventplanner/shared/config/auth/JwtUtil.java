@@ -63,4 +63,14 @@ public class JwtUtil {
                                    .getBody()
                                    .get("profileId", String.class));
     }
+
+    public static UUID extractUserId(HttpServletRequest request) {
+        String token = extractJwt(request);
+        if (token == null) throw new IllegalArgumentException();
+        return UUID.fromString(Jwts.parserBuilder()
+                .setSigningKey(key).build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("userId", String.class));
+    }
 }
