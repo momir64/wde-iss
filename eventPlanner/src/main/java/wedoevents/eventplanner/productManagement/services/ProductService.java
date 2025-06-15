@@ -70,8 +70,6 @@ public class ProductService {
     }
 
     public VersionedProductDTO createProduct(CreateVersionedProductDTO createVersionedProductDTO, MultipartFile[] images) throws IOException {
-        // todo check for fields that must be non-null
-
         Optional<Seller> sellerMaybe = sellerRepository.findById(createVersionedProductDTO.getSellerId());
 
         if (sellerMaybe.isEmpty()) {
@@ -146,13 +144,10 @@ public class ProductService {
 
         newVersionedProduct = versionedProductRepository.save(newVersionedProduct);
 
-        // todo: do backend checks on UUIDs of event types
         return VersionedProductDTO.toDto(newVersionedProduct, seller);
     }
 
     public VersionedProductDTO updateVersionedProduct(UpdateVersionedProductDTO updateVersionedProductDTO, MultipartFile[] images) throws IOException {
-        // todo check for fields that must be non-null
-
         Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository
                 .getLatestByStaticProductIdAndLatestVersion(updateVersionedProductDTO.getStaticProductId());
         
@@ -203,7 +198,6 @@ public class ProductService {
         UUID sellerId = staticProductRepository.getIdOfSeller(newVersionedProduct.getStaticProductId());
         Seller productSeller = sellerRepository.findById(sellerId).get();
 
-        // todo: do backend checks on UUIDs of event types
         return VersionedProductDTO.toDto(newVersionedProduct, productSeller);
     }
 
@@ -241,8 +235,6 @@ public class ProductService {
 
     public VersionedProductForSellerDTO getVersionedProductEditableById(UUID staticProductId) throws IOException {
         Optional<VersionedProduct> versionedProductMaybe = versionedProductRepository.getLatestByStaticProductIdAndLatestVersion(staticProductId);
-
-        // todo prevent getting deleted services
 
         if (versionedProductMaybe.isEmpty()) {
             throw new EntityNotFoundException();

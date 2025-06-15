@@ -1,16 +1,20 @@
 package wedoevents.eventplanner.serviceManagement.controllers;
 
+import com.github.dockerjava.api.exception.UnauthorizedException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.serviceManagement.dtos.*;
 import wedoevents.eventplanner.serviceManagement.services.ServiceService;
+import wedoevents.eventplanner.shared.config.auth.JwtUtil;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
 import wedoevents.eventplanner.shared.services.pdfService.PdfGeneratorService;
@@ -27,6 +31,7 @@ public class ServiceController {
 
     @Autowired
     private ImageService imageService;
+
     @Autowired
     private PdfGeneratorService pdfGeneratorService;
 
@@ -35,21 +40,18 @@ public class ServiceController {
         try {
             List<VersionedServiceDTO> services = serviceService.getAllServicesWithLatestVersions();
             return ResponseEntity.ok(services);
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized service access");
-//        }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
 
-    // todo when session tracking is enabled, add which seller created the service
-    // todo for now the seller id is fixed to "2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5"
     @PostMapping
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> createService(@RequestParam(value = "images") MultipartFile[] images,
-                                           @ModelAttribute CreateVersionedServiceDTO createVersionedServiceDTO) {
+                                           @ModelAttribute CreateVersionedServiceDTO createVersionedServiceDTO,
+                                           HttpServletRequest request) {
         try {
-            createVersionedServiceDTO.setSellerId(UUID.fromString("2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5"));
+            createVersionedServiceDTO.setSellerId(JwtUtil.extractUserId(request));
             VersionedServiceDTO newService = serviceService.createService(createVersionedServiceDTO, images);
             return ResponseEntity.status(HttpStatus.CREATED).body(newService);
         } catch (IllegalArgumentException e) {
@@ -60,6 +62,7 @@ public class ServiceController {
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> updateService(@RequestParam(value = "images") MultipartFile[] images,
                                            @ModelAttribute UpdateVersionedServiceDTO updateVersionedServiceEntityDTO) {
         try {
@@ -75,6 +78,7 @@ public class ServiceController {
     }
 
     @GetMapping("/{staticServiceId}/latest-version/edit")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> getServiceLatestVersionEditableById(@PathVariable UUID staticServiceId) {
         try {
             VersionedServiceForSellerDTO service = serviceService.getVersionedServiceEditableById(staticServiceId);
@@ -137,6 +141,7 @@ public class ServiceController {
     }
 
     @DeleteMapping("/{staticServiceId}")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> deleteService(@PathVariable UUID staticServiceId) {
         try {
             serviceService.deactivateService(staticServiceId);
@@ -153,32 +158,33 @@ public class ServiceController {
     }
 
     @GetMapping(path = "/{sellerId}/my-services/catalogue")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> getSellersServicesForCatalogue(@PathVariable UUID sellerId) {
         try {
             List<CatalogueServiceDTO> services = serviceService.getAllServicesLatestVersionsFromSellerForCatalogue(sellerId);
             return ResponseEntity.ok(services);
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
-//        }
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
 
     @PostMapping(path = "/{sellerId}/update-catalogue")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> updateSellerServicePrices(@PathVariable UUID sellerId, @RequestBody ToBeUpdatedServicesCatalogueDTO toBeUpdatedServicesCatalogueDTO) {
         try {
             serviceService.updateCataloguePrices(sellerId, toBeUpdatedServicesCatalogueDTO);
             return ResponseEntity.ok().build();
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
-//        }
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
 
     @GetMapping(path = "/{sellerId}/catalogue-pdf")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> get(@PathVariable UUID sellerId) {
         try {
             byte[] pdfContent = pdfGeneratorService.generateServicesCatalogue(
@@ -191,9 +197,8 @@ public class ServiceController {
             return ResponseEntity.ok()
                     .headers(headers)
                     .body(pdfContent);
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
-//        }
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
