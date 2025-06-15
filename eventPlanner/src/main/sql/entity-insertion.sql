@@ -1,53 +1,15 @@
--- TABLE INFO (">>" MEANS THE TABLE HAS TEST DATA)
---
--- User tables:
--- >>admin
--- >>guest
--- >>seller
--- >>event_organizer
--- seller_images
--- event_organizer_images
---
--- >>profile
--- >>profile_blocked_users
---
--- guest_favourite_events
--- >>event_organizer_favourite_products
--- >>event_organizer_favourite_services
---
--- >>chat_message
--- >>registration_attempt
--- >>user_report
---
--- Event tables:
--- >>event_type
--- >>eventtype_servicecategory
--- >>eventtype_productcategory
---
--- event
--- event_activity
---
--- product_budget_item
--- service_budget_item
---
--- Products tables:
--- >>product_category
--- >>static_product
--- >>versioned_product
--- >>versioned_product_eventtype
--- versioned_product_images
---
--- Services tables:
--- >>service_category
--- >>static_service
--- >>versioned_service
--- >>versioned_service_eventtype
--- versioned_service_images
---
--- Misc tables:
--- >>listing_review
--- event_review
--- notification
+CREATE OR REPLACE FUNCTION truncate_tables() RETURNS void AS $$
+DECLARE
+    statements CURSOR FOR
+        SELECT tablename FROM pg_tables
+        WHERE tableowner = 'admin' AND schemaname = 'public';
+BEGIN
+    FOR stmt IN statements LOOP
+            EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' CASCADE;';
+        END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+SELECT truncate_tables();
 
 -- ROLES
 INSERT INTO role (id,name)
