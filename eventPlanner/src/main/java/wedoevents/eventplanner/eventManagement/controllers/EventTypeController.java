@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.dtos.ExtendedEventTypeDTO;
 import wedoevents.eventplanner.eventManagement.dtos.RecommendedCategoriesDTO;
@@ -27,6 +28,7 @@ public class EventTypeController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ExtendedEventTypeDTO> createEventType(@RequestBody ExtendedEventTypeDTO eventTypeDTO) {
         EventType eventType = eventTypeService.mapToEntity(eventTypeDTO);
 
@@ -38,6 +40,7 @@ public class EventTypeController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ExtendedEventTypeDTO> updateEventType(
             @PathVariable UUID id,
             @RequestBody ExtendedEventTypeDTO updatedEventTypeDTO) {
@@ -64,6 +67,7 @@ public class EventTypeController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteEventType(@PathVariable UUID id) {
         eventTypeService.deleteEventType(id);
     }

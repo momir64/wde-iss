@@ -3,6 +3,7 @@ package wedoevents.eventplanner.userManagement.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.userManagement.dtos.UserReportDTO;
 import wedoevents.eventplanner.userManagement.dtos.UserReportResponseDTO;
@@ -47,6 +48,7 @@ public class UserReportController {
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> processUserReport(@RequestBody UserReportDTO reportDTO) {
         Optional<UserReport> reportOptional = userReportService.getUserReportById(reportDTO.getId());
         if(reportOptional.isEmpty()) {
@@ -59,6 +61,7 @@ public class UserReportController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getPendingUserReports() {
         List<UserReportResponseDTO> pendingReports = userReportService.getAllPendingReports();
         return ResponseEntity.ok(pendingReports);

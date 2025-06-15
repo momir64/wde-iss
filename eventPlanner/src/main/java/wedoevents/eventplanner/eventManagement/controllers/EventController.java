@@ -51,6 +51,7 @@ public class EventController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> createEvent(@RequestBody @Valid CreateEventDTO createEventDTO) {
         try {
             EventComplexViewDTO createdEvent = eventService.createEvent(createEventDTO);
@@ -62,6 +63,7 @@ public class EventController {
         }
     }
     @PutMapping
+    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> updateEvent(@RequestBody CreateEventDTO createEventDTO){
         try {
             eventService.updateEvent(createEventDTO);
@@ -150,10 +152,12 @@ public class EventController {
     }
 
     @PostMapping("/agenda")
+    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<List<UUID>> createAgenda(@Validated @RequestBody EventActivitiesDTO eventActivitiesDTO) {
         return ResponseEntity.ok().body(eventService.createAgenda(eventActivitiesDTO));
     }
     @PutMapping("/agenda")
+    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> updateAgenda(@Validated @RequestBody EventActivitiesDTO eventActivitiesDTO) {
         return eventService.updateAgenda(eventActivitiesDTO) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
@@ -226,6 +230,7 @@ public class EventController {
         }
     }
     @DeleteMapping("/{id}/{userId}")
+    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> deleteEvent(@PathVariable("id") UUID eventId, @PathVariable("userId") UUID userId) {
         if(eventService.deleteEvent(eventId,userId)) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Event deleted successfully");
