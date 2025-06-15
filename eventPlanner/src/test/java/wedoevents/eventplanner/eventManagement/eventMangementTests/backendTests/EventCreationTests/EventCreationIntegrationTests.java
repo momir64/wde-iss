@@ -3,10 +3,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -46,6 +43,7 @@ public class EventCreationIntegrationTests {
     private EventRepository eventRepository;
 
     private final String baseUrl = "/api/v1/events";
+    private final String jwt = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJqYW5lLnNtaXRoQGV4YW1wbGUuY29tIiwicHJvZmlsZUlkIjoiM2Q4MmU5YjgtM2Q5Yi00YzdkLWIyNDQtMWU2NzI1Yjc4NDU2Iiwicm9sZXMiOlsiT1JHQU5JWkVSIl0sInVzZXJJZCI6ImIzOGQ3MTZiLTRkMmEtNGZkMy1iMThjLWJmYTEyOGYyNGI5OSIsImlhdCI6MTc0OTk5NjM2OCwiZXhwIjoxNzgxNTMyMzY4fQ.Ip4mqHnzLatgaLRy58JKZH_l3fWfhDn5kPIu3k6lkpScUNiaF_fxzMRoCm8Rb8Jj5US4QfeiLSH79MLRHhlDXA";
     private final UUID eventOrganizerId = UUID.fromString("b38d716b-4d2a-4fd3-b18c-bfa128f24b99");
     private final UUID eventOrganizerProfileId = UUID.fromString("3d82e9b8-3d9b-4c7d-b244-1e6725b78456");
     private final UUID eventTypeId = UUID.fromString("a8b8d5b9-d1b2-47e1-b5a6-3efac3b6b832");
@@ -64,8 +62,26 @@ public class EventCreationIntegrationTests {
         // referential integrity is never broken because this same script is
         // used in the PostgreSQL database where referential integrity is turned on
         jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE");
+        restTemplate.getRestTemplate()
+                .getInterceptors()
+                .add((request, body, execution) -> {
+                    request.getHeaders().setBearerAuth(jwt);
+                    return execution.execute(request, body);
+                });
     }
+    private <T> ResponseEntity<T> postWithAuth(Object body, Class<T> responseType) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
+        HttpEntity<Object> entity = new HttpEntity<>(body, headers);
+
+        return restTemplate.exchange(
+                baseUrl,
+                HttpMethod.POST,
+                entity,
+                responseType
+        );
+    }
     @AfterEach
     public void truncateAllTables() {
         String query = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'PUBLIC'";
@@ -138,12 +154,9 @@ public class EventCreationIntegrationTests {
     @Sql({"classpath:entity-insertion.sql"})
     public void testValidEventCreation() {
         CreateEventDTO dto = createValidEventDTO();
-        HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        ResponseEntity<EventComplexViewDTO> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.POST,
-                request,
+        ResponseEntity<EventComplexViewDTO> response = postWithAuth(
+                dto,
                 EventComplexViewDTO.class
         );
 
@@ -166,12 +179,9 @@ public class EventCreationIntegrationTests {
     public void testEventCreationWithUnknownEventTypeId() {
         CreateEventDTO dto = createValidEventDTO();
         dto.setEventTypeId(UUID.randomUUID()); // Invalid ID
-        HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        ResponseEntity<String> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.POST,
-                request,
+        ResponseEntity<String> response = postWithAuth(
+                dto,
                 String.class
         );
 
@@ -183,12 +193,9 @@ public class EventCreationIntegrationTests {
     public void testEventCreationWithUnknownOrganizerId() {
         CreateEventDTO dto = createValidEventDTO();
         dto.setOrganizerProfileId(UUID.randomUUID()); // Invalid ID
-        HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        ResponseEntity<String> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.POST,
-                request,
+        ResponseEntity<String> response = postWithAuth(
+                dto,
                 String.class
         );
 
@@ -205,12 +212,9 @@ public class EventCreationIntegrationTests {
         List<UUID> mixedAgenda = new ArrayList<>(activityIds);
         mixedAgenda.add(invalidActivityId); // Add invalid activity
         dto.setAgenda(mixedAgenda);
-        HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        ResponseEntity<EventComplexViewDTO> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.POST,
-                request,
+        ResponseEntity<EventComplexViewDTO> response = postWithAuth(
+                dto,
                 EventComplexViewDTO.class
         );
 
@@ -230,15 +234,13 @@ public class EventCreationIntegrationTests {
 
 
     @Test
+    @Sql({"classpath:entity-insertion.sql"})
     public void testEventCreationWithPastDate() {
         CreateEventDTO dto = createValidEventDTO();
         dto.setDate(LocalDate.now().minusDays(1)); // Past date
-        HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        ResponseEntity<Map> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.POST,
-                request,
+        ResponseEntity<Map> response = postWithAuth(
+                dto,
                 Map.class
         );
 
@@ -246,15 +248,13 @@ public class EventCreationIntegrationTests {
     }
 
     @Test
+    @Sql({"classpath:entity-insertion.sql"})
     public void testEventCreationWithZeroGuestCount() {
         CreateEventDTO dto = createValidEventDTO();
         dto.setGuestCount(0); // Invalid count
-        HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        ResponseEntity<Map> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.POST,
-                request,
+        ResponseEntity<Map> response = postWithAuth(
+                dto,
                 Map.class
         );
 
@@ -262,15 +262,13 @@ public class EventCreationIntegrationTests {
     }
 
     @Test
+    @Sql({"classpath:entity-insertion.sql"})
     public void testEventCreationWithNegativeGuestCount() {
         CreateEventDTO dto = createValidEventDTO();
         dto.setGuestCount(-1); // Invalid count
-        HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        ResponseEntity<Map> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.POST,
-                request,
+        ResponseEntity<Map> response = postWithAuth(
+                dto,
                 Map.class
         );
 
@@ -281,12 +279,9 @@ public class EventCreationIntegrationTests {
     @Sql({"classpath:entity-insertion.sql"})
     public void testEventCreationWithMissingFields() {
         CreateEventDTO dto = new CreateEventDTO(); // Missing required fields
-        HttpEntity<CreateEventDTO> request = new HttpEntity<>(dto);
 
-        ResponseEntity<Map> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.POST,
-                request,
+        ResponseEntity<Map> response = postWithAuth(
+                dto,
                 Map.class
         );
 

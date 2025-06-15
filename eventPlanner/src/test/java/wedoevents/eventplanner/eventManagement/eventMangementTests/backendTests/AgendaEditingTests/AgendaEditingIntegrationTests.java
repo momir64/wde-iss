@@ -7,10 +7,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -40,6 +37,7 @@ public class AgendaEditingIntegrationTests {
 
     private final String baseUrl = "/api/v1/events/agenda";
     private UUID existingEventId = UUID.fromString("ea0d1c1b-67fa-4f7e-b00d-78129d742d01");
+    private final String jwt = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJqYW5lLnNtaXRoQGV4YW1wbGUuY29tIiwicHJvZmlsZUlkIjoiM2Q4MmU5YjgtM2Q5Yi00YzdkLWIyNDQtMWU2NzI1Yjc4NDU2Iiwicm9sZXMiOlsiT1JHQU5JWkVSIl0sInVzZXJJZCI6ImIzOGQ3MTZiLTRkMmEtNGZkMy1iMThjLWJmYTEyOGYyNGI5OSIsImlhdCI6MTc0OTk5NjM2OCwiZXhwIjoxNzgxNTMyMzY4fQ.Ip4mqHnzLatgaLRy58JKZH_l3fWfhDn5kPIu3k6lkpScUNiaF_fxzMRoCm8Rb8Jj5US4QfeiLSH79MLRHhlDXA";
 
     @BeforeAll
     public void setUpDatabase() {
@@ -50,8 +48,26 @@ public class AgendaEditingIntegrationTests {
         // referential integrity is never broken because this same script is
         // used in the PostgreSQL database where referential integrity is turned on
         jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE");
+        restTemplate.getRestTemplate()
+                .getInterceptors()
+                .add((request, body, execution) -> {
+                    request.getHeaders().setBearerAuth(jwt);
+                    return execution.execute(request, body);
+                });
     }
+    private <T> ResponseEntity<T> putWithAuth(Object body, Class<T> responseType) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
+        HttpEntity<Object> entity = new HttpEntity<>(body, headers);
+
+        return restTemplate.exchange(
+                baseUrl,
+                HttpMethod.PUT,
+                entity,
+                responseType
+        );
+    }
     @AfterEach
     public void truncateAllTables() {
         String query = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'PUBLIC'";
@@ -123,10 +139,8 @@ public class AgendaEditingIntegrationTests {
         request.setEventId(existingEventId);
         request.setEventActivities(List.of(updatedActivity1, updatedActivity2));
 
-        ResponseEntity<Void> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
+        ResponseEntity<Void> response = putWithAuth(
+                request,
                 Void.class
         );
 
@@ -187,10 +201,8 @@ public class AgendaEditingIntegrationTests {
         request.setEventActivities(List.of(updatedActivity1, updatedActivity2));
         request.setEventId(nonExistentId);
 
-        ResponseEntity<Void> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
+        ResponseEntity<Void> response = putWithAuth(
+                request,
                 Void.class
         );
 
@@ -211,10 +223,8 @@ public class AgendaEditingIntegrationTests {
         request.setEventId(existingEventId);
         request.setEventActivities(List.of(invalidActivity));
 
-        ResponseEntity<String> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
+        ResponseEntity<String> response = putWithAuth(
+                request,
                 String.class
         );
 
@@ -242,10 +252,8 @@ public class AgendaEditingIntegrationTests {
         request.setEventId(existingEventId);
         request.setEventActivities(List.of(invalidActivity));
 
-        ResponseEntity<String> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
+        ResponseEntity<String> response = putWithAuth(
+                request,
                 String.class
         );
 
@@ -279,10 +287,8 @@ public class AgendaEditingIntegrationTests {
         request.setEventId(existingEventId);
         request.setEventActivities(List.of(activity1, activity2));
 
-        ResponseEntity<String> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
+        ResponseEntity<String> response = putWithAuth(
+                request,
                 String.class
         );
 
@@ -323,10 +329,8 @@ public class AgendaEditingIntegrationTests {
         request.setEventId(existingEventId);
         request.setEventActivities(List.of(activity2, activity1));
 
-        ResponseEntity<Void> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
+        ResponseEntity<Void> response = putWithAuth(
+                request,
                 Void.class
         );
 
@@ -373,10 +377,8 @@ public class AgendaEditingIntegrationTests {
         request.setEventId(existingEventId);
         request.setEventActivities(List.of(activity));
 
-        ResponseEntity<Void> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
+        ResponseEntity<Void> response = putWithAuth(
+                request,
                 Void.class
         );
 
@@ -410,10 +412,8 @@ public class AgendaEditingIntegrationTests {
         request.setEventId(existingEventId);
         request.setEventActivities(List.of(newActivity));
 
-        ResponseEntity<Void> response = restTemplate.exchange(
-                baseUrl,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
+        ResponseEntity<Void> response = putWithAuth(
+                request,
                 Void.class
         );
 

@@ -7,11 +7,11 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import wedoevents.eventplanner.eventManagement.dtos.EventActivitiesDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventActivityDTO;
 import wedoevents.eventplanner.eventManagement.models.EventActivity;
@@ -35,7 +35,7 @@ public class AgendaCreationIntegrationTests {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     private final String baseUrl = "/api/v1/events/agenda";
-
+    private final String jwt = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJqYW5lLnNtaXRoQGV4YW1wbGUuY29tIiwicHJvZmlsZUlkIjoiM2Q4MmU5YjgtM2Q5Yi00YzdkLWIyNDQtMWU2NzI1Yjc4NDU2Iiwicm9sZXMiOlsiT1JHQU5JWkVSIl0sInVzZXJJZCI6ImIzOGQ3MTZiLTRkMmEtNGZkMy1iMThjLWJmYTEyOGYyNGI5OSIsImlhdCI6MTc0OTk5NjM2OCwiZXhwIjoxNzgxNTMyMzY4fQ.Ip4mqHnzLatgaLRy58JKZH_l3fWfhDn5kPIu3k6lkpScUNiaF_fxzMRoCm8Rb8Jj5US4QfeiLSH79MLRHhlDXA";
     @BeforeAll
     public void setUpDatabase() {
         // referential integrity is turned off, because H2 sees inserting of
@@ -45,8 +45,27 @@ public class AgendaCreationIntegrationTests {
         // referential integrity is never broken because this same script is
         // used in the PostgreSQL database where referential integrity is turned on
         jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE");
-    }
 
+        restTemplate.getRestTemplate()
+                .getInterceptors()
+                .add((request, body, execution) -> {
+                    request.getHeaders().setBearerAuth(jwt);
+                    return execution.execute(request, body);
+                });
+    }
+    private <T> ResponseEntity<T> postWithAuth(Object body, Class<T> responseType) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> entity = new HttpEntity<>(body, headers);
+
+        return restTemplate.exchange(
+                baseUrl,
+                HttpMethod.POST,
+                entity,
+                responseType
+        );
+    }
     @AfterEach
     public void truncateAllTables() {
         String query = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'PUBLIC'";
@@ -59,6 +78,7 @@ public class AgendaCreationIntegrationTests {
         }
     }
     @Test
+    @Sql({"classpath:entity-insertion.sql"})
     void testValidAgendaCreation() {
         EventActivityDTO activity1 = createActivityDTO("Session A", "Desc A", "Room 1",
                 LocalTime.of(10, 0), LocalTime.of(11, 0));
@@ -70,8 +90,7 @@ public class AgendaCreationIntegrationTests {
         request.setEventId(UUID.randomUUID());
         request.setEventActivities(List.of(activity1, activity2));
 
-        ResponseEntity<List> response = restTemplate.postForEntity(
-                baseUrl,
+        ResponseEntity<List> response = postWithAuth(
                 request,
                 List.class
         );
@@ -102,13 +121,13 @@ public class AgendaCreationIntegrationTests {
     }
 
     @Test
+    @Sql({"classpath:entity-insertion.sql"})
     void testAgendaCreationWithEmptyValues() {
         EventActivitiesDTO request = new EventActivitiesDTO();
         request.setEventId(UUID.randomUUID());
         request.setEventActivities(Collections.emptyList());
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                baseUrl,
+        ResponseEntity<String> response = postWithAuth(
                 request,
                 String.class
         );
@@ -117,6 +136,7 @@ public class AgendaCreationIntegrationTests {
     }
 
     @Test
+    @Sql({"classpath:entity-insertion.sql"})
     void testAgendaCreationWithSameStartAndEndTime() {
         // Start time equals end time
         EventActivityDTO invalidActivity = createActivityDTO("Invalid", "Desc", "Room X",
@@ -126,8 +146,7 @@ public class AgendaCreationIntegrationTests {
         request.setEventId(UUID.randomUUID());
         request.setEventActivities(List.of(invalidActivity));
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                baseUrl,
+        ResponseEntity<String> response = postWithAuth(
                 request,
                 String.class
         );
@@ -135,6 +154,7 @@ public class AgendaCreationIntegrationTests {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
     @Test
+    @Sql({"classpath:entity-insertion.sql"})
     void testAgendaCreationWithEndTimeBeforeStartTime() {
         // Start time is after end time
         EventActivityDTO invalidActivity = createActivityDTO("Invalid", "Desc", "Room X",
@@ -144,8 +164,7 @@ public class AgendaCreationIntegrationTests {
         request.setEventId(UUID.randomUUID());
         request.setEventActivities(List.of(invalidActivity));
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                baseUrl,
+        ResponseEntity<String> response = postWithAuth(
                 request,
                 String.class
         );
@@ -153,6 +172,7 @@ public class AgendaCreationIntegrationTests {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
     @Test
+    @Sql({"classpath:entity-insertion.sql"})
     void testAgendaCreationWithActivityGaps() {
         EventActivityDTO activity1 = createActivityDTO("Morning", "Desc", "Room A",
                 LocalTime.of(9, 0), LocalTime.of(10, 0));
@@ -164,8 +184,7 @@ public class AgendaCreationIntegrationTests {
         request.setEventId(UUID.randomUUID());
         request.setEventActivities(List.of(activity1, activity2));
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                baseUrl,
+        ResponseEntity<String> response = postWithAuth(
                 request,
                 String.class
         );
@@ -174,6 +193,8 @@ public class AgendaCreationIntegrationTests {
     }
 
     @Test
+    @Sql({"classpath:entity-insertion.sql"})
+
     void testAgendaCreationWithOverlappingActivities() {
         EventActivityDTO activity1 = createActivityDTO("Session 1", "Desc", "Room 1",
                 LocalTime.of(9, 0), LocalTime.of(10, 30));
@@ -185,8 +206,7 @@ public class AgendaCreationIntegrationTests {
         request.setEventId(UUID.randomUUID());
         request.setEventActivities(List.of(activity1, activity2));
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                baseUrl,
+        ResponseEntity<String> response = postWithAuth(
                 request,
                 String.class
         );
@@ -195,6 +215,7 @@ public class AgendaCreationIntegrationTests {
     }
 
     @Test
+    @Sql({"classpath:entity-insertion.sql"})
     void testAgendaCreationWithMissingValues() {
         EventActivityDTO invalidActivity = new EventActivityDTO();
         invalidActivity.setStartTime(LocalTime.of(9, 0));
@@ -205,8 +226,7 @@ public class AgendaCreationIntegrationTests {
         request.setEventId(UUID.randomUUID());
         request.setEventActivities(List.of(invalidActivity));
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                baseUrl,
+        ResponseEntity<String> response = postWithAuth(
                 request,
                 String.class
         );
@@ -215,6 +235,7 @@ public class AgendaCreationIntegrationTests {
     }
 
     @Test
+    @Sql({"classpath:entity-insertion.sql"})
     void testAgendaCreationWithActivitiesSpanningTwoDays() {
         EventActivityDTO activity = createActivityDTO("Night", "Desc", "Hall",
                 LocalTime.of(23, 0), LocalTime.of(1, 0));  // Spans two days
@@ -223,9 +244,14 @@ public class AgendaCreationIntegrationTests {
         request.setEventId(UUID.randomUUID());
         request.setEventActivities(List.of(activity));
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                baseUrl,
-                request,
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwt);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<EventActivitiesDTO> entity = new HttpEntity<>(request, headers);
+
+        ResponseEntity<String> response = postWithAuth(
+                entity,
                 String.class
         );
 
@@ -233,6 +259,7 @@ public class AgendaCreationIntegrationTests {
     }
 
     @Test
+    @Sql({"classpath:entity-insertion.sql"})
     void testAgendaCreationWIthSingleActivity() {
         EventActivityDTO activity = createActivityDTO("Single", "Desc", "Room",
                 LocalTime.of(9, 0), LocalTime.of(10, 0));
@@ -241,8 +268,7 @@ public class AgendaCreationIntegrationTests {
         request.setEventId(UUID.randomUUID());
         request.setEventActivities(List.of(activity));
 
-        ResponseEntity<List> response = restTemplate.postForEntity(
-                baseUrl,
+        ResponseEntity<List> response = postWithAuth(
                 request,
                 List.class
         );
