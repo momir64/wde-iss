@@ -2,6 +2,7 @@ package wedoevents.eventplanner.eventManagement.controllers;
 
 import com.google.api.Http;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
@@ -10,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.eventManagement.dtos.*;
@@ -30,6 +32,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @RestController
+@Validated
 @RequestMapping("/api/v1/events")
 public class EventController {
     private final EventService eventService;
@@ -48,7 +51,7 @@ public class EventController {
 
 
     @PostMapping
-    public ResponseEntity<?> createEvent(@RequestBody CreateEventDTO createEventDTO) {
+    public ResponseEntity<?> createEvent(@RequestBody @Valid CreateEventDTO createEventDTO) {
         try {
             EventComplexViewDTO createdEvent = eventService.createEvent(createEventDTO);
             return ResponseEntity.ok(createdEvent);
@@ -147,11 +150,11 @@ public class EventController {
     }
 
     @PostMapping("/agenda")
-    public ResponseEntity<List<UUID>> createAgenda(@RequestBody EventActivitiesDTO eventActivitiesDTO) {
+    public ResponseEntity<List<UUID>> createAgenda(@Validated @RequestBody EventActivitiesDTO eventActivitiesDTO) {
         return ResponseEntity.ok().body(eventService.createAgenda(eventActivitiesDTO));
     }
     @PutMapping("/agenda")
-    public ResponseEntity<?> updateAgenda(@RequestBody EventActivitiesDTO eventActivitiesDTO) {
+    public ResponseEntity<?> updateAgenda(@Validated @RequestBody EventActivitiesDTO eventActivitiesDTO) {
         return eventService.updateAgenda(eventActivitiesDTO) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
     @GetMapping("/agenda/{eventId}")

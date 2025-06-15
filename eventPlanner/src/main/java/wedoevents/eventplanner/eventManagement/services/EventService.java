@@ -3,11 +3,13 @@ package wedoevents.eventplanner.eventManagement.services;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import wedoevents.eventplanner.eventManagement.dtos.*;
 import wedoevents.eventplanner.eventManagement.models.*;
@@ -134,7 +136,7 @@ public class EventService {
         return events;
     }
 
-    public EventComplexViewDTO createEvent(CreateEventDTO createEventDTO) throws Exception {
+    public EventComplexViewDTO createEvent(CreateEventDTO createEventDTO){
         Optional<EventType> eventTypeMaybe = eventTypeRepository.findById(createEventDTO.getEventTypeId());
 
         if (eventTypeMaybe.isEmpty()) {
@@ -153,7 +155,7 @@ public class EventService {
         newEvent.setEventActivities(new ArrayList<>());
         for(UUID id: createEventDTO.getAgenda()){
             Optional<EventActivity> activity = eventActivityRepository.findById(id);
-            activity.ifPresent(eventActivity -> newEvent.getEventActivities().add(eventActivity));
+            activity.ifPresent(eventActivity -> newEvent. getEventActivities().add(eventActivity));
         }
         newEvent.setImages(new ArrayList<>());
         newEvent.setProductBudgetItems(new ArrayList<>());
@@ -246,21 +248,23 @@ public class EventService {
     }
 
     public List<UUID> createAgenda(EventActivitiesDTO agenda){
-        List<UUID> createdActivityIds = new ArrayList<>();
+        List<EventActivityDTO> activities = new ArrayList<>(agenda.getEventActivities());
 
-        for (EventActivityDTO activityDTO : agenda.getEventActivities()) {
-            EventActivity eventActivity = new EventActivity();
+        validateActivityTimes(activities);
+        validateSequentialActivities(activities);
 
-            eventActivity.setName(activityDTO.getName());
-            eventActivity.setDescription(activityDTO.getDescription());
-            eventActivity.setLocation(activityDTO.getLocation());
-            eventActivity.setStartTime(activityDTO.getStartTime());
-            eventActivity.setEndTime(activityDTO.getEndTime());
-            eventActivity = eventActivityRepository.save(eventActivity);
-            createdActivityIds.add(eventActivity.getId());
+        List<UUID> createdIds = new ArrayList<>();
+        for (EventActivityDTO dto : activities) {
+            EventActivity entity = new EventActivity();
+            entity.setName(dto.getName());
+            entity.setDescription(dto.getDescription());
+            entity.setLocation(dto.getLocation());
+            entity.setStartTime(dto.getStartTime());
+            entity.setEndTime(dto.getEndTime());
+            entity = eventActivityRepository.save(entity);
+            createdIds.add(entity.getId());
         }
-
-        return createdActivityIds;
+        return createdIds;
     }
     @Transactional
     public boolean updateAgenda(EventActivitiesDTO agenda){
@@ -268,6 +272,11 @@ public class EventService {
         if (eventOptional.isEmpty()) {
             return false;
         }
+
+        List<EventActivityDTO> activities = new ArrayList<>(agenda.getEventActivities());
+        validateActivityTimes(activities);
+        validateSequentialActivities(activities);
+
         Event event = eventOptional.get();
         //clear previous agenda
         event.getEventActivities().clear();
@@ -294,6 +303,36 @@ public class EventService {
 
         return true;
     }
+    private void validateActivityTimes(List<EventActivityDTO> activities) {
+        for (EventActivityDTO a : activities) {
+            if (!a.getStartTime().isBefore(a.getEndTime())) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        String.format("Activity '%s' has start time %s which is not before end time %s",
+                                a.getName(), a.getStartTime(), a.getEndTime())
+                );
+            }
+        }
+    }
+
+    private void validateSequentialActivities(List<EventActivityDTO> activities) {
+        activities.sort(Comparator.comparing(EventActivityDTO::getStartTime));
+        for (int i = 1; i < activities.size(); i++) {
+            LocalTime prevEnd = activities.get(i - 1).getEndTime();
+            LocalTime thisStart = activities.get(i).getStartTime();
+            if (!thisStart.equals(prevEnd)) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        String.format("Activity '%s' must start at %s to follow '%s' ending at %s",
+                                activities.get(i).getName(),
+                                thisStart,
+                                activities.get(i - 1).getName(),
+                                prevEnd)
+                );
+            }
+        }
+    }
+
     private LocalTime findEarliestStartTime(List<EventActivity> eventActivities) {
         if (eventActivities == null || eventActivities.isEmpty()) {
             return null;
