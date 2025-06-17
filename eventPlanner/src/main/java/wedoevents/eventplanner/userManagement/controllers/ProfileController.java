@@ -251,4 +251,26 @@ public class ProfileController {
 
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping(value = "/{id}/images", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<?> getProfileImageV2(@PathVariable("id") UUID id) {
+        try {
+            Profile profile = profileService.findProfileById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Profile not found"));
+            ImageLocationConfiguration config = new ImageLocationConfiguration("profile", id);
+            Optional<byte[]> image = imageService.getImage(profile.getImageName(), config);
+            if (image.isEmpty())
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image not found");
+            return ResponseEntity.ok().body(image.get());
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image not found");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
+        }
+    }
+
 }

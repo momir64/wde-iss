@@ -73,7 +73,7 @@ public class EventController {
         }
     }
     @PutMapping("/images")
-    public ResponseEntity<?> putProfileImage(@RequestParam("images") List<MultipartFile> images,
+    public ResponseEntity<?> putProfileImage(@RequestParam(value = "images", required = false) List<MultipartFile> images,
                                              @RequestParam("eventId") UUID eventId){
         try {
             return ResponseEntity.ok(eventService.putEventImages(images, eventId));
