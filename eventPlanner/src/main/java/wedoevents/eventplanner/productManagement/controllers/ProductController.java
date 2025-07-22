@@ -1,16 +1,20 @@
 package wedoevents.eventplanner.productManagement.controllers;
 
+import com.github.dockerjava.api.exception.UnauthorizedException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.productManagement.dtos.*;
 import wedoevents.eventplanner.productManagement.services.ProductService;
+import wedoevents.eventplanner.shared.config.auth.JwtUtil;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
 import wedoevents.eventplanner.shared.services.pdfService.PdfGeneratorService;
@@ -27,6 +31,7 @@ public class ProductController {
 
     @Autowired
     private ImageService imageService;
+
     @Autowired
     private PdfGeneratorService pdfGeneratorService;
 
@@ -35,21 +40,18 @@ public class ProductController {
         try{
             List<VersionedProductDTO> products = productService.getAllProductsWithLatestVersions();
             return ResponseEntity.ok(products);
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized product access");
-//        }
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
 
-    // todo when session tracking is enabled, add which seller created the product
-    // todo for now the seller id is fixed to "2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5"
     @PostMapping
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> createProduct(@RequestParam(value = "images") MultipartFile[] images,
-                                           @ModelAttribute CreateVersionedProductDTO createVersionedProductDTO) {
+                                           @ModelAttribute CreateVersionedProductDTO createVersionedProductDTO,
+                                           HttpServletRequest request) {
         try {
-            createVersionedProductDTO.setSellerId(UUID.fromString("2b0cba7e-f6b9-4b28-9b92-48d5abfae6e5"));
+            createVersionedProductDTO.setSellerId(JwtUtil.extractUserId(request));
             VersionedProductDTO newProduct = productService.createProduct(createVersionedProductDTO, images);
             return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
         } catch (IllegalArgumentException e) {
@@ -60,6 +62,7 @@ public class ProductController {
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> updateProduct(@RequestParam(value = "images") MultipartFile[] images,
                                            @ModelAttribute UpdateVersionedProductDTO updateVersionedProductDTO) {
         try {
@@ -75,6 +78,7 @@ public class ProductController {
     }
 
     @GetMapping("/{staticProductId}/latest-version/edit")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> getProductLatestVersionEditableById(@PathVariable UUID staticProductId) {
         try {
             VersionedProductForSellerDTO product = productService.getVersionedProductEditableById(staticProductId);
@@ -137,6 +141,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{staticProductId}")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> deleteProduct(@PathVariable UUID staticProductId)
     {
         try {
@@ -154,32 +159,34 @@ public class ProductController {
     }
 
     @GetMapping(path = "/{sellerId}/my-products/catalogue")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> getSellersProductsForCatalogue(@PathVariable UUID sellerId) {
         try {
             List<CatalogueProductDTO> services = productService.getAllProductsLatestVersionsFromSellerForCatalogue(sellerId);
             return ResponseEntity.ok(services);
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
-//        }
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
 
     @PostMapping(path = "/{sellerId}/update-catalogue")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> updateSellerProductPrices(@PathVariable UUID sellerId, @RequestBody ToBeUpdatedProductsCatalogueDTO toBeUpdatedProductsCatalogueDTO) {
 
         try {
             productService.updateCataloguePrices(sellerId, toBeUpdatedProductsCatalogueDTO);
             return ResponseEntity.ok().build();
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
-//        }
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }
     }
+
     @GetMapping(path = "/{sellerId}/catalogue-pdf")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> get(@PathVariable UUID sellerId) {
         try {
             byte[] pdfContent = pdfGeneratorService.generateProductsCatalogue(
@@ -192,9 +199,8 @@ public class ProductController {
             return ResponseEntity.ok()
                     .headers(headers)
                     .body(pdfContent);
-//        } catch (UnauthorizedException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
-//        }
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized services access");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Exception");
         }

@@ -1,10 +1,12 @@
 package wedoevents.eventplanner.eventManagement.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.dtos.BuyServiceDTO;
 import wedoevents.eventplanner.eventManagement.dtos.CreateServiceBudgetItemDTO;
@@ -16,6 +18,7 @@ import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 import wedoevents.eventplanner.serviceManagement.services.ServiceService;
 import wedoevents.eventplanner.shared.Exceptions.BuyServiceException;
 import wedoevents.eventplanner.shared.Exceptions.EntityCannotBeDeletedException;
+import wedoevents.eventplanner.shared.config.auth.JwtUtil;
 import wedoevents.eventplanner.shared.services.emailService.IEmailService;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
 import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
@@ -50,6 +53,7 @@ public class ServiceBudgetItemController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> getProductBudgetItem(@PathVariable UUID id) {
         try {
             return ResponseEntity.ok(serviceBudgetItemService.getServiceBudgetItem(id));
@@ -59,9 +63,10 @@ public class ServiceBudgetItemController {
     }
 
     @GetMapping("/{serviceId}/slots")
-    public ResponseEntity<?> getSlots(@PathVariable("serviceId") UUID serviceId) {
+    @PreAuthorize("hasRole('ORGANIZER')")
+    public ResponseEntity<?> getSlots(@PathVariable("serviceId") UUID serviceId, HttpServletRequest request) {
         try {
-            UUID organizerId = UUID.fromString("1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236"); // todo: for now fixed organizer
+            UUID organizerId = JwtUtil.extractUserId(request);
             return ResponseEntity.ok(serviceBudgetItemService.getSlots(serviceId, organizerId));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -69,23 +74,8 @@ public class ServiceBudgetItemController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> createServiceBudgetItem(@RequestBody CreateServiceBudgetItemDTO serviceBudgetItem) {
-        // todo clean up this comment after checking
-//  if (adding new budget item - event doesn't have item with that category) {
-//        return new ResponseEntity<>(serviceBudgetItem, HttpStatus.CREATED);
-//  } else if (error - some id isn't null but doesn't exist) {
-//      return new ResponseEntity<>(serviceBudgetItem, HttpStatus.NOT_FOUND);
-//  } else if (error - user doesn't have necessary permissions) {
-//      return new ResponseEntity<>(serviceBudgetItem, HttpStatus.FORBIDDEN);
-//  } else if (changing budget item max price, category or service - item id isn't null and exists) {
-//      return new ResponseEntity<>(serviceBudgetItem, HttpStatus.OK);
-//  } else if (buying service - service id isn't null, event has item with that category and without service id) {
-//      return new ResponseEntity<>(serviceBudgetItem, HttpStatus.OK);
-//  } else if (buying service - service id isn't null, event doesn't have item with that category) {
-//      return new ResponseEntity<>(serviceBudgetItem, HttpStatus.CREATED);
-//  } else if (buying service error - service id isn't null, event has item with that category and with service id) {
-//      return new ResponseEntity<>(serviceBudgetItem, HttpStatus.BAD_REQUEST);
-//  }
         try {
             return ResponseEntity.ok(serviceBudgetItemService.createServiceBudgetItem(serviceBudgetItem));
         } catch (EntityNotFoundException e) {
@@ -96,6 +86,7 @@ public class ServiceBudgetItemController {
     }
 
     @PostMapping("/buy")
+    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> buyService(@RequestBody BuyServiceDTO buyServiceDTO) {
         try {
             ServiceBudgetItemDTO budgetItem = serviceBudgetItemService.buyService(buyServiceDTO);
@@ -120,12 +111,25 @@ public class ServiceBudgetItemController {
     }
 
     @DeleteMapping ("/{eventId}/{serviceCategoryId}")
+    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> deleteEventEmptyServiceCategoryFromBudget(@PathVariable UUID eventId, @PathVariable UUID serviceCategoryId) {
         try {
             serviceBudgetItemService.deleteEventEmptyServiceCategoryFromBudget(eventId, serviceCategoryId);
             return ResponseEntity.noContent().build();
         } catch (EntityCannotBeDeletedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Service category has reserved services");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/{serviceBudgetItemId}")
+    @PreAuthorize("hasRole('ORGANIZER')")
+    public ResponseEntity<?> changeServiceBudgetItemMaxPrice(@PathVariable UUID serviceBudgetItemId,
+                                                             @RequestBody Double newPrice) {
+        try {
+            serviceBudgetItemService.changeServiceBudgetItemMaxPrice(serviceBudgetItemId, newPrice);
+            return ResponseEntity.noContent().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

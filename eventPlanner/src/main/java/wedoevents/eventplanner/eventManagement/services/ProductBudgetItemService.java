@@ -155,4 +155,17 @@ public class ProductBudgetItemService {
 
         productBudgetItemRepository.removeEventEmptyProductCategory(eventId, productCategoryId);
     }
+
+    public void changeProductBudgetItemMaxPrice(UUID productBudgetItemId, Double newPrice) {
+        Optional<ProductBudgetItem> productBudgetItemMaybe = productBudgetItemRepository.findById(productBudgetItemId);
+
+        if (productBudgetItemMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        } else {
+            ProductBudgetItem pbi = productBudgetItemMaybe.get();
+
+            pbi.setMaxPrice(newPrice);
+            productBudgetItemRepository.save(pbi);
+        }
+    }
 }

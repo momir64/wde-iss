@@ -2,9 +2,11 @@ package wedoevents.eventplanner.eventManagement.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import wedoevents.eventplanner.eventManagement.models.Event;
+import wedoevents.eventplanner.eventManagement.models.EventActivity;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class EventComplexViewDTO {
     private UUID id;
     private String name;
@@ -51,7 +54,7 @@ public class EventComplexViewDTO {
         serviceBudgetItems = event.getServiceBudgetItems().stream().map(ServiceBudgetItemDTO::toDto).toList();
         longitude = event.getLocation().getLongitude();
         latitude = event.getLocation().getLatitude();
-        eventActivityIds = new ArrayList<>();  // todo agenda > event.getEventActivities().stream().map(EventActivity::getId).toList()
+        eventActivityIds = event.getEventActivities().stream().map(EventActivity::getId).toList();
         rating = 0.0;
     }
     public EventComplexViewDTO(Event event, Double rating){
@@ -71,7 +74,7 @@ public class EventComplexViewDTO {
         serviceBudgetItems = event.getServiceBudgetItems().stream().map(ServiceBudgetItemDTO::toDto).toList();
         longitude = event.getLocation().getLongitude();
         latitude = event.getLocation().getLatitude();
-        eventActivityIds = new ArrayList<>();  // todo agenda > event.getEventActivities().stream().map(EventActivity::getId).toList()
+        eventActivityIds = event.getEventActivities().stream().map(EventActivity::getId).toList();
         this.rating = rating;
     }
 }

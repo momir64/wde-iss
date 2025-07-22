@@ -1,53 +1,15 @@
--- TABLE INFO (">>" MEANS THE TABLE HAS TEST DATA)
---
--- User tables:
--- >>admin
--- >>guest
--- >>seller
--- >>event_organizer
--- seller_images
--- event_organizer_images
---
--- >>profile
--- >>profile_blocked_users
---
--- guest_favourite_events
--- >>event_organizer_favourite_products
--- >>event_organizer_favourite_services
---
--- >>chat_message
--- >>registration_attempt
--- >>user_report
---
--- Event tables:
--- >>event_type
--- >>eventtype_servicecategory
--- >>eventtype_productcategory
---
--- event
--- event_activity
---
--- product_budget_item
--- service_budget_item
---
--- Products tables:
--- >>product_category
--- >>static_product
--- >>versioned_product
--- >>versioned_product_eventtype
--- versioned_product_images
---
--- Services tables:
--- >>service_category
--- >>static_service
--- >>versioned_service
--- >>versioned_service_eventtype
--- versioned_service_images
---
--- Misc tables:
--- >>listing_review
--- event_review
--- notification
+CREATE OR REPLACE FUNCTION truncate_tables() RETURNS void AS $$
+DECLARE
+    statements CURSOR FOR
+        SELECT tablename FROM pg_tables
+        WHERE tableowner = 'admin' AND schemaname = 'public';
+BEGIN
+    FOR stmt IN statements LOOP
+            EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' CASCADE;';
+        END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+SELECT truncate_tables();
 
 -- ROLES
 INSERT INTO role (id,name)
@@ -94,36 +56,36 @@ VALUES
 INSERT INTO profile (id, are_notifications_muted, email, is_active, is_verified, password, role_id, image_name)
 VALUES
     -- PROFILES OF ADMINS
-    ('7a92c4d7-8742-4a25-aee8-750ca987b42e', true, 'john.doe@example.com', true, true, '123','7ed06959-1018-406f-b3c1-2e91c08daa07', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('b2d2e1f0-06ae-4b0f-9cd0-7b5b31b1e9fe', false, 'alice.lee@example.com', true, true, '123','7ed06959-1018-406f-b3c1-2e91c08daa07', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('f591021a-5b30-491f-a87f-02d4bec6d508', false, 'a', true, true, '123','7ed06959-1018-406f-b3c1-2e91c08daa07', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('7a92c4d7-8742-4a25-aee8-750ca987b42e', true, 'john.doe@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','7ed06959-1018-406f-b3c1-2e91c08daa07', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('b2d2e1f0-06ae-4b0f-9cd0-7b5b31b1e9fe', false, 'alice.lee@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','7ed06959-1018-406f-b3c1-2e91c08daa07', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('f591021a-5b30-491f-a87f-02d4bec6d508', false, 'a', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','7ed06959-1018-406f-b3c1-2e91c08daa07', '1b385172-3928-4691-9759-d51d2a02b0bf'),
 
     -- PROFILES OF EVENT ORGANIZERS
-    ('3d82e9b8-3d9b-4c7d-b244-1e6725b78456', false, 'jane.smith@example.com', true, true, '123','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('91c1e927-9f79-44f4-b12f-bcbf16b16c6f', true, 'mark.jones@example.com', true, true, '123','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', false, 'susan.brown@example.com', true, true, '123','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('3d82e9b8-3d9b-4c7d-b244-1e6725b78456', false, 'jane.smith@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('91c1e927-9f79-44f4-b12f-bcbf16b16c6f', true, 'mark.jones@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', false, 'susan.brown@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('0cd13f4e-f7de-4533-9071-c42b7b3b4d45', true, 'tom.williams@example.com', true, true, '1233','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('97910c30-9cc7-4944-89cc-9397c98e0f78', true, 'o', true, true, '123','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('97910c30-9cc7-4944-89cc-9397c98e0f78', true, 'o', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
 
     -- PROFILES OF SELLERS
-    ('e852c4ff-3d2b-47ea-b1fd-e711cf18b1d7', false, 'emily.davis@example.com', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('fddde66f-9b84-4bb8-b408-eae5b815ae69', true, 'robert.martin@example.com', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('db48e7ac-1d35-4d9d-8e09-bf2e86533b91', false, 'lily.martinez@example.com', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('8bc76c7b-fc9d-469b-a7b1-2d2291d9a9b6', true, 'samuel.jackson@example.com', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('de186d6f-9799-4ab0-a726-5563f51d9889', true, 's', true, true, '123','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('e852c4ff-3d2b-47ea-b1fd-e711cf18b1d7', false, 'emily.davis@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('fddde66f-9b84-4bb8-b408-eae5b815ae69', true, 'robert.martin@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('db48e7ac-1d35-4d9d-8e09-bf2e86533b91', false, 'lily.martinez@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('8bc76c7b-fc9d-469b-a7b1-2d2291d9a9b6', true, 'samuel.jackson@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('de186d6f-9799-4ab0-a726-5563f51d9889', true, 's', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','4e3484cf-382f-448d-a1db-1c1063ab41ee', '1b385172-3928-4691-9759-d51d2a02b0bf'),
 
     -- PROFILES OF GUESTS
-    ('9a4531e5-2fda-42bc-8355-d7991bfc8ff4', true, 'john.smith@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('0d1f5f7a-6fcf-42d9-82fe-0090a35ea88c', false, 'grace.perez@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('679eb520-7b8d-4c3a-b99f-720e6cfb759b', true, 'oliver.harris@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('4d7248cb-d5f2-4e9b-9eb2-b8ad1de05bcf', false, 'mia.rodriguez@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('27e8a1b2-4d23-4b6f-b5a5-79a76d6b758e', true, 'jason.wilson@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('542c3a1b-ffea-421d-b967-7d45968c6506', false, 'sophia.morris@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('05fdc5be-d59b-468e-8466-d951a4a8d457', true, 'daniel.clark@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('03b88b74-0797-4f35-b15f-ff2a3c3e5c88', false, 'isabella.wright@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('70c7425e-c5f0-44f0-9e9d-44e4087fce62', true, 'ethan.king@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('5a72482a-cd36-46e4-8c09-7b2ff1e22071', false, 'madison.green@example.com', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('3cfb1016-0d0e-42f8-924c-324ba2249ded', false, 'g', true, true, '123','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf');
+    ('9a4531e5-2fda-42bc-8355-d7991bfc8ff4', true, 'john.smith@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('0d1f5f7a-6fcf-42d9-82fe-0090a35ea88c', false, 'grace.perez@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('679eb520-7b8d-4c3a-b99f-720e6cfb759b', true, 'oliver.harris@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('4d7248cb-d5f2-4e9b-9eb2-b8ad1de05bcf', false, 'mia.rodriguez@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('27e8a1b2-4d23-4b6f-b5a5-79a76d6b758e', true, 'jason.wilson@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('542c3a1b-ffea-421d-b967-7d45968c6506', false, 'sophia.morris@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('05fdc5be-d59b-468e-8466-d951a4a8d457', true, 'daniel.clark@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('03b88b74-0797-4f35-b15f-ff2a3c3e5c88', false, 'isabella.wright@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('70c7425e-c5f0-44f0-9e9d-44e4087fce62', true, 'ethan.king@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('5a72482a-cd36-46e4-8c09-7b2ff1e22071', false, 'madison.green@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('3cfb1016-0d0e-42f8-924c-324ba2249ded', false, 'g', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf');
 
 INSERT INTO profile_blocked_users (profile_id, blocked_user_id)
 VALUES
@@ -840,6 +802,37 @@ VALUES
     ('f6a6fb8b-680b-4a7c-ade2-7185c3b3c280', 'Art in the Park', 'An open-air exhibition of local art.', 'Trg Mladenaca 5', 'Novi Sad', '2025-06-30', '12:00', 200, true, 45.2671, 19.8335, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
     ('bcc16eba-53df-42e9-b3cd-5d41bf581d94', 'Book Fair 2025', 'An annual book fair with author signings.', 'Skadarlija 27', 'Beograd', '2025-10-10', '10:00', 400, true, 44.8176, 20.4569, 'b740de8f-7a23-4fbb-a6ae-5b0e7777cd18', '1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236'),
     ('379c96eb-7391-48b4-adc3-f07095576d3b', 'Tech Career Fair', 'Connecting job seekers with tech companies.', 'Kopitareva 5', 'Niš', '2025-11-05', '09:00', 250, true, 43.3209, 21.8958, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93', 'b38d716b-4d2a-4fd3-b18c-bfa128f24b99');
+
+
+INSERT INTO event_activity (id, name, description, start_time, end_time, location, event_id)
+VALUES
+    ('c68e6b75-31a3-4f9c-a2ec-5f15246ad2a1', 'Ceremony', 'Wedding ceremony in the garden', '15:00', '16:00', 'Garden Venue', NULL),
+    ('ae2c6d3f-8ff7-41ec-b1be-1fa0931c3902', 'Reception', 'Dinner and dancing with guests', '16:30', '20:00', 'Banquet Hall', NULL),
+
+    ('bfa9d7fc-11c6-4e83-8615-6a4e39d10c44', 'Opening DJ Set', 'Opening techno beats by local DJs', '22:00', '23:30', 'Main Stage', NULL),
+    ('f729e5ef-99f5-4664-90db-7e31eebbf250', 'Headliner Performance', 'Top DJ performance with visuals', '23:45', '02:00', 'Main Stage', NULL),
+
+    ('ed8a78c7-89f0-4c15-b865-58fc8132b221', 'Welcome Speech', 'Opening remarks by CEO', '19:00', '19:30', 'Grand Ballroom', NULL),
+    ('7d89b90f-b8cd-47c7-a1b3-5566cbf3a5d6', 'Dinner & Awards', 'Formal dinner with award ceremony', '19:30', '22:00', 'Banquet Hall', NULL),
+
+    ('e538d6d4-7881-4b20-8717-5b35f4bfa8fc', 'Games & Drinks', 'Interactive games and open bar', '18:30', '20:00', 'Terrace', NULL),
+    ('06d4748f-bf3b-4a6f-93b2-58e4d19b7f45', 'Dance Party', 'Birthday celebration and dancing', '20:00', '23:00', 'Dance Floor', NULL);
+--GUEST LISTS
+
+INSERT INTO guest_invited_events (id, event_id) VALUES
+                                                    ('634182f1-9a18-433b-82d8-dad5aa4069f8', 'ea0d1c1b-67fa-4f7e-b00d-78129d742d01'),
+                                                    ('634182f1-9a18-433b-82d8-dad5aa4069f8', 'f00de5a9-8c76-4a87-b2cb-1c0b7bc4c9c7'),
+                                                    ('c633e080-fad0-4195-8a52-688c149700a1', 'ea0d1c1b-67fa-4f7e-b00d-78129d742d01'),
+                                                    ('c633e080-fad0-4195-8a52-688c149700a1', 'f00de5a9-8c76-4a87-b2cb-1c0b7bc4c9c7'),
+                                                    ('95a4669b-9ee6-4608-a4d1-ae52da25be36', 'ea0d1c1b-67fa-4f7e-b00d-78129d742d01'),
+                                                    ('95a4669b-9ee6-4608-a4d1-ae52da25be36', 'f00de5a9-8c76-4a87-b2cb-1c0b7bc4c9c7');
+
+INSERT INTO guest_accepted_events (id, event_id) VALUES
+                                                     ('0f0e83c6-6764-4c27-bca6-7369aea6acaa', '2c9f1c4d-1cb5-48f2-8618-78e3be06f27f'),
+                                                     ('0f0e83c6-6764-4c27-bca6-7369aea6acaa', 'f00de5a9-8c76-4a87-b2cb-1c0b7bc4c9c7'),
+                                                     ('4b423147-32cf-4a90-9238-a3a5934aaee9', '2c9f1c4d-1cb5-48f2-8618-78e3be06f27f'),
+                                                     ('4b423147-32cf-4a90-9238-a3a5934aaee9', 'f00de5a9-8c76-4a87-b2cb-1c0b7bc4c9c7');
+
 
 INSERT INTO product_budget_item(id, max_price, versioned_product_static_product_id, versioned_product_version, product_category_id, event_id)
 VALUES

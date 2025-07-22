@@ -154,13 +154,10 @@ public class ServiceService {
 
         newVersionedService = versionedServiceRepository.save(newVersionedService);
 
-        // todo: do backend checks on UUIDs of event types
         return VersionedServiceDTO.toDto(newVersionedService, seller);
     }
 
     public VersionedServiceDTO updateVersionedService(UpdateVersionedServiceDTO updateVersionedServiceDTO, MultipartFile[] images) throws IOException {
-        // todo check for fields that must be non-null
-
         Optional<VersionedService> versionedServiceMaybe = versionedServiceRepository
                 .getLatestByStaticServiceIdAndLatestVersion(updateVersionedServiceDTO.getStaticServiceId());
 
@@ -216,7 +213,6 @@ public class ServiceService {
         UUID sellerId = staticServiceRepository.getIdOfSeller(newVersionedService.getStaticServiceId());
         Seller serviceSeller = sellerRepository.findById(sellerId).get();
 
-        // todo: do backend checks on UUIDs of event types
         return VersionedServiceDTO.toDto(newVersionedService, serviceSeller);
     }
 
@@ -313,7 +309,6 @@ public class ServiceService {
                             .findFirst();
 
             if (matchingVersionedServiceMaybe.isEmpty()) {
-                // todo unauthorized exception
                 throw new EntityNotFoundException();
             }
 

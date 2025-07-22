@@ -178,4 +178,17 @@ public class ServiceBudgetItemService {
             freeSlotDuration -= stepDuration;
         }
     }
+
+    public void changeServiceBudgetItemMaxPrice(UUID serviceBudgetItemId, Double newPrice) {
+        Optional<ServiceBudgetItem> serviceBudgetItemMaybe = serviceBudgetItemRepository.findById(serviceBudgetItemId);
+
+        if (serviceBudgetItemMaybe.isEmpty()) {
+            throw new EntityNotFoundException();
+        } else {
+            ServiceBudgetItem pbi = serviceBudgetItemMaybe.get();
+
+            pbi.setMaxPrice(newPrice);
+            serviceBudgetItemRepository.save(pbi);
+        }
+    }
 }
