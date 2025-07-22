@@ -52,6 +52,7 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                     inner join versioned_service_images vsi 
                         on vsi.versioned_service_static_service_id = vs.static_service_id 
                         and vsi.versioned_service_version = vs.version
+                    where is_last_version
                 )
                 union all
                 (
@@ -81,6 +82,7 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                     inner join versioned_product_images vpi 
                         on vpi.versioned_product_static_product_id = vp.static_product_id 
                         and vpi.versioned_product_version = vp.version
+                    where is_last_version
                 )
             ) as combined
             where 
@@ -266,6 +268,7 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
           and (:minRating is null or avg_rating >= :minRating)
           and (:maxRating is null or avg_rating <= :maxRating)
           and is_active
+          and is_last_version
     )
     select type, id, version, name, description, oldPrice, price, is_active, images, count
     from ranked_from_seller

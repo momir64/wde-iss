@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.listingManagement.dtos.CreateListingCategoryDTO;
 import wedoevents.eventplanner.listingManagement.dtos.ListingCategoryDTO;
@@ -34,11 +35,13 @@ public class ListingCategoryController {
 
     // only used by admin
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ListingCategoryDTO> createListingCategory(@RequestBody CreateListingCategoryDTO createListingCategoryDTO) {
         return ResponseEntity.ok(listingCategoryService.createListingCategory(createListingCategoryDTO));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ListingCategoryDTO> updateListingCategory(@PathVariable UUID id, @RequestBody UpdateListingCategoryDTO updateListingCategoryDTO) {
         try {
             ListingCategoryDTO updatedListingDTO = listingCategoryService.updateListingCategory(id, updateListingCategoryDTO);
@@ -49,6 +52,7 @@ public class ListingCategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteListingCategory(@PathVariable UUID id) {
         try {
             listingCategoryService.deleteListingCategory(id);
@@ -61,11 +65,13 @@ public class ListingCategoryController {
     }
 
     @GetMapping("/pending")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ListingCategoryDTO>> getAllPendingListingCategories() {
         return ResponseEntity.ok(listingCategoryService.getAllPendingListingCategories());
     }
 
     @PutMapping("/pending/replace")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HttpStatus> replaceListingCategory(@RequestBody ReplacingListingCategoryDTO replacingListingCategoryDTO) {
         try {
             listingCategoryService.replaceListingCategory(replacingListingCategoryDTO);
@@ -76,6 +82,7 @@ public class ListingCategoryController {
     }
 
     @PutMapping("/pending/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ListingCategoryDTO> approveListingCategory(@PathVariable UUID id) {
         try {
             return ResponseEntity.ok(listingCategoryService.approveListingCategory(id));
@@ -86,6 +93,7 @@ public class ListingCategoryController {
 
     // used by the seller
     @PostMapping("/pending")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<ListingCategoryDTO> createPendingListingCategory(@RequestBody CreateListingCategoryDTO createListingCategoryDTO) {
         // no matter what the seller sends, the pending flag must be true
         createListingCategoryDTO.setIsPending(true);

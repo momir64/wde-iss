@@ -7,9 +7,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import wedoevents.eventplanner.eventManagement.dtos.CalendarEventDTO;
 import wedoevents.eventplanner.eventManagement.models.Event;
+import wedoevents.eventplanner.eventManagement.models.ProductBudgetItem;
+import wedoevents.eventplanner.eventManagement.models.ServiceBudgetItem;
 import wedoevents.eventplanner.eventManagement.services.EventService;
 import wedoevents.eventplanner.productManagement.models.StaticProduct;
+import wedoevents.eventplanner.productManagement.models.VersionedProduct;
 import wedoevents.eventplanner.serviceManagement.models.StaticService;
+import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 import wedoevents.eventplanner.shared.services.mappers.CalendarEventMapper;
 import wedoevents.eventplanner.userManagement.dtos.ListingReviewResponseDTO;
 import wedoevents.eventplanner.userManagement.dtos.userTypes.SellerDetailedViewDTO;
@@ -19,11 +23,7 @@ import wedoevents.eventplanner.userManagement.models.userTypes.Seller;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.SellerRepository;
 import wedoevents.eventplanner.userManagement.services.ListingReviewService;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -136,10 +136,16 @@ public class SellerService {
                 .collect(Collectors.toSet());
         for (Event event : allEvents) {
             boolean containsSellerService = event.getServiceBudgetItems().stream()
-                    .anyMatch(item -> sellerServiceIds.contains(item.getService().getStaticServiceId()));
+                    .map(ServiceBudgetItem::getService)
+                    .filter(Objects::nonNull)
+                    .map(VersionedService::getStaticServiceId)
+                    .anyMatch(sellerServiceIds::contains);
 
             boolean containsSellerProduct = event.getProductBudgetItems().stream()
-                    .anyMatch(item -> sellerProductIds.contains(item.getProduct().getStaticProductId()));
+                    .map(ProductBudgetItem::getProduct)
+                    .filter(Objects::nonNull)
+                    .map(VersionedProduct::getStaticProductId)
+                    .anyMatch(sellerProductIds::contains);
 
             if (containsSellerService || containsSellerProduct) {
                 calendarEvents.add(event);

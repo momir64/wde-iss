@@ -215,16 +215,18 @@ public class EventService {
 
     public List<String> putEventImages(List<MultipartFile> images, UUID eventId) throws Exception {
         List<String> imageNames = new ArrayList<>();
-        if(images == null || images.isEmpty()){
-            return imageNames;
-        }
+
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isEmpty()) {
             throw new EntityNotFoundException();
         }
         Event event = eventOptional.get();
         ImageLocationConfiguration config = new ImageLocationConfiguration("event", event.getId());
-
+        if(images == null || images.isEmpty()){
+            event.setImages(imageNames);
+            eventRepository.save(event);
+            return imageNames;
+        }
         try{
             for(MultipartFile file: images){
                 String imageName = imageService.saveImageToStorage(file,config);

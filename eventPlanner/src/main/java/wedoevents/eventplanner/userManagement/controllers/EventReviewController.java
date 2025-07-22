@@ -3,6 +3,7 @@ package wedoevents.eventplanner.userManagement.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.services.EventService;
@@ -66,6 +67,7 @@ public class EventReviewController {
     }
 
     @PutMapping("process")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> processReview(@RequestBody ReviewHandlingDTO reviewHandlingDTO) {
         UUID eventReviewId = reviewHandlingDTO.getId();
         boolean isAccepted = reviewHandlingDTO.isDecision();
@@ -91,6 +93,7 @@ public class EventReviewController {
     }
 
     @GetMapping("/pending")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EvenReviewResponseDTO>> getPendingReviews() {
         return new ResponseEntity<>(eventReviewService.getAllPendingReviews(), HttpStatus.OK);
     }
