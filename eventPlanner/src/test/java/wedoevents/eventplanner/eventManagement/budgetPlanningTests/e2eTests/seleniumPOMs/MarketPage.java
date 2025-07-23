@@ -12,34 +12,25 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.List;
 
-public class MyEventsPage {
+public class MarketPage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    @FindBy(css = ".create-button button")
-    private WebElement createNewEventButton;
-
-    public MyEventsPage(WebDriver driver) {
+    public MarketPage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         PageFactory.initElements(driver, this);
     }
 
-    public void clickCreateNewEvent() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(4));
-        wait.until(ExpectedConditions.elementToBeClickable(createNewEventButton));
-        createNewEventButton.click();
-    }
-
-    public void navigateToEvent(String eventName) {
+    public void navigateToListing(String listingName) {
         WebElement searchInput = wait.until(
-                ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@placeholder='Search items...']"))
+                ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='filter-bar']//input[@type='text']"))
         );
 
-        searchInput.sendKeys(eventName + Keys.ENTER);
+        searchInput.sendKeys(listingName + Keys.ENTER);
 
         List<WebElement> listingCards = wait.until(
-                ExpectedConditions.presenceOfAllElementsLocatedBy(By.tagName("app-event-card"))
+                ExpectedConditions.presenceOfAllElementsLocatedBy(By.tagName("app-listing-card"))
         );
 
         if (!listingCards.isEmpty()) {

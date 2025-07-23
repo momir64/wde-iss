@@ -1,16 +1,3 @@
-CREATE OR REPLACE FUNCTION truncate_tables() RETURNS void AS $$
-DECLARE
-    statements CURSOR FOR
-        SELECT tablename FROM pg_tables
-        WHERE tableowner = 'admin' AND schemaname = 'public';
-BEGIN
-    FOR stmt IN statements LOOP
-            EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' CASCADE;';
-        END LOOP;
-END;
-$$ LANGUAGE plpgsql;
-SELECT truncate_tables();
-
 -- ROLES
 INSERT INTO role (id,name)
 VALUES
@@ -1151,6 +1138,8 @@ VALUES
 
     -- CORPORATE EVENT
     ('daa22294-5377-487a-aa3f-7cd5a42cc568', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'), -- MUSIC CATEGORY ('Classic Jazz Band')
+    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'), -- MUSIC CATEGORY ('House DJ')
+    ('c3210396-e7f0-445a-9c26-9b1aec7a3c4a', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'), -- MUSIC CATEGORY ('Cover Band')
     ('deca359b-9bfb-4b6f-bc24-3e509f595da4', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'), -- CATERING CATEGORY ('Plated Dinner Service')
     ('9ee88634-aa10-48d1-b2c4-98556eac1684', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'), -- PHOTOGRAPHY CATEGORY ('Event Photography')
     ('8fb67698-2344-4b1d-950e-478c14f477cd', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'), -- VIDEOGRAPHY CATEGORY ('Live Streaming Videography')

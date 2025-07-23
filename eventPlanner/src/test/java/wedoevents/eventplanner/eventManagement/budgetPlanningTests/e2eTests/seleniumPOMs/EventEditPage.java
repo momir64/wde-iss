@@ -175,8 +175,7 @@ public class EventEditPage {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         By saveButtonLocator = By.xpath("//button[normalize-space(.)='Save']");
 
-        WebElement saveButton = wait.until(ExpectedConditions.elementToBeClickable(saveButtonLocator));
-        saveButton.click();
+        wait.until(ExpectedConditions.elementToBeClickable(saveButtonLocator)).click();
 
         try {
             Thread.sleep(2700);

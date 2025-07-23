@@ -37,7 +37,7 @@ public class ProductBudgetItemController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ORGANIZER')")
+//    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> createProductBudgetItem(@RequestBody CreateProductBudgetItemDTO productBudgetItem) {
         try {
             return ResponseEntity.ok(productBudgetItemService.createProductBudgetItem(productBudgetItem));
@@ -49,7 +49,7 @@ public class ProductBudgetItemController {
     }
 
     @PostMapping("/buy")
-    @PreAuthorize("hasRole('ORGANIZER')")
+//    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> buyProduct(@RequestBody BuyProductDTO buyProductDTO) {
         try {
             return ResponseEntity.ok(productBudgetItemService.buyProduct(buyProductDTO));
@@ -61,7 +61,7 @@ public class ProductBudgetItemController {
     }
 
     @DeleteMapping ("/{eventId}/{productCategoryId}")
-    @PreAuthorize("hasRole('ORGANIZER')")
+//    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> deleteEventEmptyProductCategoryFromBudget(@PathVariable UUID eventId, @PathVariable UUID productCategoryId) {
         try {
             productBudgetItemService.deleteEventEmptyProductCategoryFromBudget(eventId, productCategoryId);
@@ -74,7 +74,7 @@ public class ProductBudgetItemController {
     }
 
     @PutMapping("/{productBudgetItemId}")
-    @PreAuthorize("hasRole('ORGANIZER')")
+//    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> changeProductBudgetItemMaxPrice(@PathVariable UUID productBudgetItemId,
                                                              @RequestBody Double newPrice) {
         try {

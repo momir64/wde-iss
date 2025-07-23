@@ -1,19 +1,31 @@
 package wedoevents.eventplanner.eventManagement.budgetPlanningTests.e2eTests;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.test.context.jdbc.Sql;
 import wedoevents.eventplanner.eventManagement.budgetPlanningTests.e2eTests.seleniumPOMs.*;
 import wedoevents.eventplanner.eventManagement.budgetPlanningTests.e2eTests.testData.EventTestData;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
 
+import javax.sql.DataSource;
+import java.security.SecureRandom;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class BudgetPlanningE2ETests {
     @LocalServerPort
@@ -21,6 +33,9 @@ public class BudgetPlanningE2ETests {
 
     @Autowired
     private WebDriver webDriver;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     public void setUp() {
@@ -41,8 +56,8 @@ public class BudgetPlanningE2ETests {
     }
 
     @Test
-    public void testNoTwoSameCategoriesAllowed() throws InterruptedException {
-        goToBudgetStep();
+    public void testNoTwoSameCategoriesAllowed() {
+        goToBudgetStep("My event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -58,8 +73,8 @@ public class BudgetPlanningE2ETests {
     }
 
     @Test
-    public void testNextButtonDisabledIfBudgetValueMissing() throws InterruptedException {
-        goToBudgetStep();
+    public void testNextButtonDisabledIfBudgetValueMissing() {
+        goToBudgetStep("My event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -78,8 +93,8 @@ public class BudgetPlanningE2ETests {
     }
 
     @Test
-    public void testCreateEventWithProductAndServiceBudgetItems() throws InterruptedException {
-        goToBudgetStep();
+    public void testCreateEventWithProductAndServiceBudgetItems() {
+        goToBudgetStep("My event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -114,8 +129,8 @@ public class BudgetPlanningE2ETests {
     }
 
     @Test
-    public void testCalculateTotalPriceOfBudgetItems() throws InterruptedException {
-        goToBudgetStep();
+    public void testCalculateTotalPriceOfBudgetItems() {
+        goToBudgetStep("My event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -135,8 +150,8 @@ public class BudgetPlanningE2ETests {
     }
 
     @Test
-    public void testDeleteBudgetItemWithNoAssociatedListing() throws InterruptedException {
-        goToBudgetStep();
+    public void testDeleteBudgetItemWithNoAssociatedListing() {
+        goToBudgetStep("My event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -163,8 +178,8 @@ public class BudgetPlanningE2ETests {
     }
 
     @Test
-    public void testChangeBudgetItemPriceWithNoAssociatedListing() throws InterruptedException {
-        goToBudgetStep();
+    public void testChangeBudgetItemPriceWithNoAssociatedListing() {
+        goToBudgetStep("My event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -192,43 +207,349 @@ public class BudgetPlanningE2ETests {
 
     @Test
     public void testCreateEventWithServiceBudgetItemsAndBuyService() {
+        String eventName = generateRandomString();
 
+        goToBudgetStep(eventName);
+
+        EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
+        eventBudgetPage.clickAddCategoryButton();
+
+        EventBudgetRow productBudgetRow = new EventBudgetRow(webDriver);
+        productBudgetRow.selectServiceTypeOption();
+        productBudgetRow.selectCustomCategoryOption("Music");
+        productBudgetRow.setBudget("1000");
+
+        eventBudgetPage.submitForm();
+
+        fillAgendaAndSubmit();
+
+        SidebarPage sidebarPage = new SidebarPage(webDriver);
+        sidebarPage.navigateToMarket();
+
+        MarketPage marketPage = new MarketPage(webDriver);
+        marketPage.navigateToListing("Classic Jazz Band");
+
+        ReserveServicePage reserveServicePage = new ReserveServicePage(webDriver);
+        reserveServicePage.reserveForEvent(eventName);
+
+        sidebarPage.navigateToMyEvents();
+
+        MyEventsPage myEventsPage = new MyEventsPage(webDriver);
+        myEventsPage.navigateToEvent(eventName);
+
+        EventEditPage eventEditPage = new EventEditPage(webDriver);
+        eventEditPage.navigateToActualEditPage();
+        eventEditPage.navigateToBudget();
+
+        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.SERVICE, "Music", 1000));
+        assertTrue(eventEditPage.navigateToBoughtListingPageIfBought(ListingType.SERVICE, "Music", 1000));
+
+        BoughtServicePage boughtServicePage = new BoughtServicePage(webDriver);
+
+        assertEquals(890, boughtServicePage.getServicePrice());
+        assertEquals("Classic Jazz Band", boughtServicePage.getServiceTitle());
+        assertEquals("Music", boughtServicePage.getServiceCategory());
     }
 
     @Test
     public void testCreateEventWithProductBudgetItemsAndBuyProduct() {
+        String eventName = generateRandomString();
 
+        goToBudgetStep(eventName);
+
+        EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
+        eventBudgetPage.clickAddCategoryButton();
+
+        EventBudgetRow productBudgetRow = new EventBudgetRow(webDriver);
+        productBudgetRow.selectProductTypeOption();
+        productBudgetRow.selectCustomCategoryOption("Drinks");
+        productBudgetRow.setBudget("1000");
+
+        eventBudgetPage.submitForm();
+
+        fillAgendaAndSubmit();
+
+        SidebarPage sidebarPage = new SidebarPage(webDriver);
+        sidebarPage.navigateToMarket();
+
+        MarketPage marketPage = new MarketPage(webDriver);
+        marketPage.navigateToListing("Champagne");
+
+        BuyProductPage buyProductPage = new BuyProductPage(webDriver);
+        buyProductPage.buyForEvent(eventName);
+
+        sidebarPage.navigateToMyEvents();
+
+        MyEventsPage myEventsPage = new MyEventsPage(webDriver);
+        myEventsPage.navigateToEvent(eventName);
+
+        EventEditPage eventEditPage = new EventEditPage(webDriver);
+        eventEditPage.navigateToActualEditPage();
+        eventEditPage.navigateToBudget();
+
+        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.PRODUCT, "Drinks", 1000));
+        assertTrue(eventEditPage.navigateToBoughtListingPageIfBought(ListingType.PRODUCT, "Drinks", 1000));
+
+        BoughtProductPage boughtProductPage = new BoughtProductPage(webDriver);
+
+        assertEquals(930, boughtProductPage.getProductPrice());
+        assertEquals("Champagne", boughtProductPage.getProductTitle());
+        assertEquals("Drinks", boughtProductPage.getProductCategory());
     }
 
     @Test
     public void testCreateEventWithoutServiceBudgetItemsAndBuyService() {
+        String eventName = generateRandomString();
 
+        goToBudgetStep(eventName);
+
+        EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
+        eventBudgetPage.clickAddCategoryButton();
+
+        EventBudgetRow productBudgetRow = new EventBudgetRow(webDriver);
+        productBudgetRow.selectServiceTypeOption();
+        productBudgetRow.selectCustomCategoryOption("Catering");
+        productBudgetRow.setBudget("1000");
+
+        eventBudgetPage.submitForm();
+
+        fillAgendaAndSubmit();
+
+        SidebarPage sidebarPage = new SidebarPage(webDriver);
+        sidebarPage.navigateToMarket();
+
+        MarketPage marketPage = new MarketPage(webDriver);
+        marketPage.navigateToListing("House DJ");
+
+        ReserveServicePage reserveServicePage = new ReserveServicePage(webDriver);
+        reserveServicePage.reserveForEvent(eventName);
+
+        sidebarPage.navigateToMyEvents();
+
+        MyEventsPage myEventsPage = new MyEventsPage(webDriver);
+        myEventsPage.navigateToEvent(eventName);
+
+        EventEditPage eventEditPage = new EventEditPage(webDriver);
+        eventEditPage.navigateToActualEditPage();
+        eventEditPage.navigateToBudget();
+
+        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.SERVICE, "Music", 0));
+        assertTrue(eventEditPage.navigateToBoughtListingPageIfBought(ListingType.SERVICE, "Music", 0));
+
+        BoughtServicePage boughtServicePage = new BoughtServicePage(webDriver);
+
+        assertEquals(169, boughtServicePage.getServicePrice());
+        assertEquals("House DJ", boughtServicePage.getServiceTitle());
+        assertEquals("Music", boughtServicePage.getServiceCategory());
     }
 
     @Test
     public void testCreateEventWithoutProductBudgetItemsAndBuyProduct() {
+        String eventName = generateRandomString();
 
-    }
+        goToBudgetStep(eventName);
 
-    @Test
-    public void testNavigateToBoughtItem() {
+        EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
+        eventBudgetPage.clickAddCategoryButton();
 
+        EventBudgetRow productBudgetRow = new EventBudgetRow(webDriver);
+        productBudgetRow.selectProductTypeOption();
+        productBudgetRow.selectCustomCategoryOption("Food");
+        productBudgetRow.setBudget("1000");
+
+        eventBudgetPage.submitForm();
+
+        fillAgendaAndSubmit();
+
+        SidebarPage sidebarPage = new SidebarPage(webDriver);
+        sidebarPage.navigateToMarket();
+
+        MarketPage marketPage = new MarketPage(webDriver);
+        marketPage.navigateToListing("Champagne");
+
+        BuyProductPage buyProductPage = new BuyProductPage(webDriver);
+        buyProductPage.buyForEvent(eventName);
+
+        sidebarPage.navigateToMyEvents();
+
+        MyEventsPage myEventsPage = new MyEventsPage(webDriver);
+        myEventsPage.navigateToEvent(eventName);
+
+        EventEditPage eventEditPage = new EventEditPage(webDriver);
+        eventEditPage.navigateToActualEditPage();
+        eventEditPage.navigateToBudget();
+
+        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.PRODUCT, "Drinks", 0));
+        assertTrue(eventEditPage.navigateToBoughtListingPageIfBought(ListingType.PRODUCT, "Drinks", 0));
+
+        BoughtProductPage boughtProductPage = new BoughtProductPage(webDriver);
+
+        assertEquals(930, boughtProductPage.getProductPrice());
+        assertEquals("Champagne", boughtProductPage.getProductTitle());
+        assertEquals("Drinks", boughtProductPage.getProductCategory());
     }
 
     @Test
     public void testCantBuyProductForEventThatAlreadyHasBoughtProductWithSameCategory() {
+        String eventName = generateRandomString();
 
+        goToBudgetStep(eventName);
+
+        EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
+        eventBudgetPage.clickAddCategoryButton();
+
+        EventBudgetRow productBudgetRow = new EventBudgetRow(webDriver);
+        productBudgetRow.selectProductTypeOption();
+        productBudgetRow.selectCustomCategoryOption("Drinks");
+        productBudgetRow.setBudget("1000");
+
+        eventBudgetPage.submitForm();
+
+        fillAgendaAndSubmit();
+
+        SidebarPage sidebarPage = new SidebarPage(webDriver);
+        sidebarPage.navigateToMarket();
+
+        MarketPage marketPage = new MarketPage(webDriver);
+        marketPage.navigateToListing("Champagne");
+
+        BuyProductPage buyProductPage = new BuyProductPage(webDriver);
+        buyProductPage.buyForEvent(eventName);
+
+        sidebarPage.navigateToMyEvents();
+
+        MyEventsPage myEventsPage = new MyEventsPage(webDriver);
+        myEventsPage.navigateToEvent(eventName);
+
+        EventEditPage eventEditPage = new EventEditPage(webDriver);
+        eventEditPage.navigateToActualEditPage();
+        eventEditPage.navigateToBudget();
+
+        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.PRODUCT, "Drinks", 1000));
+        assertTrue(eventEditPage.navigateToBoughtListingPageIfBought(ListingType.PRODUCT, "Drinks", 1000));
+
+        BoughtProductPage boughtProductPage = new BoughtProductPage(webDriver);
+
+        assertEquals(930, boughtProductPage.getProductPrice());
+        assertEquals("Champagne", boughtProductPage.getProductTitle());
+        assertEquals("Drinks", boughtProductPage.getProductCategory());
+
+        sidebarPage.navigateToMarket();
+        marketPage.navigateToListing("Champagne");
+
+        assertFalse(buyProductPage.buyableForEvent(eventName));
     }
 
     @Test
     public void testCantBuyServiceForEventThatAlreadyHasBoughtServiceWithSameCategory() {
+        String eventName = generateRandomString();
 
+        goToBudgetStep(eventName);
+
+        EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
+        eventBudgetPage.clickAddCategoryButton();
+
+        EventBudgetRow productBudgetRow = new EventBudgetRow(webDriver);
+        productBudgetRow.selectServiceTypeOption();
+        productBudgetRow.selectCustomCategoryOption("Catering");
+        productBudgetRow.setBudget("1000");
+
+        eventBudgetPage.submitForm();
+
+        fillAgendaAndSubmit();
+
+        SidebarPage sidebarPage = new SidebarPage(webDriver);
+        sidebarPage.navigateToMarket();
+
+        MarketPage marketPage = new MarketPage(webDriver);
+        marketPage.navigateToListing("Cover Band");
+
+        ReserveServicePage reserveServicePage = new ReserveServicePage(webDriver);
+        reserveServicePage.reserveForEvent(eventName);
+
+        sidebarPage.navigateToMyEvents();
+
+        MyEventsPage myEventsPage = new MyEventsPage(webDriver);
+        myEventsPage.navigateToEvent(eventName);
+
+        EventEditPage eventEditPage = new EventEditPage(webDriver);
+        eventEditPage.navigateToActualEditPage();
+        eventEditPage.navigateToBudget();
+
+        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.SERVICE, "Music", 0));
+        assertTrue(eventEditPage.navigateToBoughtListingPageIfBought(ListingType.SERVICE, "Music", 0));
+
+        BoughtServicePage boughtServicePage = new BoughtServicePage(webDriver);
+
+        assertEquals(124, boughtServicePage.getServicePrice());
+        assertEquals("Cover Band", boughtServicePage.getServiceTitle());
+        assertEquals("Music", boughtServicePage.getServiceCategory());
+
+        sidebarPage.navigateToMarket();
+        marketPage.navigateToListing("Cover Band");
+
+        assertFalse(reserveServicePage.reservableForEvent(eventName));
     }
 
+    @Test
+    public void testCantBuyProductIfThePriceIsTooHigh() {
+        String eventName = generateRandomString();
 
-    private void goToBudgetStep() {
+        goToBudgetStep(eventName);
+
+        EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
+        eventBudgetPage.clickAddCategoryButton();
+
+        EventBudgetRow productBudgetRow = new EventBudgetRow(webDriver);
+        productBudgetRow.selectProductTypeOption();
+        productBudgetRow.selectCustomCategoryOption("Drinks");
+        productBudgetRow.setBudget("1");
+
+        eventBudgetPage.submitForm();
+
+        fillAgendaAndSubmit();
+
+        SidebarPage sidebarPage = new SidebarPage(webDriver);
+        sidebarPage.navigateToMarket();
+
+        MarketPage marketPage = new MarketPage(webDriver);
+        marketPage.navigateToListing("Champagne");
+
+        BuyProductPage buyProductPage = new BuyProductPage(webDriver);
+        assertFalse(buyProductPage.buyableForEvent(eventName));
+    }
+
+    @Test
+    public void testCantReserveServiceIfThePriceIsTooHigh() {
+        String eventName = generateRandomString();
+
+        goToBudgetStep(eventName);
+
+        EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
+        eventBudgetPage.clickAddCategoryButton();
+
+        EventBudgetRow productBudgetRow = new EventBudgetRow(webDriver);
+        productBudgetRow.selectServiceTypeOption();
+        productBudgetRow.selectCustomCategoryOption("Music");
+        productBudgetRow.setBudget("1");
+
+        eventBudgetPage.submitForm();
+
+        fillAgendaAndSubmit();
+
+        SidebarPage sidebarPage = new SidebarPage(webDriver);
+        sidebarPage.navigateToMarket();
+
+        MarketPage marketPage = new MarketPage(webDriver);
+        marketPage.navigateToListing("Classic Jazz Band");
+
+        ReserveServicePage reserveServicePage = new ReserveServicePage(webDriver);
+        assertFalse(reserveServicePage.reservableForEvent(eventName));
+    }
+
+    private void goToBudgetStep(String eventName) {
         EventTestData validEventData = new EventTestData(
-                "My Event", 50, "Novi Sad", "Ntp FTN",
+                eventName, 50, "Novi Sad", "Ntp FTN",
                 "2025-12-25", "18:00", "Corporate Event", "A special event",
                 true
         );
@@ -252,6 +573,18 @@ public class BudgetPlanningE2ETests {
         table.submitForm();
     }
 
+    private String generateRandomString() {
+        SecureRandom random = new SecureRandom();
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        StringBuilder sb = new StringBuilder(25);
+
+        for (int i = 0; i < 25; i++) {
+            sb.append(characters.charAt(random.nextInt(characters.length())));
+        }
+
+        return sb.toString();
+    }
+
     @AfterEach
     public void tearDown() {
         //debugging
@@ -263,5 +596,42 @@ public class BudgetPlanningE2ETests {
 //        }
 
         webDriver.quit();
+    }
+
+    @Autowired
+    private DataSource dataSource;
+
+    @AfterAll
+    void runSqlScriptAfterAllTests() throws Exception {
+        try (Connection conn = dataSource.getConnection()) {
+            List<String> tables = new ArrayList<>();
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT tablename FROM pg_tables WHERE tableowner = 'admin' AND schemaname = 'public'")) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        tables.add(rs.getString("tablename"));
+                    }
+                }
+            }
+
+            if (tables.isEmpty()) {
+                return;
+            }
+
+            StringBuilder sql = new StringBuilder("TRUNCATE TABLE ");
+            for (int i = 0; i < tables.size(); i++) {
+                sql.append("\"").append(tables.get(i)).append("\"");
+                if (i < tables.size() - 1) {
+                    sql.append(", ");
+                }
+            }
+            sql.append(" CASCADE;");
+
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute(sql.toString());
+            }
+
+            ScriptUtils.executeSqlScript(conn, new ClassPathResource("entity-insertion.sql"));
+        }
     }
 }

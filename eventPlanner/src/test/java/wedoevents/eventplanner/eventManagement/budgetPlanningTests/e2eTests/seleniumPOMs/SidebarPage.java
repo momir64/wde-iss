@@ -15,6 +15,9 @@ public class SidebarPage {
     @FindBy(xpath = "//p[contains(text(),'My events')]")
     private WebElement myEventsLink;
 
+    @FindBy(xpath = "//p[contains(text(),'Market')]")
+    private WebElement marketLink;
+
     public SidebarPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
@@ -24,5 +27,11 @@ public class SidebarPage {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.visibilityOf(myEventsLink));
         myEventsLink.click();
+    }
+
+    public void navigateToMarket() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOf(marketLink));
+        marketLink.click();
     }
 }
