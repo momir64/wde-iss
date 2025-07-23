@@ -114,6 +114,27 @@ public class BudgetPlanningE2ETests {
     }
 
     @Test
+    public void testCalculateTotalPriceOfBudgetItems() throws InterruptedException {
+        goToBudgetStep();
+
+        EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
+        eventBudgetPage.clickAddCategoryButton();
+        eventBudgetPage.clickAddCategoryButton();
+
+        EventBudgetRow productBudgetRow = new EventBudgetRow(webDriver);
+        productBudgetRow.selectProductTypeOption();
+        productBudgetRow.selectCustomCategoryOption("Fireworks");
+        productBudgetRow.setBudget("1000");
+
+        EventBudgetRow serviceBudgetRow = new EventBudgetRow(webDriver);
+        serviceBudgetRow.selectServiceTypeOption();
+        serviceBudgetRow.selectCustomCategoryOption("Music");
+        serviceBudgetRow.setBudget("1500");
+
+        assertEquals(2500, eventBudgetPage.getTotalPrice());
+    }
+
+    @Test
     public void testDeleteBudgetItemWithNoAssociatedListing() throws InterruptedException {
         goToBudgetStep();
 
@@ -168,6 +189,42 @@ public class BudgetPlanningE2ETests {
 
         assertTrue(eventEditPage.containsProductBudgetItem(ListingType.PRODUCT, "Fireworks", 2000));
     }
+
+    @Test
+    public void testCreateEventWithServiceBudgetItemsAndBuyService() {
+
+    }
+
+    @Test
+    public void testCreateEventWithProductBudgetItemsAndBuyProduct() {
+
+    }
+
+    @Test
+    public void testCreateEventWithoutServiceBudgetItemsAndBuyService() {
+
+    }
+
+    @Test
+    public void testCreateEventWithoutProductBudgetItemsAndBuyProduct() {
+
+    }
+
+    @Test
+    public void testNavigateToBoughtItem() {
+
+    }
+
+    @Test
+    public void testCantBuyProductForEventThatAlreadyHasBoughtProductWithSameCategory() {
+
+    }
+
+    @Test
+    public void testCantBuyServiceForEventThatAlreadyHasBoughtServiceWithSameCategory() {
+
+    }
+
 
     private void goToBudgetStep() {
         EventTestData validEventData = new EventTestData(

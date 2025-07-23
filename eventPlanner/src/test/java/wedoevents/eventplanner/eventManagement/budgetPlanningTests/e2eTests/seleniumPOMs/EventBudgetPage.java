@@ -8,6 +8,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EventBudgetPage {
     private WebDriver driver;
@@ -37,5 +39,12 @@ public class EventBudgetPage {
 
         WebElement nextButton = wait.until(ExpectedConditions.visibilityOfElementLocated(nextButtonLocator));
         return nextButton.isEnabled();
+    }
+
+    public int getTotalPrice() {
+        WebElement totalAmountElement = driver.findElement(By.cssSelector("p.total-amount"));
+        String totalText = totalAmountElement.getText();
+
+        return Integer.parseInt(totalText.replaceAll("[^0-9]", ""));
     }
 }
