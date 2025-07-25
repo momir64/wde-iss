@@ -1,6 +1,5 @@
 package wedoevents.eventplanner.eventManagement.controllers;
 
-import com.google.api.Http;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,10 +19,8 @@ import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfigu
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
 import wedoevents.eventplanner.shared.services.pdfService.PdfGeneratorService;
 import wedoevents.eventplanner.userManagement.dtos.ReviewDistributionDTO;
-import wedoevents.eventplanner.userManagement.models.Profile;
 import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
 import wedoevents.eventplanner.userManagement.services.EventReviewService;
-import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
 import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
 
 import java.io.IOException;
@@ -64,7 +60,7 @@ public class EventController {
     }
     @PutMapping
     @PreAuthorize("hasRole('ORGANIZER')")
-    public ResponseEntity<?> updateEvent(@RequestBody CreateEventDTO createEventDTO){
+    public ResponseEntity<?> updateEvent(@RequestBody CreateEventDTO createEventDTO) {
         try {
             eventService.updateEvent(createEventDTO);
             return ResponseEntity.ok().build();
@@ -74,7 +70,7 @@ public class EventController {
     }
     @PutMapping("/images")
     public ResponseEntity<?> putProfileImage(@RequestParam(value = "images", required = false) List<MultipartFile> images,
-                                             @RequestParam("eventId") UUID eventId){
+                                             @RequestParam("eventId") UUID eventId) {
         try {
             return ResponseEntity.ok(eventService.putEventImages(images, eventId));
         } catch (Exception e) {
@@ -124,7 +120,7 @@ public class EventController {
                                           @RequestParam(name = "page", defaultValue = "0") int page,
                                           @RequestParam(name = "size", defaultValue = "10") int size) {
         try {
-            return ResponseEntity.ok(eventService.searchEvents(searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, page, size,organizerId));
+            return ResponseEntity.ok(eventService.searchEvents(searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, page, size, organizerId));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (Exception e) {
@@ -164,7 +160,7 @@ public class EventController {
     @GetMapping("/agenda/{eventId}")
     public ResponseEntity<List<EventActivityDTO>> getAgenda(@PathVariable UUID eventId) {
         List<EventActivityDTO> response = eventService.getAgenda(eventId);
-        if(response == null){
+        if (response == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(response);
@@ -176,16 +172,16 @@ public class EventController {
             List<Guest> invitedGuests = guestService.getGuestsByInvitedEventId(id);
             List<Guest> acceptedGuests = guestService.getGuestsByAcceptedEventId(id);
             ReviewDistributionDTO reviewDistribution = eventReviewService.getReviewCounts(id);
-            byte[] pdfContent = pdfService.generateEventPdf(event.get(),invitedGuests,acceptedGuests,reviewDistribution);
+            byte[] pdfContent = pdfService.generateEventPdf(event.get(), invitedGuests, acceptedGuests, reviewDistribution);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
             headers.setContentDispositionFormData("attachment", "event-details.pdf");
             return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(pdfContent);
+                                 .headers(headers)
+                                 .body(pdfContent);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(null);
+                             .body(null);
     }
     @GetMapping("/public")
     public ResponseEntity<?> getPublicEvents() {
@@ -195,8 +191,8 @@ public class EventController {
 
     @GetMapping("/{id}/detailed-view/{isGuest}/{userId}")
     public ResponseEntity<?> getDetailedView(@PathVariable("id") UUID eventId, @PathVariable("isGuest") boolean isGuest, @PathVariable("userId") UUID userId) {
-        EventDetailedViewDTO event = eventService.getDetailedEvent(eventId,isGuest,userId);
-        if(event == null) {
+        EventDetailedViewDTO event = eventService.getDetailedEvent(eventId, isGuest, userId);
+        if (event == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");
         }
         return ResponseEntity.ok().body(event);
@@ -212,7 +208,7 @@ public class EventController {
             List<String> imageNames = event.get().getImages();
             ImageLocationConfiguration config = new ImageLocationConfiguration("event", eventId);
             List<byte[]> images = new ArrayList<>();
-            for(String imageName : imageNames) {
+            for (String imageName : imageNames) {
                 Optional<byte[]> image = imageService.getImage(imageName, config);
                 if (image.isEmpty())
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image not found");
@@ -232,7 +228,7 @@ public class EventController {
     @DeleteMapping("/{id}/{userId}")
     @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> deleteEvent(@PathVariable("id") UUID eventId, @PathVariable("userId") UUID userId) {
-        if(eventService.deleteEvent(eventId,userId)) {
+        if (eventService.deleteEvent(eventId, userId)) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Event deleted successfully");
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");

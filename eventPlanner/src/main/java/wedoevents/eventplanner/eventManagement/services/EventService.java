@@ -4,10 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -26,7 +24,6 @@ import wedoevents.eventplanner.userManagement.services.EventReviewService;
 import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
 import wedoevents.eventplanner.userManagement.services.userTypes.GuestService;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -75,7 +72,7 @@ public class EventService {
         if (event.isEmpty() || !organizer.get().getMyEvents().contains(event.get())) {
             return null;
         }
-        EventEditViewDTO response =  new EventEditViewDTO(event.get());
+        EventEditViewDTO response = new EventEditViewDTO(event.get());
         response.setMinGuestCount(eventRepository.countPossibleGuestsByEventId(eventId));
         return response;
     }
@@ -83,48 +80,27 @@ public class EventService {
     public Page<EventComplexViewDTO> searchEvents(String searchTerms, String city, UUID eventTypeId, Double minRating, Double maxRating,
                                                   LocalDate dateRangeStart, LocalDate dateRangeEnd, String sortBy, String order, int page, int size, UUID organizerId) {
         Pageable pageable;
-        if (sortBy != null && (sortBy.equals("name") || sortBy.equals("date")))
-            pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order != null ? order : "ASC"), sortBy));
-        else
-            pageable = PageRequest.of(page, size);
         Page<Event> eventPage;
-        if(organizerId != null){
-            List<Event> myEvents = eventOrganizerRepository.getMyEventsByProfileId(organizerId);
 
-            // Filter the events based on the criteria
-            List<Event> filteredEvents = myEvents.stream()
-                    .filter(event -> {
-                        boolean matchesSearchTerms = searchTerms == null || event.getName().toLowerCase().contains(searchTerms.toLowerCase());
-                        boolean matchesCity = city == null || event.getCity().getName().equalsIgnoreCase(city);
-                        boolean matchesEventType = eventTypeId == null || event.getEventType().getId().equals(eventTypeId);
-                        boolean matchesDateRange = (dateRangeStart == null || !event.getDate().isBefore(dateRangeStart)) &&
-                                (dateRangeEnd == null || !event.getDate().isAfter(dateRangeEnd));
-                        double eventRating = calculateAverageGrade(eventReviewService.getAcceptedReviewsByEventId(event.getId()));
-                        boolean matchesRating = (minRating == null || eventRating >= minRating) &&
-                                (maxRating == null || eventRating <= maxRating);
-                        return matchesSearchTerms && matchesCity && matchesEventType && matchesDateRange && matchesRating;
-                    })
-                    .collect(Collectors.toList());
-            int start = page * size;
-            int end = Math.min(start + size, filteredEvents.size());
-            List<Event> paginatedEvents = filteredEvents.subList(start, end);
-            // Convert filtered and paginated events to DTOs
-            List<EventComplexViewDTO> events = paginatedEvents.stream().map(EventComplexViewDTO::new).collect(Collectors.toList());
-            for (EventComplexViewDTO event : events) {
-                List<EvenReviewResponseDTO> reviews = eventReviewService.getAcceptedReviewsByEventId(event.getId());
-                event.setRating(calculateAverageGrade(reviews));
-            }
-            return new PageImpl<>(events, pageable, filteredEvents.size());
+        if (order == null || (!order.equalsIgnoreCase("asc") && !order.equalsIgnoreCase("desc")))
+            order = "asc";
 
-        }else{
-            eventPage = eventRepository.searchEvents(searchTerms, city, eventTypeId,minRating,maxRating, dateRangeStart, dateRangeEnd, pageable);
-            Page<EventComplexViewDTO> responsePage = eventPage.map(EventComplexViewDTO::new);
-            for(EventComplexViewDTO event : responsePage.getContent()){
-                List<EvenReviewResponseDTO> reviews = eventReviewService.getAcceptedReviewsByEventId(event.getId());
-                event.setRating(calculateAverageGrade(reviews));
-            }
-            return responsePage;
+        if (sortBy != null)
+            sortBy = sortBy.toLowerCase();
+
+        pageable = PageRequest.of(page, size);
+
+        if (organizerId != null)
+            eventPage = eventOrganizerRepository.searchMyEvents(organizerId, searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, pageable);
+        else
+            eventPage = eventRepository.searchEvents(searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, pageable);
+
+        Page<EventComplexViewDTO> responsePage = eventPage.map(EventComplexViewDTO::new);
+        for (EventComplexViewDTO event : responsePage.getContent()) {
+            List<EvenReviewResponseDTO> reviews = eventReviewService.getAcceptedReviewsByEventId(event.getId());
+            event.setRating(calculateAverageGrade(reviews));
         }
+        return responsePage;
     }
 
     public List<EventComplexViewDTO> getTopEvents(String city) {
@@ -136,7 +112,7 @@ public class EventService {
         return events;
     }
 
-    public EventComplexViewDTO createEvent(CreateEventDTO createEventDTO){
+    public EventComplexViewDTO createEvent(CreateEventDTO createEventDTO) {
         Optional<EventType> eventTypeMaybe = eventTypeRepository.findById(createEventDTO.getEventTypeId());
 
         if (eventTypeMaybe.isEmpty()) {
@@ -153,9 +129,9 @@ public class EventService {
 
         Event newEvent = new Event();
         newEvent.setEventActivities(new ArrayList<>());
-        for(UUID id: createEventDTO.getAgenda()){
+        for (UUID id : createEventDTO.getAgenda()) {
             Optional<EventActivity> activity = eventActivityRepository.findById(id);
-            activity.ifPresent(eventActivity -> newEvent. getEventActivities().add(eventActivity));
+            activity.ifPresent(eventActivity -> newEvent.getEventActivities().add(eventActivity));
         }
         newEvent.setImages(new ArrayList<>());
         newEvent.setProductBudgetItems(new ArrayList<>());
@@ -180,6 +156,7 @@ public class EventService {
 
         return new EventComplexViewDTO(createdEvent);
     }
+
     public void updateEvent(CreateEventDTO createEventDTO) throws EntityNotFoundException {
         Optional<EventType> eventTypeMaybe = eventTypeRepository.findById(createEventDTO.getEventTypeId());
 
@@ -193,12 +170,11 @@ public class EventService {
             throw new EntityNotFoundException();
         }
 
-        EventOrganizer eventOrganizer = eventOrganizerMaybe.get();
-
         Optional<Event> eventOptional = eventRepository.findById(createEventDTO.getEventId());
         if (eventOptional.isEmpty()) {
             throw new EntityNotFoundException();
         }
+
         Event event = eventOptional.get();
         event.setEventType(eventTypeMaybe.get());
         event.setDescription(createEventDTO.getDescription());
@@ -222,17 +198,17 @@ public class EventService {
         }
         Event event = eventOptional.get();
         ImageLocationConfiguration config = new ImageLocationConfiguration("event", event.getId());
-        if(images == null || images.isEmpty()){
+        if (images == null || images.isEmpty()) {
             event.setImages(imageNames);
             eventRepository.save(event);
             return imageNames;
         }
-        try{
-            for(MultipartFile file: images){
-                String imageName = imageService.saveImageToStorage(file,config);
+        try {
+            for (MultipartFile file : images) {
+                String imageName = imageService.saveImageToStorage(file, config);
                 imageNames.add(imageName);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             imageNames = new ArrayList<>();
 
             event.setImages(imageNames);
@@ -249,7 +225,7 @@ public class EventService {
         return eventRepository.findById(id);
     }
 
-    public List<UUID> createAgenda(EventActivitiesDTO agenda){
+    public List<UUID> createAgenda(EventActivitiesDTO agenda) {
         List<EventActivityDTO> activities = new ArrayList<>(agenda.getEventActivities());
 
         validateActivityTimes(activities);
@@ -269,7 +245,7 @@ public class EventService {
         return createdIds;
     }
     @Transactional
-    public boolean updateAgenda(EventActivitiesDTO agenda){
+    public boolean updateAgenda(EventActivitiesDTO agenda) {
         Optional<Event> eventOptional = eventRepository.findById(agenda.getEventId());
         if (eventOptional.isEmpty()) {
             return false;
@@ -311,7 +287,7 @@ public class EventService {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
                         String.format("Activity '%s' has start time %s which is not before end time %s",
-                                a.getName(), a.getStartTime(), a.getEndTime())
+                                      a.getName(), a.getStartTime(), a.getEndTime())
                 );
             }
         }
@@ -326,10 +302,10 @@ public class EventService {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
                         String.format("Activity '%s' must start at %s to follow '%s' ending at %s",
-                                activities.get(i).getName(),
-                                thisStart,
-                                activities.get(i - 1).getName(),
-                                prevEnd)
+                                      activities.get(i).getName(),
+                                      thisStart,
+                                      activities.get(i - 1).getName(),
+                                      prevEnd)
                 );
             }
         }
@@ -349,13 +325,13 @@ public class EventService {
 
         return earliestStartTime;
     }
-    public List<EventActivityDTO> getAgenda(UUID eventId){
+    public List<EventActivityDTO> getAgenda(UUID eventId) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isEmpty()) {
             return null;
         }
         List<EventActivityDTO> response = new ArrayList<>();
-        for(EventActivity activity: eventOptional.get().getEventActivities()){
+        for (EventActivity activity : eventOptional.get().getEventActivities()) {
             EventActivityDTO activityDTO = new EventActivityDTO();
             activityDTO.setName(activity.getName());
             activityDTO.setDescription(activity.getDescription());
@@ -367,7 +343,7 @@ public class EventService {
         return response;
     }
     public List<EventAdminViewDTO> getAllPublicEvents() {
-        List<Event> events =  eventRepository.findAllPublicEvents();
+        List<Event> events = eventRepository.findAllPublicEvents();
         return events.stream().map(event -> {
             EventAdminViewDTO dto = new EventAdminViewDTO();
             dto.setId(event.getId());
@@ -401,25 +377,25 @@ public class EventService {
         response.setGuestCount(event.getGuestCount());
         response.setLongitude(event.getLocation().getLongitude());
         response.setLatitude(event.getLocation().getLatitude());
-        if(organizer.isPresent()){
+        if (organizer.isPresent()) {
             response.setOrganizerCredentials(organizer.get().getName() + " " + organizer.get().getSurname());
-        }else{
+        } else {
             response.setOrganizerCredentials("");
         }
-        if(isGuest){
+        if (isGuest) {
             response.setIsDeletable(false);
-            response.setIsFavorite(guestService.isEventFavorited(userId,eventId));
-            response.setIsAccepted(guestService.isEventAccepted(userId,eventId));
+            response.setIsFavorite(guestService.isEventFavorited(userId, eventId));
+            response.setIsAccepted(guestService.isEventAccepted(userId, eventId));
             response.setIsPdfAvailable(false);
             response.setIsEditable(false);
-        }else{
+        } else {
             response.setIsFavorite(false);
             response.setIsAccepted(false);
-            if(organizer.isPresent()){
+            if (organizer.isPresent()) {
                 response.setIsEditable(true);
                 response.setIsPdfAvailable(true);
-                response.setIsDeletable(checkIfEventIsDeletable(eventId,organizer.get().getId(),userId));
-            }else{
+                response.setIsDeletable(checkIfEventIsDeletable(eventId, organizer.get().getId(), userId));
+            } else {
                 response.setIsDeletable(false);
                 response.setIsEditable(false);
                 response.setIsPdfAvailable(false);
@@ -427,9 +403,9 @@ public class EventService {
         }
         String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).build().toUriString();
         response.setImages(event.getImages()
-                .stream()
-                .map(image -> String.format("%s/api/v1/events/%s/images/%s", baseUrl, event.getId(), image))
-                .collect(Collectors.toList()));
+                                .stream()
+                                .map(image -> String.format("%s/api/v1/events/%s/images/%s", baseUrl, event.getId(), image))
+                                .collect(Collectors.toList()));
 
         return response;
     }
@@ -440,17 +416,17 @@ public class EventService {
         }
 
         OptionalDouble average = reviews.stream()
-                .mapToInt(EvenReviewResponseDTO::getGrade)
-                .average();
+                                        .mapToInt(EvenReviewResponseDTO::getGrade)
+                                        .average();
 
         return average.orElse(0.0);
     }
-    public boolean deleteEvent(UUID eventId, UUID userId){
+    public boolean deleteEvent(UUID eventId, UUID userId) {
         Optional<EventOrganizer> organizer = eventOrganizerService.getEventOrganizerById(userId);
-        if(organizer.isEmpty()){
+        if (organizer.isEmpty()) {
             return false;
         }
-        if(checkIfEventIsDeletable(eventId,userId,userId)){
+        if (checkIfEventIsDeletable(eventId, userId, userId)) {
             eventRepository.deleteById(eventId);
             return true;
         }
@@ -461,23 +437,25 @@ public class EventService {
         if (eventOptional.isEmpty()) {
             return false;
         }
+
         Event event = eventOptional.get();
-        if(guestService.checkIfGuestIsInvitedOrAccepted(null,eventId)){
+        if (guestService.checkIfGuestIsInvitedOrAccepted(null, eventId)) {
             return false;
         }
-        if(event.getServiceBudgetItems().stream()
-                .anyMatch(serviceBudgetItem -> serviceBudgetItem.getService() != null)){
+
+        if (event.getServiceBudgetItems().stream()
+                 .anyMatch(serviceBudgetItem -> serviceBudgetItem.getService() != null)) {
             return false;
         }
-        if(event.getProductBudgetItems().stream()
-                .anyMatch(productBudgetItem -> productBudgetItem.getProduct() != null)){
+
+        if (event.getProductBudgetItems().stream()
+                 .anyMatch(productBudgetItem -> productBudgetItem.getProduct() != null)) {
             return false;
         }
-        if(organizerId != userId){
-            return false;
-        }
-        return true;
+
+        return organizerId == userId;
     }
+
     public List<Event> getAllEvents() {
         return eventRepository.findAll();
     }

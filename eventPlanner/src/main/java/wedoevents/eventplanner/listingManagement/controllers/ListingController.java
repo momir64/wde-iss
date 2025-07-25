@@ -3,7 +3,6 @@ package wedoevents.eventplanner.listingManagement.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
 import wedoevents.eventplanner.listingManagement.services.ListingService;
@@ -44,7 +43,7 @@ public class ListingController {
                                             @RequestParam(name = "page", defaultValue = "0") int page,
                                             @RequestParam(name = "size", defaultValue = "10") int size) {
         try {
-            return ResponseEntity.ok(listingService.getListings(searchTerms, type, category, minPrice, maxPrice, minRating, maxRating, sortBy, order, page, size));
+            return ResponseEntity.ok(listingService.getListings(null, searchTerms, type, category, minPrice, maxPrice, minRating, maxRating, sortBy, order, page, size));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (Exception e) {
@@ -66,7 +65,7 @@ public class ListingController {
                                                      @RequestParam(name = "page", defaultValue = "0") int page,
                                                      @RequestParam(name = "size", defaultValue = "10") int size) {
         try {
-            return ResponseEntity.ok(listingService.getListingsFromSeller(sellerId, searchTerms, type, category, minPrice, maxPrice, minRating, maxRating, sortBy, order, page, size));
+            return ResponseEntity.ok(listingService.getListings(sellerId, searchTerms, type, category, minPrice, maxPrice, minRating, maxRating, sortBy, order, page, size));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (Exception e) {
