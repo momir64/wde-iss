@@ -25,7 +25,7 @@ public class SchedulerService {
         List<ServiceBudgetItem> serviceBudgetItems = serviceBudgetItemRepository.findAll();
 
         for (ServiceBudgetItem sbi : serviceBudgetItems) {
-            if (!sbi.getIsTriggered() && now.isAfter(sbi.getStartTime().minusHours(1))) {
+            if ((sbi.getIsTriggered() == null || !sbi.getIsTriggered()) && sbi.getService() != null && now.isAfter(sbi.getStartTime().minusHours(1))) {
                 sellerService.getSellerByServiceId(sbi.getService().getStaticServiceId()).ifPresent(seller -> {
                     notificationService.sendNotification(seller.getProfile(), "Service scheduled", "Your service " + sbi.getService().getName() + " has been scheduled in less than an hour!", NotificationType.SERVICE, sbi.getService().getStaticServiceId());
                 });

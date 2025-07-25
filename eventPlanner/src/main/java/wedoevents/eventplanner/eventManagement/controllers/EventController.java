@@ -1,6 +1,7 @@
 package wedoevents.eventplanner.eventManagement.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.eventManagement.dtos.*;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.services.EventService;
+import wedoevents.eventplanner.shared.config.auth.JwtUtil;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
 import wedoevents.eventplanner.shared.services.pdfService.PdfGeneratorService;
@@ -96,9 +98,14 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
     @GetMapping("/top")
-    public ResponseEntity<?> getTopEvents(@RequestParam(value = "city", required = false) String city) {
+    public ResponseEntity<?> getTopEvents(@RequestParam(value = "city", required = false) String city, HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(eventService.getTopEvents(city));
+            try {
+                UUID profileId = JwtUtil.extractProfileId(request);
+                return ResponseEntity.ok(eventService.getTopEvents(city, profileId));
+            } catch (Exception e) {
+                return ResponseEntity.ok(eventService.getTopEvents(city, null));
+            }
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (Exception e) {
@@ -118,9 +125,15 @@ public class EventController {
                                           @RequestParam(required = false) String sortBy,
                                           @RequestParam(required = false) String order,
                                           @RequestParam(name = "page", defaultValue = "0") int page,
-                                          @RequestParam(name = "size", defaultValue = "10") int size) {
+                                          @RequestParam(name = "size", defaultValue = "10") int size,
+                                          HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(eventService.searchEvents(searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, page, size, organizerId));
+            try {
+                UUID profileId = JwtUtil.extractProfileId(request);
+                return ResponseEntity.ok(eventService.searchEvents(profileId, searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, page, size, organizerId));
+            } catch (Exception e) {
+                return ResponseEntity.ok(eventService.searchEvents(null, searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, page, size, organizerId));
+            }
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (Exception e) {

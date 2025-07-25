@@ -1,11 +1,13 @@
 package wedoevents.eventplanner.listingManagement.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
 import wedoevents.eventplanner.listingManagement.services.ListingService;
+import wedoevents.eventplanner.shared.config.auth.JwtUtil;
 
 import java.util.UUID;
 
@@ -20,9 +22,14 @@ public class ListingController {
     }
 
     @GetMapping("/top")
-    public ResponseEntity<?> getTopListings(@RequestParam(value = "city", required = false) String city) {
+    public ResponseEntity<?> getTopListings(@RequestParam(value = "city", required = false) String city, HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(listingService.getTopListings(city));
+            try {
+                UUID profileId = JwtUtil.extractProfileId(request);
+                return ResponseEntity.ok(listingService.getTopListings(city, profileId));
+            } catch (Exception e) {
+                return ResponseEntity.ok(listingService.getTopListings(city, null));
+            }
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (Exception e) {
@@ -41,9 +48,15 @@ public class ListingController {
                                             @RequestParam(required = false) String sortBy,
                                             @RequestParam(defaultValue = "asc", required = false) String order,
                                             @RequestParam(name = "page", defaultValue = "0") int page,
-                                            @RequestParam(name = "size", defaultValue = "10") int size) {
+                                            @RequestParam(name = "size", defaultValue = "10") int size,
+                                            HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(listingService.getListings(null, searchTerms, type, category, minPrice, maxPrice, minRating, maxRating, sortBy, order, page, size));
+            try {
+                UUID profileId = JwtUtil.extractProfileId(request);
+                return ResponseEntity.ok(listingService.getListings(null, profileId, searchTerms, type, category, minPrice, maxPrice, minRating, maxRating, sortBy, order, page, size));
+            } catch (Exception e) {
+                return ResponseEntity.ok(listingService.getListings(null, null, searchTerms, type, category, minPrice, maxPrice, minRating, maxRating, sortBy, order, page, size));
+            }
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (Exception e) {
@@ -65,7 +78,7 @@ public class ListingController {
                                                      @RequestParam(name = "page", defaultValue = "0") int page,
                                                      @RequestParam(name = "size", defaultValue = "10") int size) {
         try {
-            return ResponseEntity.ok(listingService.getListings(sellerId, searchTerms, type, category, minPrice, maxPrice, minRating, maxRating, sortBy, order, page, size));
+            return ResponseEntity.ok(listingService.getListings(sellerId, null, searchTerms, type, category, minPrice, maxPrice, minRating, maxRating, sortBy, order, page, size));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
         } catch (Exception e) {

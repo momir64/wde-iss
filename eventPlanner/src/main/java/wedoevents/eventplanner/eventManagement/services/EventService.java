@@ -81,7 +81,7 @@ public class EventService {
         return response;
     }
 
-    public Page<EventComplexViewDTO> searchEvents(String searchTerms, String city, UUID eventTypeId, Double minRating, Double maxRating,
+    public Page<EventComplexViewDTO> searchEvents(UUID profileId, String searchTerms, String city, UUID eventTypeId, Double minRating, Double maxRating,
                                                   LocalDate dateRangeStart, LocalDate dateRangeEnd, String sortBy, String order, int page, int size, UUID organizerId) {
         Pageable pageable;
         Page<Event> eventPage;
@@ -97,7 +97,7 @@ public class EventService {
         if (organizerId != null)
             eventPage = eventOrganizerRepository.searchMyEvents(organizerId, searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, pageable);
         else
-            eventPage = eventRepository.searchEvents(searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, pageable);
+            eventPage = eventRepository.searchEvents(profileId, searchTerms, city, eventTypeId, minRating, maxRating, dateRangeStart, dateRangeEnd, sortBy, order, pageable);
 
         Page<EventComplexViewDTO> responsePage = eventPage.map(EventComplexViewDTO::new);
         for (EventComplexViewDTO event : responsePage.getContent()) {
@@ -107,8 +107,8 @@ public class EventService {
         return responsePage;
     }
 
-    public List<EventComplexViewDTO> getTopEvents(String city) {
-        List<EventComplexViewDTO> events = eventRepository.getTopEvents(city).stream().map(EventComplexViewDTO::new).collect(Collectors.toList());
+    public List<EventComplexViewDTO> getTopEvents(String city, UUID profileId) {
+        List<EventComplexViewDTO> events = eventRepository.getTopEvents(city, profileId).stream().map(EventComplexViewDTO::new).collect(Collectors.toList());
         for (EventComplexViewDTO event : events) {
             List<EvenReviewResponseDTO> reviews = eventReviewService.getAcceptedReviewsByEventId(event.getId());
             event.setRating(calculateAverageGrade(reviews));

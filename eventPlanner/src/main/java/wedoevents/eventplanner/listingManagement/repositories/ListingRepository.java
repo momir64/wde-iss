@@ -13,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface ListingRepository extends JpaRepository<VersionedProduct, VersionedProductId> {
     @Query(value = """
-                        select type, id, version, name, description, oldPrice, price, is_available, images, rating
+                        select distinct type, id, version, name, description, oldPrice, price, is_available, images, rating
                         from (
                             select *, dense_rank() over (order by rating desc, id) as rank
                             from (
@@ -23,7 +23,8 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                                 from versioned_service vs
                                 inner join static_service ss on ss.static_service_id = vs.static_service_id
                                 inner join seller s on s.id = ss.seller_id
-                                inner join versioned_service_images vsi on vsi.versioned_service_static_service_id = vs.static_service_id and vsi.versioned_service_version = vs.version)
+                                inner join versioned_service_images vsi on vsi.versioned_service_static_service_id = vs.static_service_id and vsi.versioned_service_version = vs.version
+                                where not exists(select * from profile_blocked_users pbu where pbu.profile_id = :profileId and blocked_user_id = s.profile_id))
                    
                                 union all
                    
@@ -33,7 +34,8 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                                 from versioned_product vp
                                 inner join static_product sp on sp.static_product_id = vp.static_product_id
                                 inner join seller s on s.id = sp.seller_id
-                                inner join versioned_product_images vpi on vpi.versioned_product_static_product_id = vp.static_product_id and vpi.versioned_product_version = vp.version)
+                                inner join versioned_product_images vpi on vpi.versioned_product_static_product_id = vp.static_product_id and vpi.versioned_product_version = vp.version
+                                where not exists(select * from profile_blocked_users pbu where pbu.profile_id = :profileId and blocked_user_id = s.profile_id))
                             ) as combined
                             where :city is null or city = :city
                                 and is_available
@@ -44,7 +46,7 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                         where rank <= 5
                    """,
            nativeQuery = true)
-    List<Object[]> getTopListings(@Param("city") String city);
+    List<Object[]> getTopListings(@Param("city") String city, @Param("profileId") UUID profileId);
 
     @Query(value = """
                         with ranked as (
@@ -62,8 +64,9 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                                         coalesce((select avg(lr.grade) from listing_review lr where lr.service_static_service_id = ss.static_service_id and lr.pending_status = 'APPROVED'), 0.0) as rating
                                 from versioned_service vs
                                 inner join static_service ss on ss.static_service_id = vs.static_service_id
+                                inner join seller s on s.id = ss.seller_id
                                 inner join versioned_service_images vsi on vsi.versioned_service_static_service_id = vs.static_service_id and vsi.versioned_service_version = vs.version
-                                where is_last_version)
+                                where not exists(select * from profile_blocked_users pbu where pbu.profile_id = :profileId and blocked_user_id = s.profile_id) and is_last_version)
                    
                                 union all
                    
@@ -72,8 +75,9 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                                         coalesce((select avg(lr.grade) from listing_review lr where lr.product_static_product_id = sp.static_product_id and lr.pending_status = 'APPROVED'), 0.0) as rating
                                 from versioned_product vp
                                 inner join static_product sp on sp.static_product_id = vp.static_product_id
+                                inner join seller s on s.id = sp.seller_id
                                 inner join versioned_product_images vpi on vpi.versioned_product_static_product_id = vp.static_product_id and vpi.versioned_product_version = vp.version
-                                where is_last_version)
+                                where not exists(select * from profile_blocked_users pbu where pbu.profile_id = :profileId and blocked_user_id = s.profile_id) and is_last_version)
                             ) as combined
                             where (:searchTerms is null or lower(name) like concat('%', lower(:searchTerms), '%'))
                                 and (:type is null or type = :type)
@@ -86,13 +90,14 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                                 and is_active
                                 and not is_private
                         )
-                        select type, id, version, name, description, oldPrice, price, is_available, images, rating, count
+                        select distinct type, id, version, name, description, oldPrice, price, is_available, images, rating, count
                         from ranked
                         join (select max(rank) as count from ranked) subquery on true
                         where rank > :page * :size and rank <= (:page + 1) * :size
                    """,
            nativeQuery = true)
-    List<Object[]> getListings(@Param("searchTerms") String searchTerms,
+    List<Object[]> getListings(@Param("profileId") UUID profileId,
+                               @Param("searchTerms") String searchTerms,
                                @Param("type") String type,
                                @Param("category") UUID category,
                                @Param("minPrice") Double minPrice,
@@ -142,7 +147,7 @@ public interface ListingRepository extends JpaRepository<VersionedProduct, Versi
                                 and (:maxRating is null or rating <= :maxRating)
                                 and is_active
                         )
-                        select type, id, version, name, description, oldPrice, price, is_active, images, rating, count
+                        select distinct type, id, version, name, description, oldPrice, price, is_active, images, rating, count
                         from ranked_from_seller
                         join (select max(rank) as count from ranked_from_seller) subquery on true
                         where rank > :page * :size and rank <= (:page + 1) * :size
