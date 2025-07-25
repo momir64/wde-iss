@@ -15,6 +15,8 @@ import java.util.UUID;
 
 @Repository
 public interface ServiceBudgetItemRepository extends JpaRepository<ServiceBudgetItem, UUID> {
+
+
     @Query(value = "DELETE FROM service_budget_item " +
                    "WHERE " +
                    "event_id = ?1 AND " +

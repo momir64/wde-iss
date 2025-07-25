@@ -25,6 +25,8 @@ public class ServiceBudgetItem {
     @ManyToOne(optional = false)
     private ServiceCategory serviceCategory;
 
+    private Boolean isTriggered = false;
+
     @ManyToOne
     @JoinColumns({
             @JoinColumn(name = "versioned_service_static_service_id"),

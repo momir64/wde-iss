@@ -14,11 +14,14 @@ import wedoevents.eventplanner.eventManagement.models.*;
 import wedoevents.eventplanner.eventManagement.repositories.EventActivityRepository;
 import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
 import wedoevents.eventplanner.eventManagement.repositories.EventTypeRepository;
+import wedoevents.eventplanner.notificationManagement.models.NotificationType;
+import wedoevents.eventplanner.notificationManagement.services.NotificationService;
 import wedoevents.eventplanner.shared.models.City;
 import wedoevents.eventplanner.shared.services.imageService.ImageLocationConfiguration;
 import wedoevents.eventplanner.shared.services.imageService.ImageService;
 import wedoevents.eventplanner.userManagement.dtos.EvenReviewResponseDTO;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
+import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
 import wedoevents.eventplanner.userManagement.services.EventReviewService;
 import wedoevents.eventplanner.userManagement.services.userTypes.EventOrganizerService;
@@ -31,7 +34,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class EventService {
-
     private final EventRepository eventRepository;
     private final EventTypeRepository eventTypeRepository;
     private final EventOrganizerRepository eventOrganizerRepository;
@@ -40,12 +42,13 @@ public class EventService {
     private final GuestService guestService;
     private final ImageService imageService;
     private final EventOrganizerService eventOrganizerService;
+    private final NotificationService notificationService;
 
     @Autowired
     public EventService(EventRepository eventRepository, EventTypeRepository eventTypeRepository,
                         EventOrganizerRepository eventOrganizerRepository, EventActivityRepository eventActivityRepository,
                         EventReviewService eventReviewService, GuestService guestService, ImageService imageService,
-                        EventOrganizerService eventOrganizerService) {
+                        EventOrganizerService eventOrganizerService, NotificationService notificationService) {
         this.eventRepository = eventRepository;
         this.eventTypeRepository = eventTypeRepository;
         this.eventOrganizerRepository = eventOrganizerRepository;
@@ -54,6 +57,7 @@ public class EventService {
         this.guestService = guestService;
         this.imageService = imageService;
         this.eventOrganizerService = eventOrganizerService;
+        this.notificationService = notificationService;
     }
 
     public List<EventComplexViewDTO> getEventsFromOrganizer(UUID eventOrganizerId) {
@@ -153,7 +157,6 @@ public class EventService {
         eventOrganizer.getMyEvents().add(createdEvent);
         eventOrganizerRepository.save(eventOrganizer);
 
-
         return new EventComplexViewDTO(createdEvent);
     }
 
@@ -187,6 +190,9 @@ public class EventService {
         event.setGuestCount(createEventDTO.getGuestCount());
 
         eventRepository.save(event);
+
+        for (Guest guest : guestService.getGuestsByAcceptedEventId(event.getId()))
+            notificationService.sendNotification(guest.getProfile(), "Event updated", "Event " + event.getName() + " has been changed!", NotificationType.EVENT, event.getId());
     }
 
     public List<String> putEventImages(List<MultipartFile> images, UUID eventId) throws Exception {
@@ -244,6 +250,7 @@ public class EventService {
         }
         return createdIds;
     }
+
     @Transactional
     public boolean updateAgenda(EventActivitiesDTO agenda) {
         Optional<Event> eventOptional = eventRepository.findById(agenda.getEventId());
@@ -281,6 +288,7 @@ public class EventService {
 
         return true;
     }
+
     private void validateActivityTimes(List<EventActivityDTO> activities) {
         for (EventActivityDTO a : activities) {
             if (!a.getStartTime().isBefore(a.getEndTime())) {
@@ -325,6 +333,7 @@ public class EventService {
 
         return earliestStartTime;
     }
+
     public List<EventActivityDTO> getAgenda(UUID eventId) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isEmpty()) {
@@ -342,6 +351,7 @@ public class EventService {
         }
         return response;
     }
+
     public List<EventAdminViewDTO> getAllPublicEvents() {
         List<Event> events = eventRepository.findAllPublicEvents();
         return events.stream().map(event -> {
@@ -354,6 +364,7 @@ public class EventService {
             return dto;
         }).collect(Collectors.toList());
     }
+
     public EventDetailedViewDTO getDetailedEvent(UUID eventId, boolean isGuest, UUID userId) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isEmpty()) {
@@ -421,6 +432,7 @@ public class EventService {
 
         return average.orElse(0.0);
     }
+
     public boolean deleteEvent(UUID eventId, UUID userId) {
         Optional<EventOrganizer> organizer = eventOrganizerService.getEventOrganizerById(userId);
         if (organizer.isEmpty()) {
@@ -432,6 +444,7 @@ public class EventService {
         }
         return false;
     }
+
     public boolean checkIfEventIsDeletable(UUID eventId, UUID organizerId, UUID userId) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isEmpty()) {
