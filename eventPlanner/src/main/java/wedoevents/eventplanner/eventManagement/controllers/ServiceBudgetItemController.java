@@ -53,7 +53,7 @@ public class ServiceBudgetItemController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ORGANIZER')")
+//    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> getProductBudgetItem(@PathVariable UUID id) {
         try {
             return ResponseEntity.ok(serviceBudgetItemService.getServiceBudgetItem(id));
@@ -63,7 +63,7 @@ public class ServiceBudgetItemController {
     }
 
     @GetMapping("/{serviceId}/slots")
-    @PreAuthorize("hasRole('ORGANIZER')")
+//    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> getSlots(@PathVariable("serviceId") UUID serviceId, HttpServletRequest request) {
         try {
             UUID organizerId = JwtUtil.extractUserId(request);
@@ -74,7 +74,7 @@ public class ServiceBudgetItemController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ORGANIZER')")
+//    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> createServiceBudgetItem(@RequestBody CreateServiceBudgetItemDTO serviceBudgetItem) {
         try {
             return ResponseEntity.ok(serviceBudgetItemService.createServiceBudgetItem(serviceBudgetItem));
@@ -86,7 +86,7 @@ public class ServiceBudgetItemController {
     }
 
     @PostMapping("/buy")
-    @PreAuthorize("hasRole('ORGANIZER')")
+//    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> buyService(@RequestBody BuyServiceDTO buyServiceDTO) {
         try {
             ServiceBudgetItemDTO budgetItem = serviceBudgetItemService.buyService(buyServiceDTO);
@@ -111,7 +111,7 @@ public class ServiceBudgetItemController {
     }
 
     @DeleteMapping ("/{eventId}/{serviceCategoryId}")
-    @PreAuthorize("hasRole('ORGANIZER')")
+//    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> deleteEventEmptyServiceCategoryFromBudget(@PathVariable UUID eventId, @PathVariable UUID serviceCategoryId) {
         try {
             serviceBudgetItemService.deleteEventEmptyServiceCategoryFromBudget(eventId, serviceCategoryId);
@@ -124,7 +124,7 @@ public class ServiceBudgetItemController {
     }
 
     @PutMapping("/{serviceBudgetItemId}")
-    @PreAuthorize("hasRole('ORGANIZER')")
+//    @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> changeServiceBudgetItemMaxPrice(@PathVariable UUID serviceBudgetItemId,
                                                              @RequestBody Double newPrice) {
         try {

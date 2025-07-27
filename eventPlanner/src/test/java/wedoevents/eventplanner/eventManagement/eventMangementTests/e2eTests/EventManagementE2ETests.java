@@ -1,6 +1,7 @@
 package wedoevents.eventplanner.eventManagement.eventMangementTests.e2eTests;
 
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,7 @@ public class EventManagementE2ETests {
     @BeforeEach
     public void setUp() {
         webDriver.manage().window().maximize();
+        WebDriverManager.chromedriver().setup();
 
         String url = "http://localhost:4200/login";
         webDriver.get(url);
