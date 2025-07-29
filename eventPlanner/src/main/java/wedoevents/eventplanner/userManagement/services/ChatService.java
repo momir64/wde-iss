@@ -53,6 +53,11 @@ public class ChatService {
     public List<ChatDTO> getChatsFromProfile(UUID profileId) {
         List<Chat> chatsFromProfile = chatRepository.findChatsFromProfile(profileId);
 
+        chatsFromProfile = chatsFromProfile.stream().filter(chat -> {
+            return chat.getChatter1().getBlockedUsers().stream().noneMatch(bu -> bu.getId().equals(chat.getChatter2().getId())) &&
+                   chat.getChatter2().getBlockedUsers().stream().noneMatch(bu -> bu.getId().equals(chat.getChatter1().getId()));
+        }).toList();
+
         return chatsFromProfile
                 .stream()
                 .map(c -> this.getChatDTO(c, profileId)).toList();

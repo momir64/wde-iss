@@ -14,7 +14,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/sellers")
 public class SellerController {
-
     private final SellerService sellerService;
 
     @Autowired
@@ -27,7 +26,6 @@ public class SellerController {
         Seller savedAttempt = sellerService.saveSeller(seller);
         return ResponseEntity.ok(savedAttempt);
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSeller(@PathVariable UUID id) {
@@ -43,6 +41,7 @@ public class SellerController {
         }
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/{id}/calendar")
     public ResponseEntity<?> getSellerCalendar(@PathVariable UUID id) {
         List<CalendarEventDTO> response = sellerService.getCalendarEvents(id);

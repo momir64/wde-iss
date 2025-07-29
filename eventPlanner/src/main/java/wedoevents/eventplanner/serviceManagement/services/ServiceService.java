@@ -1,12 +1,11 @@
 package wedoevents.eventplanner.serviceManagement.services;
-import jakarta.persistence.EntityManager;
+
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import wedoevents.eventplanner.eventManagement.models.EventType;
 import wedoevents.eventplanner.eventManagement.services.EventTypeService;
-import wedoevents.eventplanner.productManagement.dtos.VersionedProductDTO;
 import wedoevents.eventplanner.serviceManagement.dtos.*;
 import wedoevents.eventplanner.serviceManagement.models.ServiceCategory;
 import wedoevents.eventplanner.serviceManagement.models.StaticService;
@@ -343,8 +342,8 @@ public class ServiceService {
     public Optional<StaticService> getStaticServiceById(UUID serviceId) {
         return staticServiceRepository.findById(serviceId);
     }
+
     public Optional<VersionedService> getLatestByStaticServiceIdAndLatestVersion(UUID serviceId) {
         return versionedServiceRepository.getLatestByStaticServiceIdAndLatestVersion(serviceId);
-
     }
 }

@@ -7,7 +7,6 @@ import wedoevents.eventplanner.eventManagement.dtos.CalendarEventDTO;
 import wedoevents.eventplanner.eventManagement.dtos.EventComplexViewDTO;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
-import wedoevents.eventplanner.eventManagement.services.EventService;
 import wedoevents.eventplanner.shared.services.mappers.CalendarEventMapper;
 import wedoevents.eventplanner.userManagement.dtos.EvenReviewResponseDTO;
 import wedoevents.eventplanner.userManagement.dtos.JoinEventDTO;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class GuestService {
-
     private final GuestRepository guestRepository;
     private final EventRepository eventRepository;
     private final EventReviewService eventReviewService;
@@ -115,6 +113,7 @@ public class GuestService {
     public Optional<Event> getInvitedEvent(Guest guest, UUID eventId) {
         return guest.getInvitedEvents().stream().filter(event -> event.getId().equals(eventId)).findFirst();
     }
+
     public void confirmInvitation(Event event, Guest guest, boolean decision) {
 
         if(decision){
@@ -126,6 +125,7 @@ public class GuestService {
             guestRepository.save(guest);
         }
     }
+
     public long getAcceptedGuestCount(UUID eventId) {
         return guestRepository.countGuestsByAcceptedEventId(eventId);
     }
@@ -137,6 +137,7 @@ public class GuestService {
     public List<Guest> getGuestsByAcceptedEventId(UUID eventId) {
         return guestRepository.findGuestsByAcceptedEventId(eventId);
     }
+
     public boolean checkIfGuestIsInvitedOrAccepted(Guest guest, UUID eventId) {
         if(guest != null) {
             return guest.getInvitedEvents().stream().anyMatch(event -> event.getId().equals(eventId)) ||
@@ -148,6 +149,7 @@ public class GuestService {
                             g.getAcceptedEvents().stream().anyMatch(event -> event.getId().equals(eventId)));
         }
     }
+
     public boolean isEventFavorited(UUID guestId, UUID eventId) {
         Optional<Guest> guest = guestRepository.findById(guestId);
         if(guest.isEmpty()){
@@ -155,6 +157,7 @@ public class GuestService {
         }
         return guest.get().getFavouriteEvents().stream().anyMatch(event -> event.getId().equals(eventId));
     }
+
     public boolean isEventAccepted(UUID guestId, UUID eventId) {
         Optional<Guest> guest = guestRepository.findById(guestId);
         if(guest.isEmpty()){
@@ -162,6 +165,7 @@ public class GuestService {
         }
         return guest.get().getAcceptedEvents().stream().anyMatch(event -> event.getId().equals(eventId));
     }
+
     public boolean joinEvent(JoinEventDTO joinEventDTO) {
         Guest guest = guestRepository.findById(joinEventDTO.getGuestId()).orElse(null);
         if(guest == null){
@@ -179,6 +183,7 @@ public class GuestService {
         guestRepository.save(guest);
         return true;
     }
+
     public List<EventComplexViewDTO> getFavoriteEvents(UUID guestId) {
         Guest guest = guestRepository.findById(guestId).orElse(null);
         if(guest == null){
@@ -192,6 +197,7 @@ public class GuestService {
         }
         return response;
     }
+
     public boolean favoriteEvent(UUID guestId, UUID eventId) {
         Guest guest = guestRepository.findById(guestId).orElse(null);
         if(guest == null){
@@ -220,6 +226,7 @@ public class GuestService {
                 .map(CalendarEventMapper::toCalendarEventDTO)
                 .collect(Collectors.toList());
     }
+
     public double calculateAverageGrade(List<EvenReviewResponseDTO> reviews) {
         if (reviews == null || reviews.isEmpty()) {
             return 0.0;

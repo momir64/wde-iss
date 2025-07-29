@@ -1,11 +1,8 @@
 package wedoevents.eventplanner.userManagement.repositories;
 
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import wedoevents.eventplanner.userManagement.models.Chat;
-import wedoevents.eventplanner.userManagement.models.ChatMessage;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,8 +13,8 @@ public interface ChatRepository extends JpaRepository<Chat, UUID> {
     List<Chat> findChatsFromProfile(UUID chatter_profile_id);
 
     @Query(value = "SELECT * FROM chat c " +
-            "WHERE (c.chatter1_profile_id = ?1 OR c.chatter2_profile_id = ?2) OR " +
-            "(c.chatter2_profile_id = ?1 OR c.chatter1_profile_id = ?2) AND " +
+            "WHERE ((c.chatter1_profile_id = ?1 AND c.chatter2_profile_id = ?2) OR " +
+            "(c.chatter2_profile_id = ?1 AND c.chatter1_profile_id = ?2)) AND " +
             "((c.product_static_product_id = ?3 AND c.product_version = ?4) OR " +
             "(c.service_static_service_id = ?3 AND c.service_version = ?4))",
             nativeQuery = true)

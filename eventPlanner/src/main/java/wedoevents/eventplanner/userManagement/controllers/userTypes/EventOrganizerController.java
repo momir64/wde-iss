@@ -1,12 +1,10 @@
 package wedoevents.eventplanner.userManagement.controllers.userTypes;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wedoevents.eventplanner.eventManagement.dtos.CalendarEventDTO;
 import wedoevents.eventplanner.listingManagement.dtos.ListingDTO;
-import wedoevents.eventplanner.userManagement.dtos.FavoriteListingDTO;
 import wedoevents.eventplanner.userManagement.dtos.FavoritesRequestDTO;
 import wedoevents.eventplanner.userManagement.dtos.UserAdditionalInfoDTO;
 import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
@@ -35,8 +33,8 @@ public class EventOrganizerController {
     @GetMapping("/{id}")
     public ResponseEntity<EventOrganizer> getEventOrganizerById(@PathVariable UUID id) {
         return eventOrganizerService.getEventOrganizerById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                                    .map(ResponseEntity::ok)
+                                    .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
@@ -53,26 +51,28 @@ public class EventOrganizerController {
     @GetMapping("/profile/{profileId}")
     public ResponseEntity<?> getOrganizerAdditionalInfo(@PathVariable UUID profileId) {
         Optional<EventOrganizer> organizerOptional = eventOrganizerService.getEventOrganizerByProfileId(profileId);
-        if(organizerOptional.isEmpty()){
+        if (organizerOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         EventOrganizer organizer = organizerOptional.get();
-        return ResponseEntity.ok(new UserAdditionalInfoDTO(organizer.getName(),organizer.getSurname()));
+        return ResponseEntity.ok(new UserAdditionalInfoDTO(organizer.getName(), organizer.getSurname()));
     }
+
     @GetMapping("/{id}/calendar")
     public ResponseEntity<?> getOrganizerCalendar(@PathVariable UUID id) {
         List<CalendarEventDTO> response = eventOrganizerService.getCalendarEvents(id);
-        if(response == null){
+        if (response == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/{id}/favorite-listings")
     public ResponseEntity<?> getOrganizerFavoriteListings(@PathVariable UUID id) {
         List<ListingDTO> listings = eventOrganizerService.getFavoriteListings(id);
         if (listings == null) {
             return ResponseEntity.notFound().build();
-        }else{
+        } else {
             return ResponseEntity.ok(listings);
         }
     }
@@ -80,7 +80,7 @@ public class EventOrganizerController {
     @GetMapping("/{userId}/favorite-listings/{isProduct}/{listingId}")
     public ResponseEntity<?> isListingFavorited(@PathVariable UUID userId, @PathVariable boolean isProduct, @PathVariable UUID listingId) {
         Optional<EventOrganizer> organizerOptional = eventOrganizerService.getEventOrganizerById(userId);
-        if(organizerOptional.isEmpty()){
+        if (organizerOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(eventOrganizerService.isFavoriteListing(organizerOptional.get(), isProduct, listingId));
@@ -89,9 +89,9 @@ public class EventOrganizerController {
 
     @PutMapping("/favorite-listings")
     public ResponseEntity<Void> favoriteListing(@RequestBody FavoritesRequestDTO request) {
-        if(eventOrganizerService.favoriteListing(request)){
+        if (eventOrganizerService.favoriteListing(request)) {
             return ResponseEntity.ok().build();
-        }else{
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
