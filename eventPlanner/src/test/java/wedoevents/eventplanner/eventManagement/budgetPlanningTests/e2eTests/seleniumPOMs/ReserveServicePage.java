@@ -1,6 +1,7 @@
 package wedoevents.eventplanner.eventManagement.budgetPlanningTests.e2eTests.seleniumPOMs;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -17,12 +18,10 @@ public class ReserveServicePage {
 
     public ReserveServicePage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(5));
     }
 
     public void reserveForEvent(String eventName) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-
         WebElement reserveButton = wait.until(
                 ExpectedConditions.elementToBeClickable(By.xpath("//button[text()='Reserve']"))
         );
@@ -32,6 +31,8 @@ public class ReserveServicePage {
 
         WebElement eventDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//mat-select[@placeholder='Event']")));
         eventDropdown.click();
+
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         List<WebElement> eventOptions = wait.until(
                 ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//mat-option/span"))
@@ -54,11 +55,7 @@ public class ReserveServicePage {
                 ExpectedConditions.elementToBeClickable(By.xpath("//mat-select[@placeholder='Start time' and not(@aria-disabled='true')]"))
         );
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         startTimeDropdown.click();
 
@@ -70,11 +67,7 @@ public class ReserveServicePage {
             startTimeOptions.get(0).click();
         }
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         WebElement endTimeDropdown = wait.until(
                 ExpectedConditions.elementToBeClickable(By.xpath("//mat-select[@placeholder='End time' and not(@aria-disabled='true')]"))
@@ -94,8 +87,6 @@ public class ReserveServicePage {
     }
 
     public boolean reservableForEvent(String eventName) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-
         WebElement reserveButton = wait.until(
                 ExpectedConditions.elementToBeClickable(By.xpath("//button[text()='Reserve']"))
         );
@@ -106,11 +97,16 @@ public class ReserveServicePage {
         WebElement eventDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//mat-select[@placeholder='Event']")));
         eventDropdown.click();
 
-        List<WebElement> eventOptions = wait.until(
-                ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//mat-option/span"))
-        );
+        List<WebElement> eventOptions;
 
-        boolean found = false;
+        try {
+            eventOptions = wait.until(
+                    ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//mat-option/span"))
+            );
+        } catch (TimeoutException e) {
+            return false;
+        }
+
         for (WebElement option : eventOptions) {
             if (option.getText().trim().equalsIgnoreCase(eventName.trim())) {
                 option.click();

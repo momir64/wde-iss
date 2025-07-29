@@ -8,7 +8,6 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
-import org.springframework.test.context.jdbc.Sql;
 import wedoevents.eventplanner.eventManagement.budgetPlanningTests.e2eTests.seleniumPOMs.*;
 import wedoevents.eventplanner.eventManagement.budgetPlanningTests.e2eTests.testData.EventTestData;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
@@ -19,6 +18,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +57,7 @@ public class BudgetPlanningE2ETests {
 
     @Test
     public void testNoTwoSameCategoriesAllowed() {
-        goToBudgetStep("My event");
+        goToBudgetStep("My event", "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -74,7 +74,7 @@ public class BudgetPlanningE2ETests {
 
     @Test
     public void testNextButtonDisabledIfBudgetValueMissing() {
-        goToBudgetStep("My event");
+        goToBudgetStep("My event", "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -94,7 +94,7 @@ public class BudgetPlanningE2ETests {
 
     @Test
     public void testCreateEventWithProductAndServiceBudgetItems() {
-        goToBudgetStep("My event");
+        goToBudgetStep("My event", "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -119,18 +119,20 @@ public class BudgetPlanningE2ETests {
 
         fillAgendaAndSubmit();
 
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         EventEditPage eventEditPage = new EventEditPage(webDriver);
         eventEditPage.navigateToActualEditPage();
         eventEditPage.navigateToBudget();
 
         assertEquals(2, eventEditPage.numberOfBudgetItems());
-        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.PRODUCT, "Fireworks", 1000));
-        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.SERVICE, "Music", 1500));
+        assertTrue(eventEditPage.containsListingBudgetItem(ListingType.PRODUCT, "Fireworks", 1000));
+        assertTrue(eventEditPage.containsListingBudgetItem(ListingType.SERVICE, "Music", 1500));
     }
 
     @Test
     public void testCalculateTotalPriceOfBudgetItems() {
-        goToBudgetStep("My event");
+        goToBudgetStep("My event", "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -146,12 +148,14 @@ public class BudgetPlanningE2ETests {
         serviceBudgetRow.selectCustomCategoryOption("Music");
         serviceBudgetRow.setBudget("1500");
 
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         assertEquals(2500, eventBudgetPage.getTotalPrice());
     }
 
     @Test
     public void testDeleteBudgetItemWithNoAssociatedListing() {
-        goToBudgetStep("My event");
+        goToBudgetStep("My event", "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -164,6 +168,8 @@ public class BudgetPlanningE2ETests {
         eventBudgetPage.submitForm();
 
         fillAgendaAndSubmit();
+
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         EventEditPage eventEditPage = new EventEditPage(webDriver);
         eventEditPage.navigateToActualEditPage();
@@ -174,12 +180,12 @@ public class BudgetPlanningE2ETests {
         eventEditPage.refreshPage();
         eventEditPage.navigateToBudget();
 
-        assertFalse(eventEditPage.containsProductBudgetItem(ListingType.PRODUCT, "Fireworks", 1000));
+        assertFalse(eventEditPage.containsListingBudgetItem(ListingType.PRODUCT, "Fireworks", 1000));
     }
 
     @Test
     public void testChangeBudgetItemPriceWithNoAssociatedListing() {
-        goToBudgetStep("My event");
+        goToBudgetStep("My event", "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -193,6 +199,8 @@ public class BudgetPlanningE2ETests {
 
         fillAgendaAndSubmit();
 
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         EventEditPage eventEditPage = new EventEditPage(webDriver);
         eventEditPage.navigateToActualEditPage();
         eventEditPage.navigateToBudget();
@@ -202,14 +210,14 @@ public class BudgetPlanningE2ETests {
         eventEditPage.refreshPage();
         eventEditPage.navigateToBudget();
 
-        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.PRODUCT, "Fireworks", 2000));
+        assertTrue(eventEditPage.containsListingBudgetItem(ListingType.PRODUCT, "Fireworks", 2000));
     }
 
     @Test
     public void testCreateEventWithServiceBudgetItemsAndBuyService() {
         String eventName = generateRandomString();
 
-        goToBudgetStep(eventName);
+        goToBudgetStep(eventName, "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -222,6 +230,8 @@ public class BudgetPlanningE2ETests {
         eventBudgetPage.submitForm();
 
         fillAgendaAndSubmit();
+
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
@@ -241,7 +251,7 @@ public class BudgetPlanningE2ETests {
         eventEditPage.navigateToActualEditPage();
         eventEditPage.navigateToBudget();
 
-        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.SERVICE, "Music", 1000));
+        assertTrue(eventEditPage.containsListingBudgetItem(ListingType.SERVICE, "Music", 1000));
         assertTrue(eventEditPage.navigateToBoughtListingPageIfBought(ListingType.SERVICE, "Music", 1000));
 
         BoughtServicePage boughtServicePage = new BoughtServicePage(webDriver);
@@ -255,7 +265,7 @@ public class BudgetPlanningE2ETests {
     public void testCreateEventWithProductBudgetItemsAndBuyProduct() {
         String eventName = generateRandomString();
 
-        goToBudgetStep(eventName);
+        goToBudgetStep(eventName, "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -269,6 +279,8 @@ public class BudgetPlanningE2ETests {
 
         fillAgendaAndSubmit();
 
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
 
@@ -280,6 +292,8 @@ public class BudgetPlanningE2ETests {
 
         sidebarPage.navigateToMyEvents();
 
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         MyEventsPage myEventsPage = new MyEventsPage(webDriver);
         myEventsPage.navigateToEvent(eventName);
 
@@ -287,7 +301,7 @@ public class BudgetPlanningE2ETests {
         eventEditPage.navigateToActualEditPage();
         eventEditPage.navigateToBudget();
 
-        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.PRODUCT, "Drinks", 1000));
+        assertTrue(eventEditPage.containsListingBudgetItem(ListingType.PRODUCT, "Drinks", 1000));
         assertTrue(eventEditPage.navigateToBoughtListingPageIfBought(ListingType.PRODUCT, "Drinks", 1000));
 
         BoughtProductPage boughtProductPage = new BoughtProductPage(webDriver);
@@ -301,7 +315,7 @@ public class BudgetPlanningE2ETests {
     public void testCreateEventWithoutServiceBudgetItemsAndBuyService() {
         String eventName = generateRandomString();
 
-        goToBudgetStep(eventName);
+        goToBudgetStep(eventName, "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -315,6 +329,8 @@ public class BudgetPlanningE2ETests {
 
         fillAgendaAndSubmit();
 
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
 
@@ -326,6 +342,8 @@ public class BudgetPlanningE2ETests {
 
         sidebarPage.navigateToMyEvents();
 
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         MyEventsPage myEventsPage = new MyEventsPage(webDriver);
         myEventsPage.navigateToEvent(eventName);
 
@@ -333,7 +351,7 @@ public class BudgetPlanningE2ETests {
         eventEditPage.navigateToActualEditPage();
         eventEditPage.navigateToBudget();
 
-        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.SERVICE, "Music", 0));
+        assertTrue(eventEditPage.containsListingBudgetItem(ListingType.SERVICE, "Music", 0));
         assertTrue(eventEditPage.navigateToBoughtListingPageIfBought(ListingType.SERVICE, "Music", 0));
 
         BoughtServicePage boughtServicePage = new BoughtServicePage(webDriver);
@@ -347,7 +365,7 @@ public class BudgetPlanningE2ETests {
     public void testCreateEventWithoutProductBudgetItemsAndBuyProduct() {
         String eventName = generateRandomString();
 
-        goToBudgetStep(eventName);
+        goToBudgetStep(eventName, "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -361,6 +379,8 @@ public class BudgetPlanningE2ETests {
 
         fillAgendaAndSubmit();
 
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
 
@@ -379,7 +399,7 @@ public class BudgetPlanningE2ETests {
         eventEditPage.navigateToActualEditPage();
         eventEditPage.navigateToBudget();
 
-        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.PRODUCT, "Drinks", 0));
+        assertTrue(eventEditPage.containsListingBudgetItem(ListingType.PRODUCT, "Drinks", 0));
         assertTrue(eventEditPage.navigateToBoughtListingPageIfBought(ListingType.PRODUCT, "Drinks", 0));
 
         BoughtProductPage boughtProductPage = new BoughtProductPage(webDriver);
@@ -393,7 +413,7 @@ public class BudgetPlanningE2ETests {
     public void testCantBuyProductForEventThatAlreadyHasBoughtProductWithSameCategory() {
         String eventName = generateRandomString();
 
-        goToBudgetStep(eventName);
+        goToBudgetStep(eventName, "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -406,6 +426,8 @@ public class BudgetPlanningE2ETests {
         eventBudgetPage.submitForm();
 
         fillAgendaAndSubmit();
+
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
@@ -425,7 +447,7 @@ public class BudgetPlanningE2ETests {
         eventEditPage.navigateToActualEditPage();
         eventEditPage.navigateToBudget();
 
-        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.PRODUCT, "Drinks", 1000));
+        assertTrue(eventEditPage.containsListingBudgetItem(ListingType.PRODUCT, "Drinks", 1000));
         assertTrue(eventEditPage.navigateToBoughtListingPageIfBought(ListingType.PRODUCT, "Drinks", 1000));
 
         BoughtProductPage boughtProductPage = new BoughtProductPage(webDriver);
@@ -444,7 +466,7 @@ public class BudgetPlanningE2ETests {
     public void testCantBuyServiceForEventThatAlreadyHasBoughtServiceWithSameCategory() {
         String eventName = generateRandomString();
 
-        goToBudgetStep(eventName);
+        goToBudgetStep(eventName, "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -457,6 +479,8 @@ public class BudgetPlanningE2ETests {
         eventBudgetPage.submitForm();
 
         fillAgendaAndSubmit();
+
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
@@ -476,7 +500,7 @@ public class BudgetPlanningE2ETests {
         eventEditPage.navigateToActualEditPage();
         eventEditPage.navigateToBudget();
 
-        assertTrue(eventEditPage.containsProductBudgetItem(ListingType.SERVICE, "Music", 0));
+        assertTrue(eventEditPage.containsListingBudgetItem(ListingType.SERVICE, "Music", 0));
         assertTrue(eventEditPage.navigateToBoughtListingPageIfBought(ListingType.SERVICE, "Music", 0));
 
         BoughtServicePage boughtServicePage = new BoughtServicePage(webDriver);
@@ -492,10 +516,70 @@ public class BudgetPlanningE2ETests {
     }
 
     @Test
+    public void testCantBuyProductForEventThatHasNoTypeSupported() {
+        String eventName = generateRandomString();
+
+        goToBudgetStep(eventName, "Outdoor Festival");
+
+        EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
+        eventBudgetPage.clickAddCategoryButton();
+
+        EventBudgetRow productBudgetRow = new EventBudgetRow(webDriver);
+        productBudgetRow.selectProductTypeOption();
+        productBudgetRow.selectCustomCategoryOption("Food");
+        productBudgetRow.setBudget("1000");
+
+        eventBudgetPage.submitForm();
+
+        fillAgendaAndSubmit();
+
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
+        SidebarPage sidebarPage = new SidebarPage(webDriver);
+        sidebarPage.navigateToMarket();
+
+        MarketPage marketPage = new MarketPage(webDriver);
+        marketPage.navigateToListing("Chocolate Fountain");
+
+        BuyProductPage buyProductPage = new BuyProductPage(webDriver);
+        assertFalse(buyProductPage.buyableForEvent(eventName));
+    }
+
+    @Test
+    public void testCantBuyServiceForEventThatHasNoTypeSupported() {
+        String eventName = generateRandomString();
+
+        goToBudgetStep(eventName, "Outdoor Festival");
+
+        EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
+        eventBudgetPage.clickAddCategoryButton();
+
+        EventBudgetRow productBudgetRow = new EventBudgetRow(webDriver);
+        productBudgetRow.selectServiceTypeOption();
+        productBudgetRow.selectCustomCategoryOption("Music");
+        productBudgetRow.setBudget("1000");
+
+        eventBudgetPage.submitForm();
+
+        fillAgendaAndSubmit();
+
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
+        SidebarPage sidebarPage = new SidebarPage(webDriver);
+        sidebarPage.navigateToMarket();
+
+        MarketPage marketPage = new MarketPage(webDriver);
+        marketPage.navigateToListing("Solo Violinist");
+
+        ReserveServicePage reserveServicePage = new ReserveServicePage(webDriver);
+        assertFalse(reserveServicePage.reservableForEvent(eventName));
+    }
+
+    @Test
     public void testCantBuyProductIfThePriceIsTooHigh() {
         String eventName = generateRandomString();
 
-        goToBudgetStep(eventName);
+        goToBudgetStep(eventName, "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -508,6 +592,8 @@ public class BudgetPlanningE2ETests {
         eventBudgetPage.submitForm();
 
         fillAgendaAndSubmit();
+
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
@@ -523,7 +609,7 @@ public class BudgetPlanningE2ETests {
     public void testCantReserveServiceIfThePriceIsTooHigh() {
         String eventName = generateRandomString();
 
-        goToBudgetStep(eventName);
+        goToBudgetStep(eventName, "Corporate Event");
 
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
@@ -537,6 +623,8 @@ public class BudgetPlanningE2ETests {
 
         fillAgendaAndSubmit();
 
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
 
@@ -547,14 +635,17 @@ public class BudgetPlanningE2ETests {
         assertFalse(reserveServicePage.reservableForEvent(eventName));
     }
 
-    private void goToBudgetStep(String eventName) {
+    private void goToBudgetStep(String eventName, String eventType) {
         EventTestData validEventData = new EventTestData(
                 eventName, 50, "Novi Sad", "Ntp FTN",
-                "2025-12-25", "18:00", "Corporate Event", "A special event",
+                "2025-12-25", "18:00", eventType, "A special event",
                 true
         );
 
         EventBaseInfoPage eventBaseInfoPage = new EventBaseInfoPage(webDriver);
+
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         eventBaseInfoPage.fillEventForm(validEventData);
 
         eventBaseInfoPage.submitForm();

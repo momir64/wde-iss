@@ -35,41 +35,19 @@ public class EventBaseInfoPage {
         nameInput.sendKeys(name);
     }
 
-    public boolean isEventNameValid() {
-        return isFieldValid(By.cssSelector("input[formControlName='name']"), "Must start with an uppercase letter");
-    }
-
     public void enterGuestCount(int guestCount) {
         WebElement guestCountInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("input[formControlName='guestCount']")));
         guestCountInput.clear();
         guestCountInput.sendKeys(String.valueOf(guestCount));
     }
 
-    public boolean isGuestCountValid() {
-        return isFieldValid(By.cssSelector("input[formControlName='guestCount']"), "Must be at least 1");
-    }
-    public void eraseGuestCount() {
-        WebElement guestCountInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("input[formControlName='guestCount']")));
-        guestCountInput.clear(); // Clear the guest count input field
-        guestCountInput.sendKeys(Keys.BACK_SPACE);
-        guestCountInput.sendKeys(Keys.BACK_SPACE);
-        guestCountInput.sendKeys(Keys.BACK_SPACE);
-        guestCountInput.sendKeys(Keys.BACK_SPACE);
-        guestCountInput.sendKeys(Keys.TAB);
-    }
     public void selectCity(String city) {
         if(city.isEmpty()) return;
-        // Wait for dropdown to be clickable
         WebElement cityDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("mat-select[formControlName='city']")));
         cityDropdown.click();
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
-        // Now select the city option
         WebElement cityOption = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//mat-option//span[contains(text(), '" + city + "')]")));
         cityOption.click();
     }
@@ -80,20 +58,12 @@ public class EventBaseInfoPage {
         addressInput.sendKeys(address);
     }
 
-    public boolean isAddressValid() {
-        return isFieldValid(By.cssSelector("input[formControlName='address']"), "Address is required");
-    }
-
     public void enterDate(String date) {
         if(date.isEmpty()) return;
         WebElement dateInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("input[formControlName='date']")));
         dateInput.sendKeys(Keys.CONTROL + "a"); // Clear existing value
         dateInput.sendKeys(date);
         dateInput.sendKeys(Keys.RETURN);
-    }
-
-    public boolean isDateValid() {
-        return isFieldValid(By.cssSelector("input[formControlName='date']"), "Date is required");
     }
 
     public void enterTime(String time) {
@@ -103,19 +73,11 @@ public class EventBaseInfoPage {
         timeInput.sendKeys(time);
     }
 
-    public boolean isTimeValid() {
-        return isFieldValid(By.cssSelector("input[formControlName='time']"), "Time is required");
-    }
-
     public void selectEventType(String eventType) {
         if(eventType.isEmpty()) return;
         WebElement eventTypeDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("mat-select[formControlName='eventTypeId']")));
         eventTypeDropdown.click();
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
         WebElement eventTypeOption = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//mat-option/span[contains(text(), '" + eventType + "')]")));
         eventTypeOption.click();
     }
@@ -128,13 +90,8 @@ public class EventBaseInfoPage {
 
     public void toggleIsPublic(boolean isPublic) {
         WebElement isPublicToggle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("mat-slide-toggle[formControlName='isPublic']")));
-        String currentState = isPublicToggle.getAttribute("aria-checked");
         if (isPublic) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
             isPublicToggle.click();
         }
     }
@@ -142,30 +99,5 @@ public class EventBaseInfoPage {
     public void submitForm() {
         WebElement nextButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@matStepperNext]")));
         nextButton.click();
-    }
-
-    public boolean isNextButtonDisabled() {
-        WebElement nextButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//button[@matStepperNext]")));
-        return !nextButton.isEnabled();
-    }
-
-    private boolean isFieldValid(By inputLocator, String expectedErrorMessage) {
-        try {
-            WebElement inputField = wait.until(ExpectedConditions.presenceOfElementLocated(inputLocator));
-            inputField.click(); // Ensure the field is active
-            inputField.sendKeys(Keys.TAB); // Move focus away to trigger validation
-
-            // Wait for error messages
-            List<WebElement> errorMessages = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.tagName("mat-error")));
-
-            for (WebElement error : errorMessages) {
-                if (error.getText().trim().equals(expectedErrorMessage)) {
-                    return false; // Field is invalid if the expected error appears
-                }
-            }
-            return true; // No error message means the field is valid
-        } catch (TimeoutException e) {
-            return true; // If no error appears after waiting, assume field is valid
-        }
     }
 }

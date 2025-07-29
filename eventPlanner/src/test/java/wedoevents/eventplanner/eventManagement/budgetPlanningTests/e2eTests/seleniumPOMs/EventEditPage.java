@@ -52,7 +52,7 @@ public class EventEditPage {
         return budgetItems.size();
     }
 
-    public boolean containsProductBudgetItem(ListingType listingType, String category, int maxBudget) {
+    public boolean containsListingBudgetItem(ListingType listingType, String category, int maxBudget) {
         By rowsLocator = By.xpath("//mat-table//mat-row");
         List<WebElement> budgetItems;
 
@@ -61,6 +61,8 @@ public class EventEditPage {
         } catch (TimeoutException e) {
             return false;
         }
+
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         for (WebElement bi : budgetItems) {
             String type = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-type')]")).getText().trim();
@@ -150,6 +152,8 @@ public class EventEditPage {
             return false;
         }
 
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         for (WebElement bi : budgetItems) {
             String type = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-type')]")).getText().trim();
             String cat = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-category')]")).getText().trim();
@@ -177,10 +181,6 @@ public class EventEditPage {
 
         wait.until(ExpectedConditions.elementToBeClickable(saveButtonLocator)).click();
 
-        try {
-            Thread.sleep(2700);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(2700));
     }
 }

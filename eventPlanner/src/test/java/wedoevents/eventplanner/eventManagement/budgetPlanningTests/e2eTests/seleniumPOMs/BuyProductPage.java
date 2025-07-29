@@ -1,6 +1,7 @@
 package wedoevents.eventplanner.eventManagement.budgetPlanningTests.e2eTests.seleniumPOMs;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -17,12 +18,10 @@ public class BuyProductPage {
 
     public BuyProductPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(5));
     }
 
     public void buyForEvent(String eventName) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-
         WebElement buyButton = wait.until(
                 ExpectedConditions.elementToBeClickable(By.xpath("//button[text()='Buy']"))
         );
@@ -53,8 +52,6 @@ public class BuyProductPage {
     }
 
     public boolean buyableForEvent(String eventName) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-
         WebElement buyButton = wait.until(
                 ExpectedConditions.elementToBeClickable(By.xpath("//button[text()='Buy']"))
         );
@@ -63,9 +60,15 @@ public class BuyProductPage {
         WebElement eventDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//mat-select[@placeholder='Event']")));
         eventDropdown.click();
 
-        List<WebElement> eventOptions = wait.until(
-                ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//mat-option/span"))
-        );
+        List<WebElement> eventOptions;
+
+        try {
+            eventOptions = wait.until(
+                    ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//mat-option/span"))
+            );
+        } catch (TimeoutException e) {
+            return false;
+        }
 
         for (WebElement option : eventOptions) {
             if (option.getText().trim().equalsIgnoreCase(eventName.trim())) {

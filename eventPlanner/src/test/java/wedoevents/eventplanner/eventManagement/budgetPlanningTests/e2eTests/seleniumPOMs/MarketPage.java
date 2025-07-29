@@ -27,11 +27,17 @@ public class MarketPage {
                 ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='filter-bar']//input[@type='text']"))
         );
 
-        searchInput.sendKeys(listingName + Keys.ENTER);
+        searchInput.sendKeys(listingName);
+
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
+        searchInput.sendKeys(Keys.ENTER);
 
         List<WebElement> listingCards = wait.until(
                 ExpectedConditions.presenceOfAllElementsLocatedBy(By.tagName("app-listing-card"))
         );
+
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         if (!listingCards.isEmpty()) {
             WebElement firstCard = listingCards.get(0);

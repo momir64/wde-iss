@@ -36,11 +36,8 @@ public class EventBudgetRow {
         WebElement typeSelectTrigger = row.findElement(By.cssSelector("mat-select[placeholder='Type'] .mat-mdc-select-trigger"));
         typeSelectTrigger.click();
 
-        try {
-            Thread.sleep(500); // Adjust the time as necessary
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         WebElement option = wait.until(ExpectedConditions.elementToBeClickable(
                 By.xpath("//mat-option[.//span[normalize-space(text())='Product']]")));
         option.click();
@@ -50,11 +47,8 @@ public class EventBudgetRow {
         WebElement typeSelectTrigger = row.findElement(By.cssSelector("mat-select[placeholder='Type'] .mat-mdc-select-trigger"));
         typeSelectTrigger.click();
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         WebElement option = wait.until(ExpectedConditions.elementToBeClickable(
                 By.xpath("//mat-option[.//span[normalize-space(text())='Service']]")));
         option.click();
@@ -70,11 +64,8 @@ public class EventBudgetRow {
         WebElement categoryTrigger = categorySelect.findElement(By.cssSelector(".mat-mdc-select-trigger"));
         categoryTrigger.click();
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         WebElement option = wait.until(ExpectedConditions.elementToBeClickable(
                 By.xpath("//mat-option[.//span[normalize-space(text())='" + category + "']]")));
         option.click();
@@ -90,11 +81,8 @@ public class EventBudgetRow {
         WebElement categoryTrigger = categorySelect.findElement(By.cssSelector(".mat-mdc-select-trigger"));
         categoryTrigger.click();
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+
         WebElement option = wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.xpath("//mat-option[.//span[normalize-space(text())='" + category + "']]")));
 
