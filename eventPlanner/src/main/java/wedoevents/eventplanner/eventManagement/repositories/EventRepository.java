@@ -57,7 +57,7 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
                    and (:city is null or e.city.name = :city) and e.isPublic
                    and o.profile.id not in (select bu.id from Profile p join p.blockedUsers bu where p.id = :profileId)
                    and :profileId not in (select bu.id from o.profile.blockedUsers bu)
-               order by coalesce((select avg(r.grade) from EventReview r where r.event = e), 0) desc
+               order by coalesce((select avg(r.grade) from EventReview r where r.event = e and r.pendingStatus = wedoevents.eventplanner.userManagement.models.PendingStatus.APPROVED), 0) desc
                limit 5
            """)
     List<Event> getTopEvents(@Param("city") String city, @Param("profileId") UUID profileId);
