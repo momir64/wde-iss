@@ -87,16 +87,6 @@ VALUES
     ('5a72482a-cd36-46e4-8c09-7b2ff1e22071', false, 'madison.green@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('3cfb1016-0d0e-42f8-924c-324ba2249ded', false, 'g', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf');
 
-INSERT INTO profile_blocked_users (profile_id, blocked_user_id)
-VALUES
-    -- EVENT ORGANIZER ON SELLER
-    ('3d82e9b8-3d9b-4c7d-b244-1e6725b78456', 'e852c4ff-3d2b-47ea-b1fd-e711cf18b1d7'),
-
-    -- SELLER ON EVENT ORGANIZER
-    ('fddde66f-9b84-4bb8-b408-eae5b815ae69', '91c1e927-9f79-44f4-b12f-bcbf16b16c6f');
-
-    -- NO SENSE TO ADD MORE BLOCKS BECAUSE OTHER FUNCTIONALITY WILL BE BLOCKED
-
 -- USERS
 
 INSERT INTO admin (id, profile_id) VALUES

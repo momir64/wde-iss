@@ -20,8 +20,8 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     @Query("""
                select e from Event e, EventOrganizer o
                where e in elements(o.myEvents)
-                   and o.profile.id not in (select bu.id from Profile p join p.blockedUsers bu where p.id = :profileId)
-                   and :profileId not in (select bu.id from o.profile.blockedUsers bu)
+                   and (:profileId is null or o.profile.id not in (select bu.id from Profile p join p.blockedUsers bu where p.id = :profileId))
+                   and (:profileId is null or :profileId not in (select bu.id from o.profile.blockedUsers bu))
                    and (:searchTerms is null or lower(e.name) like concat('%', lower(cast(:searchTerms as string)), '%'))
                    and (:city is null or e.city.name = :city)
                    and (:eventTypeId is null or e.eventType.id = :eventTypeId)
@@ -55,8 +55,8 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
                select e from Event e, EventOrganizer o
                where e in elements(o.myEvents)
                    and (:city is null or e.city.name = :city) and e.isPublic
-                   and o.profile.id not in (select bu.id from Profile p join p.blockedUsers bu where p.id = :profileId)
-                   and :profileId not in (select bu.id from o.profile.blockedUsers bu)
+                   and (:profileId is null or o.profile.id not in (select bu.id from Profile p join p.blockedUsers bu where p.id = :profileId))
+                   and (:profileId is null or :profileId not in (select bu.id from o.profile.blockedUsers bu))
                order by coalesce((select avg(r.grade) from EventReview r where r.event = e and r.pendingStatus = wedoevents.eventplanner.userManagement.models.PendingStatus.APPROVED), 0) desc
                limit 5
            """)

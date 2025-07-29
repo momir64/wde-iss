@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -25,34 +26,44 @@ import wedoevents.eventplanner.shared.services.auth.CustomUserDetailsService;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthEntryPoint authEntryPoint;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, AuthEntryPoint authEntryPoint) {
+        this.authEntryPoint = authEntryPoint;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .authorizeRequests()
-                .requestMatchers("/v3/api-docs.yaml","/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**","/api-docs/**").permitAll()
-//                .requestMatchers("api/**").permitAll()  //DEV ENV
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/api/v1/chats/**").permitAll()
-                .requestMatchers("api/v1/profiles/registration","/api/v1/events/*/pdf").permitAll()
-                .requestMatchers("api/v1/profiles/images/**").permitAll()
-                .requestMatchers("api/v1/sellers/**").permitAll()
-                .requestMatchers("/api/v1/events/top","/api/v1/listings/top","/api/v1/listings","/api/v1/notifications**","api/v1/products/**","api/v1/services/**","api/v1/events/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/v1/admins").hasAnyRole("GUEST","ADMIN","ORGANIZER")
-                .requestMatchers("chat-socket/**").permitAll()
-//                .anyRequest().authenticated()
-                .anyRequest().permitAll()
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/v3/api-docs.yaml", "/swagger-ui.html", "/swagger-ui/**",
+                                "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**", "/api-docs/**",
+                                "/api/v1/auth/**",
+                                "/api/v1/chats/**",
+                                "/api/v1/profiles/registration", "/api/v1/events/*/pdf",
+                                "/api/v1/profiles/images/**",
+                                "/api/v1/sellers/**",
+                                "/api/v1/events/top", "/api/v1/listings/top", "/api/v1/listings",
+                                "/api/v1/notifications**", "api/v1/products/**", "api/v1/services/**", "api/v1/events/**",
+                                "chat-socket/**"
+                        ).permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/admins").hasAnyRole("GUEST", "ADMIN", "ORGANIZER")
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(authEntryPoint)
+                )
+                .sessionManagement(sess -> sess
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {

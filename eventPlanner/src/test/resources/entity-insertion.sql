@@ -74,16 +74,6 @@ VALUES
     ('5a72482a-cd36-46e4-8c09-7b2ff1e22071', false, 'madison.green@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('3cfb1016-0d0e-42f8-924c-324ba2249ded', false, 'g', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf');
 
-INSERT INTO profile_blocked_users (profile_id, blocked_user_id)
-VALUES
-    -- EVENT ORGANIZER ON SELLER
-    ('3d82e9b8-3d9b-4c7d-b244-1e6725b78456', 'e852c4ff-3d2b-47ea-b1fd-e711cf18b1d7'),
-
-    -- SELLER ON EVENT ORGANIZER
-    ('fddde66f-9b84-4bb8-b408-eae5b815ae69', '91c1e927-9f79-44f4-b12f-bcbf16b16c6f');
-
--- NO SENSE TO ADD MORE BLOCKS BECAUSE OTHER FUNCTIONALITY WILL BE BLOCKED
-
 -- USERS
 
 INSERT INTO admin (id, profile_id) VALUES
@@ -546,7 +536,7 @@ VALUES
     -- PHOTOGRAPHY
     ('82828d99-3ed9-4a71-8c91-ecfe040411a5', 1, 15, 'Wedding photography service capturing candid and posed moments throughout the entire day, including pre-ceremony and reception.', true, true, true, false, false, 'Wedding Photography', 250, 20, 0.05, 60, 60),
     ('ef1c7659-9bad-4225-b28e-f4b5c133ecbf', 1, 25, 'Corporate event photography, including keynote speeches, networking sessions, and group photos.', true, true, true, false, false, 'Corporate Event Photography', 150, 15, 0.03, 135, 135),
-    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', 1, 18, 'Outdoor portrait photography session, offering a mix of natural lighting and candid poses in scenic locations.', true, true, true, false, false, 'Outdoor Portrait Photography', 600, 20, 0.04, 570, 30),
+    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', 1, 18, 'Outdoor portrait photography session, offering a mix of natural lighting and candid poses in scenic locations.', true, true, true, false, false, 'Outdoor Portrait Photography', 600, 20, 0.04, 370, 370),
     ('9447c5d5-3a82-44e2-8fe3-5d836f0eda63', 1, 30, 'Family photography with customized themes and settings for large family gatherings and reunions.', true, true, true, false, false, 'Family Photography', 120, 30, 0.07, 195, 30),
     ('9ee88634-aa10-48d1-b2c4-98556eac1684', 1, 20, 'Event photography for private parties, birthdays, and celebrations, capturing key moments and group shots.', true, true, true, false, false, 'Event Photography', 800, 18, 0.01, 150, 30),
     ('10c348f9-e96c-4073-8704-7012f2daa220', 1, 16, 'Engagement photography with a mix of romantic portraits and candid shots to celebrate the couple.', true, true, true, false, false, 'Engagement Photography', 700, 25, 0.05, 450, 30),
@@ -710,10 +700,10 @@ INSERT INTO listing_review (id, comment, grade, pending_status, event_organizer_
 VALUES
     ('bf8b3ec5-0846-47b7-9f3d-e1b70f6a7311', 'The event catering was exceptional, the food was delicious and everyone enjoyed it.', 5, 'APPROVED', 'b38d716b-4d2a-4fd3-b18c-bfa128f24b99', '5a1b07b8-e918-4b0f-bcd2-7f1fd04dbb26', null),
     ('4ac2e6fb-4f68-4f37-832d-689cc5f4584e', 'The DJ played great music all night! The vibe was amazing and everyone had a great time.', 5, 'APPROVED', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f', null, 'e30780b8-b7a8-4737-ae5e-cd11a9ad29fa'),
-    ('2df3f27e-716e-4707-bf6d-2fe56a92a08c', 'I hired a photographer for my wedding and the photos turned out stunning. Highly recommend!', 5, 'APPROVED', '9c88f9ab-c2c9-4823-bf51-e3e263dcd5b0', 'ee3c6987-dfd9-4375-930f-cf14c55126a7', null),
-    ('aeb91c71-1392-47bc-974e-f4842cf3859b', 'The videography service was top-notch. The video captured all the best moments of our event.', 5, 'APPROVED', 'b38d716b-4d2a-4fd3-b18c-bfa128f24b99', null, '82828d99-3ed9-4a71-8c91-ecfe040411a5'),
+    ('2df3f27e-716e-4707-bf6d-2fe56a92a08c', 'I hired a photographer for my wedding and the photos turned out stunning. Highly recommend!', 5, 'PENDING', '9c88f9ab-c2c9-4823-bf51-e3e263dcd5b0', 'ee3c6987-dfd9-4375-930f-cf14c55126a7', null),
+    ('aeb91c71-1392-47bc-974e-f4842cf3859b', 'The videography service was top-notch. The video captured all the best moments of our event.', 5, 'PENDING', 'b38d716b-4d2a-4fd3-b18c-bfa128f24b99', null, '82828d99-3ed9-4a71-8c91-ecfe040411a5'),
     ('da3b58d7-13d5-4b52-a708-d1e0798a4e1d', 'The security team was professional and made sure everything went smoothly during the event. Very reliable.', 4, 'APPROVED', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f', '24a7cf0a-8a8b-46ad-bb23-f4c8be7b154d', null),
-    ('b1577d06-6726-48e7-83b2-c7f2d388f07b', 'Transportation services were on time and comfortable. The drivers were polite and helpful.', 5, 'APPROVED', '9c88f9ab-c2c9-4823-bf51-e3e263dcd5b0', null, '888f99a9-a0e5-469c-bc21-2d6bd429b777'),
+    ('b1577d06-6726-48e7-83b2-c7f2d388f07b', 'Transportation services were on time and comfortable. The drivers were polite and helpful.', 5, 'PENDING', '9c88f9ab-c2c9-4823-bf51-e3e263dcd5b0', null, '888f99a9-a0e5-469c-bc21-2d6bd429b777'),
     ('31a13d0e-cb59-47ea-9e79-e883bdbcd058', 'The venue was amazing and the staff was extremely helpful. Couldn’t have asked for a better place for our event.', 5, 'APPROVED', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f', '3c2ef35b-6e5d-429b-9bbf-62c9b7a4ab3b', null),
     ('47c07e3e-317b-4b2e-a5b3-b06d3a77f022', 'The catering options were diverse and the service was very friendly. The guests loved everything.', 4, 'APPROVED', 'b38d716b-4d2a-4fd3-b18c-bfa128f24b99', '327b9456-b9da-42e1-86c3-f4b25f38a0e9', null),
     ('1ec51b6a-408d-41b1-aeae-7a07fd25fce0', 'The event planner was so organized and helped us every step of the way. Highly recommend for anyone looking to organize a smooth event.', 5, 'APPROVED', '1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236', null, 'b008b01e-4f96-4233-873e-77617645c371'),
@@ -804,6 +794,21 @@ VALUES
 
     ('e538d6d4-7881-4b20-8717-5b35f4bfa8fc', 'Games & Drinks', 'Interactive games and open bar', '18:30', '20:00', 'Terrace', NULL),
     ('06d4748f-bf3b-4a6f-93b2-58e4d19b7f45', 'Dance Party', 'Birthday celebration and dancing', '20:00', '23:00', 'Dance Floor', NULL);
+
+
+INSERT INTO event_review (id, comment, grade, pending_status, event_id, guest_id) VALUES
+                                                                                      ('a9db51cc-2176-44e4-98bb-b1fd29a7c37f', 'Incredible atmosphere and great crowd!', 5, 'APPROVED', '2c9f1c4d-1cb5-48f2-8618-78e3be06f27f', '634182f1-9a18-433b-82d8-dad5aa4069f8'),
+                                                                                      ('0c8f3e7b-8894-4ac6-bc1f-c93b2b8d8472', 'The dinner was elegant and well organized.', 4, 'APPROVED', '92bb1a4e-98eb-4a63-ae1c-4195c19ae74e', 'c633e080-fad0-4195-8a52-688c149700a1'),
+                                                                                      ('2c6c10f3-9095-4ed0-bd27-f3cc2012d3f7', 'Still waiting for approval...', 3, 'PENDING', 'a927e6d5-8e67-4f7f-a1cd-fb56c7d5e8e9', '95a4669b-9ee6-4608-a4d1-ae52da25be36'),
+                                                                                      ('57c849f2-f2e5-4d9a-8f29-9866d78c4bcb', 'The music was too loud.', 2, 'APPROVED', 'e7c6d6b5-dae4-4d59-a6c1-1233fa72f5e1', '0f0e83c6-6764-4c27-bca6-7369aea6acaa'),
+                                                                                      ('9391cbaf-7d91-4b5a-80a7-6fa3b33c98aa', 'Perfect for a family day out.', 5, 'PENDING', 'e23ad6d4-cff6-41ec-bcab-d5674d875e2b', '4b423147-32cf-4a90-9238-a3a5934aaee9'),
+                                                                                      ('ac02710d-c167-4973-a877-df47239cddfd', 'Too crowded, but fun!', 3, 'PENDING', '672cde38-24b6-4c79-bd99-4f58c795ba21', '97aaf376-4054-417d-8caf-ecbfecb185c3'),
+                                                                                      ('5d74bc91-f802-4a95-b1a9-2ac5dfac04a5', 'Exceptional experience from start to finish.', 5, 'APPROVED', 'f00de5a9-8c76-4a87-b2cb-1c0b7bc4c9c7', 'f4618423-15ac-4772-96ac-7144e240b584'),
+                                                                                      ('1874a6a4-3ed2-4ebf-9ce4-0cb6b901aafa', 'Did not meet my expectations.', 2, 'APPROVED', '86ad4f02-5c5c-42e6-b789-3181fa81e8f7', '70e77225-b0a3-403c-b900-0f1788c93780'),
+                                                                                      ('8419f929-e15f-49a5-86a3-4d7001f65a83', 'Great networking opportunities.', 4, 'APPROVED', '56f3c073-2fbc-463d-b3a2-bea9dc536454', 'd8413682-21f1-4e35-ba8d-276334c9ffab'),
+                                                                                      ('b49d2a56-4a4b-4019-a7a4-0ac46e055882', 'Looking forward to this next year.', 5, 'PENDING', '57787b97-680f-436f-95e4-9690357472e4', 'e078765f-21ee-49c0-90a4-1377fe1386e5');
+
+
 --GUEST LISTS
 
 INSERT INTO guest_invited_events (id, event_id) VALUES
@@ -1124,6 +1129,38 @@ VALUES
 
 INSERT INTO versioned_service_eventtype (versioned_service_static_service_id, versioned_service_version, eventtype_id)
 VALUES
+    -- ALL EVENT TYPES FOR TESTING
+    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 1, 'a8b8d5b9-d1b2-47e1-b5a6-3efac3b6b832'),
+    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 1, 'cba94c6d-ef28-4de2-bbe7-0e1a7797d941'),
+    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'),
+    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 1, '2a3fbe6a-d495-4090-9e2e-09e2a4043460'),
+    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 1, '15c1de85-50a4-4b60-a5c2-bb349d3173ab'),
+    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 1, 'd1b237e6-d7a9-4797-b39f-9c2a1fcf93c0'),
+    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 1, '17f2e64d-bbbe-4784-8cd9-0d98cbf95ad7'),
+    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 1, '33a8ecb0-81a5-44a0-b07d-028b209ef4fd'),
+    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 1, 'b740de8f-7a23-4fbb-a6ae-5b0e7777cd18'),
+
+    ('2c358e12-19f2-4a16-a198-ece7c11f7863', 1, 'a8b8d5b9-d1b2-47e1-b5a6-3efac3b6b832'),
+    ('2c358e12-19f2-4a16-a198-ece7c11f7863', 1, 'cba94c6d-ef28-4de2-bbe7-0e1a7797d941'),
+    ('2c358e12-19f2-4a16-a198-ece7c11f7863', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'),
+    ('2c358e12-19f2-4a16-a198-ece7c11f7863', 1, '2a3fbe6a-d495-4090-9e2e-09e2a4043460'),
+    ('2c358e12-19f2-4a16-a198-ece7c11f7863', 1, '15c1de85-50a4-4b60-a5c2-bb349d3173ab'),
+    ('2c358e12-19f2-4a16-a198-ece7c11f7863', 1, 'd1b237e6-d7a9-4797-b39f-9c2a1fcf93c0'),
+    ('2c358e12-19f2-4a16-a198-ece7c11f7863', 1, '17f2e64d-bbbe-4784-8cd9-0d98cbf95ad7'),
+    ('2c358e12-19f2-4a16-a198-ece7c11f7863', 1, '33a8ecb0-81a5-44a0-b07d-028b209ef4fd'),
+    ('2c358e12-19f2-4a16-a198-ece7c11f7863', 1, 'b740de8f-7a23-4fbb-a6ae-5b0e7777cd18'),
+
+    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', 1, 'a8b8d5b9-d1b2-47e1-b5a6-3efac3b6b832'),
+    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', 1, 'cba94c6d-ef28-4de2-bbe7-0e1a7797d941'),
+    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'),
+    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', 1, '2a3fbe6a-d495-4090-9e2e-09e2a4043460'),
+    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', 1, '15c1de85-50a4-4b60-a5c2-bb349d3173ab'),
+    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', 1, 'd1b237e6-d7a9-4797-b39f-9c2a1fcf93c0'),
+    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', 1, '17f2e64d-bbbe-4784-8cd9-0d98cbf95ad7'),
+    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', 1, '33a8ecb0-81a5-44a0-b07d-028b209ef4fd'),
+    ('245cb1b1-336b-4bf3-9b40-73eee616f2de', 1, 'b740de8f-7a23-4fbb-a6ae-5b0e7777cd18'),
+
+
     -- WEDDING
     ('daa22294-5377-487a-aa3f-7cd5a42cc568', 1, 'a8b8d5b9-d1b2-47e1-b5a6-3efac3b6b832'), -- MUSIC CATEGORY ('Classic Jazz Band')
     ('deca359b-9bfb-4b6f-bc24-3e509f595da4', 1, 'a8b8d5b9-d1b2-47e1-b5a6-3efac3b6b832'), -- CATERING CATEGORY ('Plated Dinner Service')
@@ -1138,8 +1175,6 @@ VALUES
 
     -- CORPORATE EVENT
     ('daa22294-5377-487a-aa3f-7cd5a42cc568', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'), -- MUSIC CATEGORY ('Classic Jazz Band')
-    ('379624ba-652e-42e2-a7bb-d23a53ac2eed', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'), -- MUSIC CATEGORY ('House DJ')
-    ('c3210396-e7f0-445a-9c26-9b1aec7a3c4a', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'), -- MUSIC CATEGORY ('Cover Band')
     ('deca359b-9bfb-4b6f-bc24-3e509f595da4', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'), -- CATERING CATEGORY ('Plated Dinner Service')
     ('9ee88634-aa10-48d1-b2c4-98556eac1684', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'), -- PHOTOGRAPHY CATEGORY ('Event Photography')
     ('8fb67698-2344-4b1d-950e-478c14f477cd', 1, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93'), -- VIDEOGRAPHY CATEGORY ('Live Streaming Videography')
@@ -1237,3 +1272,9 @@ VALUES
     ('e4cf9a34-a413-4ac8-adfd-9d14d342067c', 'No problem! I think you’ll really enjoy it. Let me know what you think after you try it out.', '2024-11-23T10:34:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
     ('a6825c50-22fc-4cce-b914-38cc03111a4a', 'Will do! I’m sure we’ll play it this weekend. Have a great time at the party!', '2024-11-23T10:36:00', 'a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e',  '780e7cde-7a99-4854-93b2-0ed2a7931c17'),
     ('ae101a7e-8503-4f8f-ab1c-1736daf11688', 'Thanks, you too! Enjoy the concert!', '2024-11-23T10:38:00', 'db48e7ac-1d35-4d9d-8e09-bf2e86533b91', '780e7cde-7a99-4854-93b2-0ed2a7931c17');
+
+-- NOTIFICATIONS
+INSERT INTO notification (id, entity_id, is_seen, message, time, title, type, web_redirect, profile_id)
+VALUES
+    ('d23bd056-764a-4cb5-8011-90c555241ea4', '86ad4f02-5c5c-42e6-b789-3181fa81e8f7',	true, 'Event Toms Birthday Bash has been changed!', '2025-07-19T05:37:55', 'Event updated', 0, 'event/86ad4f02-5c5c-42e6-b789-3181fa81e8f7', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4'),
+    ('d23bd056-764a-4cb5-8011-90c4dd241ea4', '672cde38-24b6-4c79-bd99-4f58c795ba21',	false, 'Event Summer Outdoor Festival has been changed!', '2025-07-20T05:37:55', 'Event updated', 0, 'event/672cde38-24b6-4c79-bd99-4f58c795ba21', '9a4531e5-2fda-42bc-8355-d7991bfc8ff4');
