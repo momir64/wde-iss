@@ -659,7 +659,7 @@ public class BudgetPlanningE2ETests {
     @Autowired
     private DataSource dataSource;
 
-    @AfterAll
+    @BeforeEach
     void runSqlScriptAfterAllTests() throws Exception {
         try (Connection conn = dataSource.getConnection()) {
             List<String> tables = new ArrayList<>();

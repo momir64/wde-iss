@@ -62,7 +62,7 @@ public class ReserveServicePage {
 
         By optionLocator = By.xpath("//mat-option//span[normalize-space(text())='" + optionText.trim() + "']");
         try {
-            WebElement option = wait.until(ExpectedConditions.elementToBeClickable(optionLocator));
+            WebElement option = wait.until(ExpectedConditions.visibilityOfElementLocated(optionLocator));
             Actions actions = new Actions(driver);
             actions.moveToElement(option).click().perform();
             return true;
