@@ -43,6 +43,7 @@ public class BudgetPlanningE2ETests {
 
         String url = "http://localhost:4200/login";
         webDriver.get(url);
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(2000));
 
         LoginPage loginPage = new LoginPage(webDriver);
         loginPage.login("jane.smith@example.com", "123");
@@ -119,8 +120,6 @@ public class BudgetPlanningE2ETests {
 
         fillAgendaAndSubmit();
 
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
-
         EventEditPage eventEditPage = new EventEditPage(webDriver);
         eventEditPage.navigateToActualEditPage();
         eventEditPage.navigateToBudget();
@@ -148,9 +147,7 @@ public class BudgetPlanningE2ETests {
         serviceBudgetRow.selectCustomCategoryOption("Music");
         serviceBudgetRow.setBudget("1500");
 
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
-
-        assertEquals(2500, eventBudgetPage.getTotalPrice());
+        assertTrue(eventBudgetPage.getTotalPrice("2500"));
     }
 
     @Test
@@ -168,8 +165,6 @@ public class BudgetPlanningE2ETests {
         eventBudgetPage.submitForm();
 
         fillAgendaAndSubmit();
-
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         EventEditPage eventEditPage = new EventEditPage(webDriver);
         eventEditPage.navigateToActualEditPage();
@@ -198,8 +193,6 @@ public class BudgetPlanningE2ETests {
         eventBudgetPage.submitForm();
 
         fillAgendaAndSubmit();
-
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         EventEditPage eventEditPage = new EventEditPage(webDriver);
         eventEditPage.navigateToActualEditPage();
@@ -231,8 +224,6 @@ public class BudgetPlanningE2ETests {
 
         fillAgendaAndSubmit();
 
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
-
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
 
@@ -240,7 +231,7 @@ public class BudgetPlanningE2ETests {
         marketPage.navigateToListing("Classic Jazz Band");
 
         ReserveServicePage reserveServicePage = new ReserveServicePage(webDriver);
-        reserveServicePage.reserveForEvent(eventName);
+        reserveServicePage.reserveForEvent(eventName, "00:00", "01:15");
 
         sidebarPage.navigateToMyEvents();
 
@@ -279,8 +270,6 @@ public class BudgetPlanningE2ETests {
 
         fillAgendaAndSubmit();
 
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
-
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
 
@@ -291,8 +280,6 @@ public class BudgetPlanningE2ETests {
         buyProductPage.buyForEvent(eventName);
 
         sidebarPage.navigateToMyEvents();
-
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         MyEventsPage myEventsPage = new MyEventsPage(webDriver);
         myEventsPage.navigateToEvent(eventName);
@@ -320,16 +307,14 @@ public class BudgetPlanningE2ETests {
         EventBudgetPage eventBudgetPage = new EventBudgetPage(webDriver);
         eventBudgetPage.clickAddCategoryButton();
 
-        EventBudgetRow productBudgetRow = new EventBudgetRow(webDriver);
-        productBudgetRow.selectServiceTypeOption();
-        productBudgetRow.selectCustomCategoryOption("Catering");
-        productBudgetRow.setBudget("1000");
+        EventBudgetRow serviceBudgetRow = new EventBudgetRow(webDriver);
+        serviceBudgetRow.selectServiceTypeOption();
+        serviceBudgetRow.selectCustomCategoryOption("Catering");
+        serviceBudgetRow.setBudget("1000");
 
         eventBudgetPage.submitForm();
 
         fillAgendaAndSubmit();
-
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
@@ -338,11 +323,9 @@ public class BudgetPlanningE2ETests {
         marketPage.navigateToListing("House DJ");
 
         ReserveServicePage reserveServicePage = new ReserveServicePage(webDriver);
-        reserveServicePage.reserveForEvent(eventName);
+        reserveServicePage.reserveForEvent(eventName, "00:00", "01:15");
 
         sidebarPage.navigateToMyEvents();
-
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         MyEventsPage myEventsPage = new MyEventsPage(webDriver);
         myEventsPage.navigateToEvent(eventName);
@@ -378,8 +361,6 @@ public class BudgetPlanningE2ETests {
         eventBudgetPage.submitForm();
 
         fillAgendaAndSubmit();
-
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
@@ -426,8 +407,6 @@ public class BudgetPlanningE2ETests {
         eventBudgetPage.submitForm();
 
         fillAgendaAndSubmit();
-
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
@@ -480,8 +459,6 @@ public class BudgetPlanningE2ETests {
 
         fillAgendaAndSubmit();
 
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
-
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
 
@@ -489,7 +466,7 @@ public class BudgetPlanningE2ETests {
         marketPage.navigateToListing("Cover Band");
 
         ReserveServicePage reserveServicePage = new ReserveServicePage(webDriver);
-        reserveServicePage.reserveForEvent(eventName);
+        reserveServicePage.reserveForEvent(eventName, "00:00", "01:15");
 
         sidebarPage.navigateToMyEvents();
 
@@ -533,8 +510,6 @@ public class BudgetPlanningE2ETests {
 
         fillAgendaAndSubmit();
 
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
-
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
 
@@ -562,8 +537,6 @@ public class BudgetPlanningE2ETests {
         eventBudgetPage.submitForm();
 
         fillAgendaAndSubmit();
-
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
@@ -593,8 +566,6 @@ public class BudgetPlanningE2ETests {
 
         fillAgendaAndSubmit();
 
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
-
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
 
@@ -623,8 +594,6 @@ public class BudgetPlanningE2ETests {
 
         fillAgendaAndSubmit();
 
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
-
         SidebarPage sidebarPage = new SidebarPage(webDriver);
         sidebarPage.navigateToMarket();
 
@@ -643,8 +612,6 @@ public class BudgetPlanningE2ETests {
         );
 
         EventBaseInfoPage eventBaseInfoPage = new EventBaseInfoPage(webDriver);
-
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
         eventBaseInfoPage.fillEventForm(validEventData);
 

@@ -1,9 +1,7 @@
 package wedoevents.eventplanner.eventManagement.budgetPlanningTests.e2eTests.seleniumPOMs;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -32,24 +30,23 @@ public class MyEventsPage {
     }
 
     public void navigateToEvent(String eventName) {
-        WebElement searchInput = wait.until(
-                ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@placeholder='Search items...']"))
-        );
+        WebElement searchInput = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//div[@class='filter-bar']//input[@type='text']")));
 
-        searchInput.sendKeys(eventName + Keys.ENTER);
+        searchInput.clear();
+        searchInput.sendKeys(eventName);
 
-        List<WebElement> listingCards = wait.until(
-                ExpectedConditions.presenceOfAllElementsLocatedBy(By.tagName("app-event-card"))
-        );
+        WebElement searchButtonDiv = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("div.mat-mdc-form-field-icon-suffix")));
 
-        if (!listingCards.isEmpty()) {
-            WebElement firstCard = listingCards.get(0);
+        Actions actions = new Actions(driver);
+        actions.moveToElement(searchButtonDiv).click().perform();
 
-            WebElement link = wait.until(
-                    ExpectedConditions.elementToBeClickable(firstCard.findElement(By.tagName("a")))
-            );
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//p[contains(@class, 'listing-title') and normalize-space(text())='" + eventName + "']")
+        ));
 
-            link.click();
-        }
+        WebElement card = wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("a")));
+        card.click();
     }
 }

@@ -1,10 +1,7 @@
 package wedoevents.eventplanner.eventManagement.budgetPlanningTests.e2eTests.seleniumPOMs;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -13,40 +10,33 @@ import java.time.Duration;
 import java.util.List;
 
 public class MarketPage {
-    private WebDriver driver;
-    private WebDriverWait wait;
+    private final WebDriverWait wait;
+    private final WebDriver webDriver;
 
     public MarketPage(WebDriver driver) {
-        this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.webDriver = driver;
         PageFactory.initElements(driver, this);
     }
 
     public void navigateToListing(String listingName) {
-        WebElement searchInput = wait.until(
-                ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='filter-bar']//input[@type='text']"))
-        );
+        WebElement searchInput = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//div[@class='filter-bar']//input[@type='text']")));
 
+        searchInput.clear();
         searchInput.sendKeys(listingName);
 
-        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
+        WebElement searchButtonDiv = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("div.mat-mdc-form-field-icon-suffix")));
 
-        searchInput.sendKeys(Keys.ENTER);
+        Actions actions = new Actions(webDriver);
+        actions.moveToElement(searchButtonDiv).click().perform();
 
-        List<WebElement> listingCards = wait.until(
-                ExpectedConditions.presenceOfAllElementsLocatedBy(By.tagName("app-listing-card"))
-        );
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//p[contains(@class, 'listing-title') and normalize-space(text())='" + listingName + "']")
+        ));
 
-        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
-
-        if (!listingCards.isEmpty()) {
-            WebElement firstCard = listingCards.get(0);
-
-            WebElement link = wait.until(
-                    ExpectedConditions.elementToBeClickable(firstCard.findElement(By.tagName("a")))
-            );
-
-            link.click();
-        }
+        WebElement card = wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("a")));
+        card.click();
     }
 }
