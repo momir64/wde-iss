@@ -4,9 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import wedoevents.eventplanner.productManagement.models.StaticProduct;
+import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.productManagement.models.VersionedProduct;
-import wedoevents.eventplanner.serviceManagement.models.StaticService;
 import wedoevents.eventplanner.serviceManagement.models.VersionedService;
 
 import java.util.ArrayList;
@@ -35,14 +34,17 @@ public class Chat {
     @JoinColumn(name = "chatter2_profile_id", nullable = false)
     private Profile chatter2;
 
-    // one of these two will always be non-null
+    // one of these three will always be non-null
 
     @ManyToOne()
     private VersionedService service;
     @ManyToOne()
     private VersionedProduct product;
+    @ManyToOne()
+    private Event event;
 
-    public Chat(VersionedProduct versionedProduct, VersionedService versionedService, Profile chatter1, Profile chatter2) {
+    public Chat(Event event, VersionedProduct versionedProduct, VersionedService versionedService, Profile chatter1, Profile chatter2) {
+        this.event = event;
         this.service = versionedService;
         this.product = versionedProduct;
         this.chatter1 = chatter1;

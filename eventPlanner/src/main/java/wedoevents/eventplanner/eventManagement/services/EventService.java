@@ -390,6 +390,8 @@ public class EventService {
         response.setLatitude(event.getLocation().getLatitude());
         if (organizer.isPresent()) {
             response.setOrganizerCredentials(organizer.get().getName() + " " + organizer.get().getSurname());
+            response.setOrganizerId(organizer.get().getId());
+            response.setOrganizerProfileId(organizer.get().getProfile().getId());
         } else {
             response.setOrganizerCredentials("");
         }

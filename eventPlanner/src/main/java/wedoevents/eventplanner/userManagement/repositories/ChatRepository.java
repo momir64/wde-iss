@@ -15,7 +15,8 @@ public interface ChatRepository extends JpaRepository<Chat, UUID> {
     @Query(value = "SELECT * FROM chat c " +
             "WHERE ((c.chatter1_profile_id = ?1 AND c.chatter2_profile_id = ?2) OR " +
             "(c.chatter2_profile_id = ?1 AND c.chatter1_profile_id = ?2)) AND " +
-            "((c.product_static_product_id = ?3 AND c.product_version = ?4) OR " +
+            "(c.event_id = ?3 OR " +
+            "(c.product_static_product_id = ?3 AND c.product_version = ?4) OR " +
             "(c.service_static_service_id = ?3 AND c.service_version = ?4))",
             nativeQuery = true)
     Optional<Chat> findExistingChat(UUID chatter1Id, UUID chatter2Id, UUID listingId, Integer listingVersion);

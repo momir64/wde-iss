@@ -4,6 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import wedoevents.eventplanner.eventManagement.models.Event;
+import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
 import wedoevents.eventplanner.productManagement.models.VersionedProduct;
 import wedoevents.eventplanner.productManagement.repositories.VersionedProductRepository;
@@ -37,9 +39,10 @@ public class ChatService {
     private final ProfileRepository profileRepository;
     private final VersionedServiceRepository versionedServiceRepository;
     private final VersionedProductRepository versionedProductRepository;
+    private final EventRepository eventRepository;
 
     @Autowired
-    public ChatService(ChatRepository chatRepository, ChatMessageRepository chatMessageRepository, EventOrganizerRepository eventOrganizerRepository, SellerRepository sellerRepository, GuestRepository guestRepository, ProfileRepository profileRepository, VersionedServiceRepository versionedServiceRepository, VersionedProductRepository versionedProductRepository) {
+    public ChatService(ChatRepository chatRepository, ChatMessageRepository chatMessageRepository, EventOrganizerRepository eventOrganizerRepository, SellerRepository sellerRepository, GuestRepository guestRepository, ProfileRepository profileRepository, VersionedServiceRepository versionedServiceRepository, VersionedProductRepository versionedProductRepository, EventRepository eventRepository) {
         this.chatRepository = chatRepository;
         this.chatMessageRepository = chatMessageRepository;
         this.eventOrganizerRepository = eventOrganizerRepository;
@@ -48,6 +51,7 @@ public class ChatService {
         this.profileRepository = profileRepository;
         this.versionedServiceRepository = versionedServiceRepository;
         this.versionedProductRepository = versionedProductRepository;
+        this.eventRepository = eventRepository;
     }
 
     public List<ChatDTO> getChatsFromProfile(UUID profileId) {
@@ -86,14 +90,13 @@ public class ChatService {
 
     public ChatDTO createChat(CreateChatDTO createChatDTO) {
         Optional<Chat> existingChat = chatRepository.findExistingChat(
-                createChatDTO.getChatter1Id(), createChatDTO.getChatter2Id(), createChatDTO.getListingId(), createChatDTO.getListingVersion()
-        );
+                createChatDTO.getChatter1Id(), createChatDTO.getChatter2Id(),
+                createChatDTO.getListingId(), createChatDTO.getListingVersion());
 
         if (existingChat.isPresent()) {
             return getChatDTO(existingChat.get(), createChatDTO.getChatter1Id());
         }
 
-        VersionedService versionedService = null;
         Optional<Profile> chatter1Maybe = profileRepository.findById(createChatDTO.getChatter1Id());
         Optional<Profile> chatter2Maybe = profileRepository.findById(createChatDTO.getChatter2Id());
 
@@ -104,8 +107,19 @@ public class ChatService {
         Profile chatter1 = chatter1Maybe.get();
         Profile chatter2 = chatter2Maybe.get();
 
+        VersionedService versionedService = null;
         VersionedProduct versionedProduct = null;
-        if (createChatDTO.getListingType().equals(ListingType.SERVICE)) {
+        Event event = null;
+        if (createChatDTO.getListingType() == null) {
+            Optional<Event> eventMaybe =
+                    eventRepository.findByIdWithActivities(createChatDTO.getListingId());
+
+            if (eventMaybe.isEmpty()) {
+                throw new EntityNotFoundException();
+            }
+
+            event = eventMaybe.get();
+        } else if (createChatDTO.getListingType().equals(ListingType.SERVICE)) {
             Optional<VersionedService> versionedServiceMaybe =
                     versionedServiceRepository.getVersionedServiceByStaticServiceIdAndVersion(createChatDTO.getListingId(), createChatDTO.getListingVersion());
 
@@ -114,7 +128,7 @@ public class ChatService {
             }
 
             versionedService = versionedServiceMaybe.get();
-        } else {
+        } else if (createChatDTO.getListingType().equals(ListingType.PRODUCT)) {
             Optional<VersionedProduct> versionedProductMaybe =
                     versionedProductRepository.getVersionedProductByStaticProductIdAndVersion(createChatDTO.getListingId(), createChatDTO.getListingVersion());
 
@@ -125,7 +139,7 @@ public class ChatService {
             versionedProduct = versionedProductMaybe.get();
         }
 
-        Chat newChat = new Chat(versionedProduct, versionedService, chatter1, chatter2);
+        Chat newChat = new Chat(event, versionedProduct, versionedService, chatter1, chatter2);
         newChat = chatRepository.save(newChat);
 
         return getChatDTO(newChat, chatter1.getId());
@@ -159,7 +173,7 @@ public class ChatService {
                 newChatMessage.getTime(),
                 newChatMessage.getTo().getId(),
                 chat.getId()
-        );
+                                              );
 
         return ChatMessageDTO.toDto(newChatMessage);
     }
@@ -174,10 +188,14 @@ public class ChatService {
             listingId = c.getService().getStaticServiceId();
             listingName = c.getService().getName();
             listingType = ListingType.SERVICE;
-        } else {
+        } else if (c.getProduct() != null) {
             listingId = c.getProduct().getStaticProductId();
             listingName = c.getProduct().getName();
             listingType = ListingType.PRODUCT;
+        } else {
+            listingId = c.getEvent().getId();
+            listingName = c.getEvent().getName();
+            listingType = null;
         }
 
         UUID chatPartnerId;

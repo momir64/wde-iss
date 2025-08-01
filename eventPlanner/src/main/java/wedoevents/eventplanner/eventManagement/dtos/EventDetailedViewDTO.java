@@ -33,6 +33,8 @@ public class EventDetailedViewDTO {
     private Boolean isPdfAvailable;
     private Boolean isEditable;
     private String organizerCredentials;
+    private UUID organizerId;
+    private UUID organizerProfileId;
     private List<String> images;
     private Double acceptedGuests;
 }
