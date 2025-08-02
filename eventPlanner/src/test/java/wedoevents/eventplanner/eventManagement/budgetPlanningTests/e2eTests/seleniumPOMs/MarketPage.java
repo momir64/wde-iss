@@ -26,11 +26,7 @@ public class MarketPage {
         searchInput.clear();
         searchInput.sendKeys(listingName);
 
-        WebElement searchButtonDiv = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.cssSelector("div.mat-mdc-form-field-icon-suffix")));
-
-        Actions actions = new Actions(webDriver);
-        actions.moveToElement(searchButtonDiv).click().perform();
+        clickNotStaleSearchElement();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.xpath("//p[contains(@class, 'listing-title') and normalize-space(text())='" + listingName + "']")
@@ -38,5 +34,21 @@ public class MarketPage {
 
         WebElement card = wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("a")));
         card.click();
+    }
+
+    public void clickNotStaleSearchElement() {
+        while (true) {
+            try {
+                WebElement searchButtonDiv = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                        By.cssSelector("div.mat-mdc-form-field-icon-suffix")));
+
+                for (int i = 0; i < 3; i++) {
+                    Actions actions = new Actions(webDriver);
+                    actions.moveToElement(searchButtonDiv).click().perform();
+                }
+
+                return;
+            } catch (StaleElementReferenceException ignored) { }
+        }
     }
 }

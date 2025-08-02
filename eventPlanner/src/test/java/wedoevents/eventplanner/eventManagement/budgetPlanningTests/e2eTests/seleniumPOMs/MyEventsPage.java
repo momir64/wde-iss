@@ -36,11 +36,7 @@ public class MyEventsPage {
         searchInput.clear();
         searchInput.sendKeys(eventName);
 
-        WebElement searchButtonDiv = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.cssSelector("div.mat-mdc-form-field-icon-suffix")));
-
-        Actions actions = new Actions(driver);
-        actions.moveToElement(searchButtonDiv).click().perform();
+        clickNotStaleSearchElement();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.xpath("//p[contains(@class, 'listing-title') and normalize-space(text())='" + eventName + "']")
@@ -48,5 +44,21 @@ public class MyEventsPage {
 
         WebElement card = wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("a")));
         card.click();
+    }
+
+    public void clickNotStaleSearchElement() {
+        while (true) {
+            try {
+                WebElement searchButtonDiv = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                        By.cssSelector("div.mat-mdc-form-field-icon-suffix")));
+
+                for (int i = 0; i < 3; i++) {
+                    Actions actions = new Actions(driver);
+                    actions.moveToElement(searchButtonDiv).click().perform();
+                }
+
+                return;
+            } catch (StaleElementReferenceException ignored) { }
+        }
     }
 }
