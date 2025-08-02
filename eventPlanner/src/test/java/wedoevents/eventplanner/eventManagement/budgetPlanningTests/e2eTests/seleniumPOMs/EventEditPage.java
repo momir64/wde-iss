@@ -1,9 +1,7 @@
 package wedoevents.eventplanner.eventManagement.budgetPlanningTests.e2eTests.seleniumPOMs;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import wedoevents.eventplanner.listingManagement.models.ListingType;
@@ -13,12 +11,12 @@ import java.util.List;
 
 public class EventEditPage {
 
-    private WebDriver driver;
-    private WebDriverWait wait;
+    private final WebDriver driver;
+    private final WebDriverWait wait;
 
     public EventEditPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     public void refreshPage() {
@@ -27,160 +25,112 @@ public class EventEditPage {
 
     public void navigateToBudget() {
         By budgetTabLocator = By.xpath("//div[@role='tab' and contains(., 'Budget')]");
-
         WebElement budgetTab = wait.until(ExpectedConditions.elementToBeClickable(budgetTabLocator));
         budgetTab.click();
     }
 
     public void navigateToActualEditPage() {
         By editButtonLocator = By.xpath("//button[normalize-space(.)='Edit']");
+        WebElement editButton = wait.until(ExpectedConditions.visibilityOfElementLocated(editButtonLocator));
 
-        WebElement editButton = wait.until(ExpectedConditions.elementToBeClickable(editButtonLocator));
-        editButton.click();
+        Actions actions = new Actions(driver);
+        actions.moveToElement(editButton).click().perform();
     }
 
     public int numberOfBudgetItems() {
         By rowsLocator = By.xpath("//mat-table//mat-row");
-        List<WebElement> budgetItems;
-
         try {
-            budgetItems = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(rowsLocator));
+            List<WebElement> rows = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(rowsLocator));
+            return rows.size();
         } catch (TimeoutException e) {
             return 0;
         }
-
-        return budgetItems.size();
     }
 
-    public boolean containsProductBudgetItem(ListingType listingType, String category, int maxBudget) {
-        By rowsLocator = By.xpath("//mat-table//mat-row");
-        List<WebElement> budgetItems;
-
-        try {
-            budgetItems = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(rowsLocator));
-        } catch (TimeoutException e) {
-            return false;
-        }
-
-        for (WebElement bi : budgetItems) {
-            String type = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-type')]")).getText().trim();
-            String cat = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-category')]")).getText().trim();
-            String budgetStr = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-budget')]//input")).getAttribute("value").trim();
-
-            int budget = Integer.parseInt(budgetStr);
-
-            if (type.equalsIgnoreCase(listingType.toString())
-                    && cat.equalsIgnoreCase(category)
-                    && budget == maxBudget) {
+    public boolean containsListingBudgetItem(ListingType listingType, String category, int maxBudget) {
+        List<WebElement> rows = getVisibleBudgetRows();
+        for (WebElement row : rows) {
+            if (matchesBudgetItem(row, listingType, category, maxBudget)) {
                 return true;
             }
         }
-
         return false;
     }
 
     public boolean deleteBudgetItemIfDeletable(ListingType listingType, String category, int maxBudget) {
-        By rowsLocator = By.xpath("//mat-table//mat-row");
-        List<WebElement> budgetItems;
-
-        try {
-            budgetItems = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(rowsLocator));
-        } catch (TimeoutException e) {
-            return false;
-        }
-
-        for (WebElement bi : budgetItems) {
-            String type = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-type')]")).getText().trim();
-            String cat = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-category')]")).getText().trim();
-            String budgetStr = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-budget')]//input")).getAttribute("value").trim();
-            WebElement deleteButton = bi.findElement(By.xpath(".//button[.//mat-icon[normalize-space(text())='delete']]"));
-
-            int budget = Integer.parseInt(budgetStr);
-
-            if (type.equalsIgnoreCase(listingType.toString())
-                    && cat.equalsIgnoreCase(category)
-                    && budget == maxBudget) {
+        List<WebElement> rows = getVisibleBudgetRows();
+        for (WebElement row : rows) {
+            if (matchesBudgetItem(row, listingType, category, maxBudget)) {
+                WebElement deleteButton = wait.until(driver -> row.findElement(By.xpath(".//button[.//mat-icon[normalize-space(text())='delete']]")));
                 if (deleteButton.isEnabled()) {
-                    deleteButton.click();
+                    wait.until(ExpectedConditions.elementToBeClickable(deleteButton)).click();
                     return true;
                 }
             }
         }
-
         return false;
     }
 
     public boolean changeBudgetItemPriceIfChangeable(ListingType listingType, String category, int oldMaxBudget, int newMaxBudget) {
-        By rowsLocator = By.xpath("//mat-table//mat-row");
-        List<WebElement> budgetItems;
-
-        try {
-            budgetItems = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(rowsLocator));
-        } catch (TimeoutException e) {
-            return false;
-        }
-
-        for (WebElement bi : budgetItems) {
-            String type = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-type')]")).getText().trim();
-            String cat = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-category')]")).getText().trim();
-            String budgetStr = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-budget')]//input")).getAttribute("value").trim();
-            WebElement budgetInput = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-budget')]//input"));
-
-            int budget = Integer.parseInt(budgetStr);
-
-            if (type.equalsIgnoreCase(listingType.toString())
-                    && cat.equalsIgnoreCase(category)
-                    && budget == oldMaxBudget) {
-                budgetInput.clear();
+        List<WebElement> rows = getVisibleBudgetRows();
+        for (WebElement row : rows) {
+            if (matchesBudgetItem(row, listingType, category, oldMaxBudget)) {
+                WebElement budgetInput = wait.until(driver -> row.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-budget')]//input")));
+                wait.until(ExpectedConditions.elementToBeClickable(budgetInput)).clear();
                 budgetInput.sendKeys(String.valueOf(newMaxBudget));
                 return true;
             }
         }
-
         return false;
     }
 
     public boolean navigateToBoughtListingPageIfBought(ListingType listingType, String category, int maxBudget) {
-        By rowsLocator = By.xpath("//mat-table//mat-row");
-        List<WebElement> budgetItems;
-
-        try {
-            budgetItems = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(rowsLocator));
-        } catch (TimeoutException e) {
-            return false;
-        }
-
-        for (WebElement bi : budgetItems) {
-            String type = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-type')]")).getText().trim();
-            String cat = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-category')]")).getText().trim();
-            String budgetStr = bi.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-budget')]//input")).getAttribute("value").trim();
-            WebElement navigateButton = bi.findElement(By.xpath(".//button[.//mat-icon[normalize-space(text())='frame_inspect']]"));
-
-            int budget = Integer.parseInt(budgetStr);
-
-            if (type.equalsIgnoreCase(listingType.toString())
-                    && cat.equalsIgnoreCase(category)
-                    && budget == maxBudget) {
+        List<WebElement> rows = getVisibleBudgetRows();
+        for (WebElement row : rows) {
+            if (matchesBudgetItem(row, listingType, category, maxBudget)) {
+                WebElement navigateButton = wait.until(driver -> row.findElement(By.xpath(".//button[.//mat-icon[normalize-space(text())='frame_inspect']]")));
                 if (navigateButton.isEnabled()) {
-                    navigateButton.click();
+                    wait.until(ExpectedConditions.elementToBeClickable(navigateButton)).click();
                     return true;
                 }
             }
         }
-
         return false;
     }
 
     public void clickSave() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        By saveButtonLocator = By.xpath("//button[normalize-space(.)='Save']");
+        By saveButtonLocator = By.xpath("//button[@type='submit' and .//span[contains(text(), 'Save')]]");
+        By loadingSpinnerLocator = By.cssSelector("div.loading-budget");
 
-        wait.until(ExpectedConditions.elementToBeClickable(saveButtonLocator)).click();
+        WebElement saveButton = wait.until(ExpectedConditions.visibilityOfElementLocated(saveButtonLocator));
+        Actions actions = new Actions(driver);
+        actions.moveToElement(saveButton).click().perform();
 
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(loadingSpinnerLocator));
+    }
+
+    private List<WebElement> getVisibleBudgetRows() {
+        By rowsLocator = By.xpath("//mat-table//mat-row");
         try {
-            Thread.sleep(2700);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(rowsLocator));
+        } catch (TimeoutException e) {
+            return List.of();
         }
+    }
+
+    private boolean matchesBudgetItem(WebElement row, ListingType listingType, String category, int budgetToMatch) {
+        String type = row.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-type')]")).getText().trim();
+        String cat = row.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-category')]")).getText().trim();
+        String budgetStr = row.findElement(By.xpath(".//mat-cell[contains(@class, 'cdk-column-budget')]//input")).getAttribute("value").trim();
+        int budget;
+        try {
+            budget = Integer.parseInt(budgetStr);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        return type.equalsIgnoreCase(listingType.toString())
+                && cat.equalsIgnoreCase(category)
+                && budget == budgetToMatch;
     }
 }

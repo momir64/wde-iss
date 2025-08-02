@@ -1,10 +1,8 @@
 package wedoevents.eventplanner.eventManagement.budgetPlanningTests.e2eTests.seleniumPOMs;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.*;
 
 import java.time.Duration;
 import java.util.List;
@@ -12,112 +10,64 @@ import java.util.NoSuchElementException;
 
 public class ReserveServicePage {
 
-    private WebDriver driver;
-    private WebDriverWait wait;
+    private final WebDriver driver;
+    private final WebDriverWait wait;
 
     public ReserveServicePage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    public void reserveForEvent(String eventName) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+    public void reserveForEvent(String eventName, String startTime, String endTime) {
+        clickReserveButton();
 
-        WebElement reserveButton = wait.until(
-                ExpectedConditions.elementToBeClickable(By.xpath("//button[text()='Reserve']"))
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//p[text()='Select event and time']")));
+
+        selectDropdownOption("//mat-select[@placeholder='Event']", eventName);
+
+        selectDropdownOption("//mat-select[@placeholder='Start time' and not(@aria-disabled='true')]", startTime);
+        selectDropdownOption("//mat-select[@placeholder='End time' and not(@aria-disabled='true')]", endTime);
+
+        WebElement finalReserveButton = wait.until(
+                ExpectedConditions.elementToBeClickable(
+                        By.cssSelector("button.purple-button.finish:not([disabled])"))
         );
-        reserveButton.click();
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//p[text()='Select event and time']")));
-
-        WebElement eventDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//mat-select[@placeholder='Event']")));
-        eventDropdown.click();
-
-        List<WebElement> eventOptions = wait.until(
-                ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//mat-option/span"))
-        );
-
-        boolean found = false;
-        for (WebElement option : eventOptions) {
-            if (option.getText().trim().equalsIgnoreCase(eventName.trim())) {
-                option.click();
-                found = true;
-                break;
-            }
-        }
-
-        if (!found) {
-            throw new NoSuchElementException("Event with name '" + eventName + "' not found in dropdown.");
-        }
-
-        WebElement startTimeDropdown = wait.until(
-                ExpectedConditions.elementToBeClickable(By.xpath("//mat-select[@placeholder='Start time' and not(@aria-disabled='true')]"))
-        );
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        startTimeDropdown.click();
-
-        List<WebElement> startTimeOptions = wait.until(
-                ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//mat-option/span"))
-        );
-
-        if (!startTimeOptions.isEmpty()) {
-            startTimeOptions.get(0).click();
-        }
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        WebElement endTimeDropdown = wait.until(
-                ExpectedConditions.elementToBeClickable(By.xpath("//mat-select[@placeholder='End time' and not(@aria-disabled='true')]"))
-        );
-        endTimeDropdown.click();
-
-        List<WebElement> endTimeOptions = wait.until(
-                ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//mat-option/span"))
-        );
-
-        if (!endTimeOptions.isEmpty()) {
-            endTimeOptions.get(0).click();
-        }
-
-         WebElement finalReserveButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("button.purple-button.finish:not([disabled])")));
-         finalReserveButton.click();
+        finalReserveButton.click();
     }
 
     public boolean reservableForEvent(String eventName) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        try {
+            clickReserveButton();
 
+            wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.xpath("//p[text()='Select event and time']")));
+
+            return selectDropdownOption("//mat-select[@placeholder='Event']", eventName);
+        } catch (TimeoutException | NoSuchElementException ignored) {
+            return false;
+        }
+    }
+
+    private void clickReserveButton() {
         WebElement reserveButton = wait.until(
                 ExpectedConditions.elementToBeClickable(By.xpath("//button[text()='Reserve']"))
         );
         reserveButton.click();
+    }
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//p[text()='Select event and time']")));
+    private boolean selectDropdownOption(String dropdownXPath, String optionText) {
+        WebElement dropdown = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(dropdownXPath)));
+        dropdown.click();
 
-        WebElement eventDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//mat-select[@placeholder='Event']")));
-        eventDropdown.click();
-
-        List<WebElement> eventOptions = wait.until(
-                ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//mat-option/span"))
-        );
-
-        boolean found = false;
-        for (WebElement option : eventOptions) {
-            if (option.getText().trim().equalsIgnoreCase(eventName.trim())) {
-                option.click();
-                return true;
-            }
+        By optionLocator = By.xpath("//mat-option//span[normalize-space(text())='" + optionText.trim() + "']");
+        try {
+            WebElement option = wait.until(ExpectedConditions.visibilityOfElementLocated(optionLocator));
+            Actions actions = new Actions(driver);
+            actions.moveToElement(option).click().perform();
+            return true;
+        } catch (TimeoutException e) {
+            return false;
         }
-
-        return false;
     }
 }
