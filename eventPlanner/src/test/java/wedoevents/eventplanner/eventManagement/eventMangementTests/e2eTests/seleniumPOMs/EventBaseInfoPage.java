@@ -58,21 +58,39 @@ public class EventBaseInfoPage {
         guestCountInput.sendKeys(Keys.TAB);
     }
     public void selectCity(String city) {
-        if(city.isEmpty()) return;
-        // Wait for dropdown to be clickable
-        WebElement cityDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("mat-select[formControlName='city']")));
+        if (city.isEmpty()) return;
+
+        // Open the dropdown
+        WebElement cityDropdown = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("mat-select[formControlName='city']")));
         cityDropdown.click();
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // Wait for options to be present in DOM
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("mat-option")));
 
-        // Now select the city option
-        WebElement cityOption = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//mat-option//span[contains(text(), '" + city + "')]")));
+        // Wait for the overlay backdrop to disappear (animation complete)
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(
+                By.cssSelector(".cdk-overlay-backdrop")));
+
+        By cityOptionSelector = By.xpath("//mat-option//span[contains(text(), '" + city + "')]");
+
+        wait.until(driver -> {
+            WebElement option = driver.findElement(cityOptionSelector);
+            try {
+                return option.isDisplayed() &&
+                        option.isEnabled() &&
+                        option.getLocation().getY() > 0 &&
+                        option.getSize().getHeight() > 0;
+            } catch (StaleElementReferenceException e) {
+                return false;
+            }
+        });
+
+        WebElement cityOption = driver.findElement(cityOptionSelector);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", cityOption);
         cityOption.click();
     }
+
 
     public void enterAddress(String address) {
         WebElement addressInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("input[formControlName='address']")));
@@ -108,17 +126,39 @@ public class EventBaseInfoPage {
     }
 
     public void selectEventType(String eventType) {
-        if(eventType.isEmpty()) return;
-        WebElement eventTypeDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("mat-select[formControlName='eventTypeId']")));
+        if (eventType.isEmpty()) return;
+
+        // Open the dropdown
+        WebElement eventTypeDropdown = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("mat-select[formControlName='eventTypeId']")));
         eventTypeDropdown.click();
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        WebElement eventTypeOption = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//mat-option/span[contains(text(), '" + eventType + "')]")));
+
+        // Wait for options to appear
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("mat-option")));
+
+        // Wait for the overlay animation to finish (backdrop disappears)
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(
+                By.cssSelector(".cdk-overlay-backdrop")));
+
+        // Custom wait until the target option is fully rendered and interactable
+        By eventTypeOptionSelector = By.xpath("//mat-option//span[contains(text(), '" + eventType + "')]");
+        wait.until(driver -> {
+            WebElement option = driver.findElement(eventTypeOptionSelector);
+            try {
+                return option.isDisplayed() &&
+                        option.isEnabled() &&
+                        option.getLocation().getY() > 0 &&
+                        option.getSize().getHeight() > 0;
+            } catch (StaleElementReferenceException e) {
+                return false;
+            }
+        });
+
+        WebElement eventTypeOption = driver.findElement(eventTypeOptionSelector);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", eventTypeOption);
         eventTypeOption.click();
     }
+
 
     public void enterDescription(String description) {
         WebElement descriptionInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("textarea[formControlName='description']")));
@@ -130,14 +170,12 @@ public class EventBaseInfoPage {
         WebElement isPublicToggle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("mat-slide-toggle[formControlName='isPublic']")));
         String currentState = isPublicToggle.getAttribute("aria-checked");
         if (isPublic) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
             isPublicToggle.click();
         }
     }
+
+
+
 
     public void submitForm() {
         WebElement nextButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@matStepperNext]")));
