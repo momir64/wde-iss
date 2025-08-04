@@ -132,6 +132,12 @@ public class ProfileService {
                 dto.setTelephoneNumber(organizer.getTelephoneNumber());
                 dto.setUserType(UserType.EVENTORGANIZER);
             });
+
+            guestRepository.findByProfile(profile).ifPresent(guest -> {
+                dto.setName(guest.getName());
+                dto.setSurname(guest.getSurname());
+                dto.setUserType(UserType.GUEST);
+            });
         }
 
         return Optional.of(dto);
