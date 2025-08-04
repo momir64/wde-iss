@@ -11,6 +11,7 @@ import wedoevents.eventplanner.userManagement.models.PendingStatus;
 import wedoevents.eventplanner.userManagement.models.userTypes.Guest;
 import wedoevents.eventplanner.userManagement.repositories.EventReviewRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -85,6 +86,7 @@ public class EventReviewService {
 
     public boolean IsReviewAllowed(Guest g, Event event) {
         if(!g.getAcceptedEvents().contains(event)) return false;
+        if(LocalDateTime.now().isBefore(LocalDateTime.of(event.getDate(), event.getTime()))) return false;
         return !evenetReviewRepository.existsByEventIdAndGuestId(event.getId(),g.getId());
     }
 
