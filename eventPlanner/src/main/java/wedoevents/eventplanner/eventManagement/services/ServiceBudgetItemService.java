@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import wedoevents.eventplanner.eventManagement.dtos.*;
 import wedoevents.eventplanner.eventManagement.models.Event;
 import wedoevents.eventplanner.eventManagement.models.EventType;
-import wedoevents.eventplanner.eventManagement.models.ProductBudgetItem;
 import wedoevents.eventplanner.eventManagement.models.ServiceBudgetItem;
 import wedoevents.eventplanner.eventManagement.repositories.EventRepository;
 import wedoevents.eventplanner.eventManagement.repositories.ServiceBudgetItemRepository;
@@ -27,7 +26,6 @@ import java.util.*;
 
 @Service
 public class ServiceBudgetItemService {
-
     private final ServiceBudgetItemRepository serviceBudgetItemRepository;
     private final VersionedServiceRepository versionedServiceRepository;
     private final ServiceCategoryRepository serviceCategoryRepository;
@@ -85,6 +83,9 @@ public class ServiceBudgetItemService {
         if (service.getAvailableEventTypes().stream().map(EventType::getId).noneMatch(id -> id.equals(event.getEventType().getId())))
             throw new BuyServiceException("Event type not in event's available event types");
 
+        if (event.getDate().isBefore(LocalDate.now()))
+            throw new BuyServiceException("Event has passed");
+
         LocalDateTime startTime = LocalDateTime.of(event.getDate(), LocalTime.parse(buyServiceDTO.getStartTime()));
         LocalDateTime endTime = LocalDateTime.of(event.getDate(), LocalTime.parse(buyServiceDTO.getEndTime()));
         if (serviceBudgetItemRepository.doesOverlap(buyServiceDTO.getServiceId(), startTime, endTime))
@@ -102,6 +103,8 @@ public class ServiceBudgetItemService {
             sbi = serviceBudgetItemRepository.findById(created.getId()).get();
         } else if (sbi.getMaxPrice() < service.getPrice() * (1 - service.getSalePercentage()))
             throw new BuyServiceException("Service too expensive");
+        else if (sbi.getService() != null)
+            throw new BuyServiceException("Service budget item for that event and category is already booked");
 
         sbi.setService(service);
         sbi.setStartTime(startTime);
@@ -128,6 +131,10 @@ public class ServiceBudgetItemService {
     public List<BookingSlotsDTO> getSlots(UUID serviceId, UUID organizerId) {
         List<Event> events = eventOrganizerRepository.getMyEventsById(organizerId);
         VersionedService service = versionedServiceRepository.getLatestByStaticServiceIdAndLatestVersion(serviceId).orElseThrow(EntityNotFoundException::new);
+
+        if (!service.getIsActive() || service.getIsPrivate() || !service.getIsAvailable())
+            return new ArrayList<>();
+
         events = events.stream().filter(event -> {
             boolean hadPassed = !event.getDate().isAfter(LocalDate.now());
             boolean isSupported = service.getAvailableEventTypes().stream().anyMatch(type -> type.getId().equals(event.getEventType().getId()));
