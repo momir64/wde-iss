@@ -17,6 +17,7 @@ import wedoevents.eventplanner.shared.Exceptions.BuyServiceException;
 import wedoevents.eventplanner.shared.Exceptions.EntityCannotBeDeletedException;
 import wedoevents.eventplanner.userManagement.repositories.userTypes.EventOrganizerRepository;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -91,6 +92,12 @@ public class ServiceBudgetItemService {
         if (serviceBudgetItemRepository.doesOverlap(buyServiceDTO.getServiceId(), startTime, endTime))
             throw new BuyServiceException("Service is unavailable at that time");
 
+        long duration = Duration.between(startTime, endTime).toMinutes();
+        if (duration > service.getMaximumDuration())
+            throw new BuyServiceException("The service's reservation must be at most " + service.getMaximumDuration() + " minutes");
+        else if (duration < service.getMinimumDuration())
+            throw new BuyServiceException("The service's reservation must be at least " + service.getMinimumDuration() + " minutes");
+
         ServiceBudgetItem sbi = event.getServiceBudgetItems().stream().filter(
                 s -> s.getServiceCategory().equals(service.getStaticService().getServiceCategory()))
                 .findFirst()
@@ -101,10 +108,10 @@ public class ServiceBudgetItemService {
             ServiceBudgetItemDTO created = createServiceBudgetItem(new CreateServiceBudgetItemDTO(buyServiceDTO.getEventId(), serviceCategoryId, 0.0));
 
             sbi = serviceBudgetItemRepository.findById(created.getId()).get();
-        } else if (sbi.getMaxPrice() < service.getPrice() * (1 - service.getSalePercentage()))
-            throw new BuyServiceException("Service too expensive");
-        else if (sbi.getService() != null)
+        } else if (sbi.getService() != null)
             throw new BuyServiceException("Service budget item for that event and category is already booked");
+        else if (sbi.getMaxPrice() < service.getPrice() * (1 - service.getSalePercentage()))
+            throw new BuyServiceException("Service too expensive");
 
         sbi.setService(service);
         sbi.setStartTime(startTime);

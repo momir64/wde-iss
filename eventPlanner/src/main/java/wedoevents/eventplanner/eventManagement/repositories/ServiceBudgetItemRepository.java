@@ -32,12 +32,12 @@ public interface ServiceBudgetItemRepository extends JpaRepository<ServiceBudget
             "service_budget_item.versioned_service_static_service_id IS NOT NULL", nativeQuery = true)
     boolean hasBoughtServiceByEventIdAndServiceCategoryId(UUID eventId, UUID serviceCategoryId);
 
-    @Query("""
-            select sbi from ServiceBudgetItem sbi
-            where sbi.service.staticServiceId = :serviceId
-            and function('date', sbi.startTime) = :eventDay
-            order by sbi.startTime asc
-           """)
+    @Query(value = """
+            select * from service_budget_item sbi
+            where sbi.versioned_service_static_service_id = :serviceId
+            and cast(sbi.start_time as date) = :eventDay
+            order by sbi.start_time
+           """, nativeQuery = true)
     List<ServiceBudgetItem> getForServiceAndDay(@Param("serviceId") UUID serviceId, @Param("eventDay") LocalDate eventDay);
 
     @Query("""
