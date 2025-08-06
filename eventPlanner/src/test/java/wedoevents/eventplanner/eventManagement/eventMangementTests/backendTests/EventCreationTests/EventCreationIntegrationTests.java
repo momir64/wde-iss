@@ -132,6 +132,10 @@ public class EventCreationIntegrationTests {
                 "Garden"
         );
 
+
+        jdbcTemplate.update("DELETE FROM event_activity WHERE id = ?", activity1.getId());
+        jdbcTemplate.update("DELETE FROM event_activity WHERE id = ?", activity2.getId());
+
         jdbcTemplate.update(
                 "INSERT INTO event_activity (id, name, description, start_time, end_time, location, event_id) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",

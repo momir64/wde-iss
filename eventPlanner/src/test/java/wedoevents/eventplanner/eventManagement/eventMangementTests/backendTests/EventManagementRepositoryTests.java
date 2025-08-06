@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @ActiveProfiles("test")
 public class EventManagementRepositoryTests {
-    // autowired repositories for event management
     @Autowired
     private EventTypeRepository eventTypeRepository;
 
