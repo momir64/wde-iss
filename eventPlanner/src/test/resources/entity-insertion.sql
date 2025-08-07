@@ -51,7 +51,7 @@ VALUES
     ('3d82e9b8-3d9b-4c7d-b244-1e6725b78456', false, 'jane.smith@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('91c1e927-9f79-44f4-b12f-bcbf16b16c6f', true, 'mark.jones@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('a91f3db9-b5fe-4a7f-9d3f-299ab6164b2e', false, 'susan.brown@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
-    ('0cd13f4e-f7de-4533-9071-c42b7b3b4d45', true, 'tom.williams@example.com', true, true, '1233','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
+    ('0cd13f4e-f7de-4533-9071-c42b7b3b4d45', true, 'tom.williams@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('97910c30-9cc7-4944-89cc-9397c98e0f78', true, 'o', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','6e569715-d341-4431-8370-d7516907d2e2', '1b385172-3928-4691-9759-d51d2a02b0bf'),
 
     -- PROFILES OF SELLERS
@@ -1224,6 +1224,7 @@ VALUES
     ('daa22294-5377-487a-aa3f-7cd5a42cc568', 1, '17f2e64d-bbbe-4784-8cd9-0d98cbf95ad7'), -- MUSIC CATEGORY ('Classic Jazz Band')
     ('deca359b-9bfb-4b6f-bc24-3e509f595da4', 1, '17f2e64d-bbbe-4784-8cd9-0d98cbf95ad7'), -- CATERING CATEGORY ('Plated Dinner Service')
     ('9ee88634-aa10-48d1-b2c4-98556eac1684', 1, '17f2e64d-bbbe-4784-8cd9-0d98cbf95ad7'), -- PHOTOGRAPHY CATEGORY ('Event Photography')
+    ('9447c5d5-3a82-44e2-8fe3-5d836f0eda63', 1, '2a3fbe6a-d495-4090-9e2e-09e2a4043460'), -- PHOTOGRAPHY CATEGORY ('Family Photography')
     ('b008b01e-4f96-4233-873e-77617645c371', 1, '17f2e64d-bbbe-4784-8cd9-0d98cbf95ad7'), -- GUEST TRANSPORTATION CATEGORY ('VIP Car Service')
     ('9495a42f-fd67-44cf-8de8-1bc4b6df81c1', 1, '17f2e64d-bbbe-4784-8cd9-0d98cbf95ad7'), -- EVENT SECURITY CATEGORY ('Bouncer Security')
 
