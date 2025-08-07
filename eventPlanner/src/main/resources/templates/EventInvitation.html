@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Event invitation</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #262626; border: 1px solid #ddd; }
+    h2 { color: #FFFFFF; }
+    p { color: white; }
+    .primary {color: #A939F9}
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 16px;
+      color: #fff;
+      background-color: #9149BF;
+      text-decoration: none;
+      border-radius: 5px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    .decline-color{
+      background-color: #958E99;
+    }
+    .message {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+    .success { color: #28a745; }
+    .error { color: #dc3545; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Event invitation</h2>
+  <p style="color: white">Dear {{email}}, </p>
+  <p style="color: white">You have been invited to {{event}} by {{organizerName}} {{organizerSurname}}.</p>
+  <p style="color: white">Please click one of the buttons below to confirm attendance.</p>
+  <a class="button" href="{{confirmationUrl}}/true" target="_blank">Accept</a>
+  <a class="button decline-color" href="{{confirmationUrl}}/false" target="_blank">Decline</a>
+
+
+  <div id="message" class="message"></div>
+</div>
+</body>
+</html>

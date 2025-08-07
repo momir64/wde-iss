@@ -1,0 +1,36 @@
+package wedoevents.eventplanner.userManagement.models;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import wedoevents.eventplanner.productManagement.models.StaticProduct;
+import wedoevents.eventplanner.serviceManagement.models.StaticService;
+import wedoevents.eventplanner.userManagement.models.userTypes.EventOrganizer;
+
+import java.util.UUID;
+
+@Entity
+@Getter
+@Setter
+public class ListingReview {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "UUID")
+    private UUID id;
+
+    private Integer grade;
+    private String comment;
+
+    @Enumerated(EnumType.STRING)
+    private PendingStatus pendingStatus;
+
+    // one of these two will always be non-null
+
+    @ManyToOne()
+    private StaticService service;
+    @ManyToOne()
+    private StaticProduct product;
+
+    @ManyToOne(optional = false)
+    private EventOrganizer eventOrganizer;
+}
