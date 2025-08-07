@@ -96,13 +96,27 @@ public class AgendaCreationIntegrationTests {
         );
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        List<UUID> responseIds = response.getBody();
-        assertNotNull(responseIds);
-        assertEquals(2, responseIds.size());
+        List<String> rawIds = response.getBody();          // <- strings
+        assertNotNull(rawIds);
+        assertEquals(2, rawIds.size());
 
-        // Verify database state
+        List<UUID> responseIds = rawIds.stream()
+                .map(UUID::fromString)
+                .toList();
+
+        String placeholders = String.join(",", Collections.nCopies(responseIds.size(), "?"));
+
+        String sql = """
+            SELECT * FROM event_activity
+            WHERE id IN (%s)
+            ORDER BY start_time
+        """.formatted(placeholders);
+
+        Object[] params = responseIds.toArray();
+
         List<EventActivity> savedActivities = jdbcTemplate.query(
-                "SELECT * FROM event_activity ORDER BY start_time",
+                sql,
+                params,                                          // <-- here
                 (rs, rowNum) -> new EventActivity(
                         UUID.fromString(rs.getString("id")),
                         rs.getString("name"),
@@ -276,10 +290,24 @@ public class AgendaCreationIntegrationTests {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
 
-        Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM event_activity", Integer.class
+        UUID activityId = UUID.fromString((String) response.getBody().get(0));
+
+
+        EventActivity saved = jdbcTemplate.queryForObject(
+                "SELECT * FROM event_activity WHERE id = ?",
+                (rs, rowNum) -> new EventActivity(
+                        UUID.fromString(rs.getString("id")),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getTime("start_time").toLocalTime(),
+                        rs.getTime("end_time").toLocalTime(),
+                        rs.getString("location")
+                ),
+                activityId
         );
-        assertEquals(1, count);
+
+        assertNotNull(saved);
+        assertEquals("Single", saved.getName());
     }
 
     private EventActivityDTO createActivityDTO(String name, String desc, String location,

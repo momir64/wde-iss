@@ -216,7 +216,7 @@ public class EventManagementE2ETests {
         assertTrue(stepperPOM.isGuestsStepVisible(), "Guests step should be visible when isPublic is true");
 
         eventBaseInfoPage.toggleIsPublic(true);
-        assertFalse(stepperPOM.isGuestsStepVisible(), "Guests step should not be visible when isPublic is false");
+        assertTrue(stepperPOM.isGuestsStepInvisible(), "Guests step should not be visible when isPublic is false");
 
         eventBaseInfoPage.toggleIsPublic(true);
         assertTrue(stepperPOM.isGuestsStepVisible(), "Guests step should be visible again when isPublic is true");

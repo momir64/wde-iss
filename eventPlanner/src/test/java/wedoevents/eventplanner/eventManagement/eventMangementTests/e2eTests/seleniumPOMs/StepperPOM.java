@@ -45,4 +45,13 @@ public class StepperPOM {
             return false; // If the step is not found, it's not visible
         }
     }
+    public boolean isGuestsStepInvisible() {
+        try {
+            return wait.until(ExpectedConditions.invisibilityOfElementLocated(
+                    By.xpath("//mat-step-header//div[contains(text(), 'Guests')]")));
+        } catch (TimeoutException e) {
+            return false; // Still visible after timeout
+        }
+    }
+
 }
