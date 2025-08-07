@@ -74,8 +74,12 @@ VALUES
     ('5a72482a-cd36-46e4-8c09-7b2ff1e22071', false, 'madison.green@example.com', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf'),
     ('3cfb1016-0d0e-42f8-924c-324ba2249ded', false, 'g', true, true, '{bcrypt}$2a$10$JO/kNwG1jWv9zuiP5pTkoeH270HGlaMothI4SRpc1n8t6nVScuL5K','9150703f-0449-40e1-b1fb-f0cb0a31b7b0', '1b385172-3928-4691-9759-d51d2a02b0bf');
 
--- USERS
+INSERT INTO profile_blocked_users (profile_id, blocked_user_id)
+VALUES
+    -- USER ON EVENT ORGANIZER
+    ('5a72482a-cd36-46e4-8c09-7b2ff1e22071', '3d82e9b8-3d9b-4c7d-b244-1e6725b78456');
 
+-- USERS
 INSERT INTO admin (id, profile_id) VALUES
                                        ('3570d6ff-6472-42a5-90fc-9b143db9f778', '7a92c4d7-8742-4a25-aee8-750ca987b42e'),
                                        ('5a5a94d3-443c-4eda-a263-c541647d7b7c', 'b2d2e1f0-06ae-4b0f-9cd0-7b5b31b1e9fe'),
@@ -760,7 +764,7 @@ VALUES
     ('6789a1de-34bc-5f67-c890-4567e89def12', 'Retro Music Night', 'A nostalgic night of music from the 80s and 90s.', 'Laze Telečkog 7', 'Niš', '2025-10-05', '21:00', 200, true, 43.3201, 21.8932, 'cba94c6d-ef28-4de2-bbe7-0e1a7797d941', '9c88f9ab-c2c9-4823-bf51-e3e263dcd5b0'),
     ('7890b2de-45cd-6f78-d901-5678f90ef123', 'Family Movie Night', 'An outdoor movie experience for families.', 'Tašmajdan Park', 'Beograd', '2025-08-25', '19:00', 250, true, 44.8089, 20.4701, '15c1de85-50a4-4b60-a5c2-bb349d3173ab', 'b38d716b-4d2a-4fd3-b18c-bfa128f24b99'),
     ('8901c3ef-56de-7f89-e012-6789f01f2345', 'Craft Beer Festival', 'A festival celebrating local craft beers.', 'Futoška 18', 'Novi Sad', '2025-06-10', '15:00', 400, true, 45.2486, 19.8419, '15c1de85-50a4-4b60-a5c2-bb349d3173ab', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
-    ('9012d4f0-67ef-8f90-f123-7890a12f3456', 'Meditation Workshop', 'A relaxing session for mindfulness and meditation.', 'Kralja Petra 75', 'Niš', '2025-07-18', '09:00', 50, false, 43.3178, 21.8965, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93', '1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236'),
+    ('9012d4f0-67ef-8f90-f123-7890a12f3456', 'Meditation Workshop', 'A relaxing session for mindfulness and meditation.', 'Kralja Petra 75', 'Beograd', '2025-07-18', '09:00', 50, true, 43.3178, 21.8965, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93', '1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236'),
     ('a12b3c4d-5678-9abc-def0-123456789abc', 'Spring Carnival', 'A family-friendly carnival with games and food.', 'Skadarlija 27', 'Beograd', '2025-04-10', '10:00', 300, true, 44.8186, 20.4689, '15c1de85-50a4-4b60-a5c2-bb349d3173ab', 'b38d716b-4d2a-4fd3-b18c-bfa128f24b99'),
     ('b23c4d5e-6789-abcd-ef01-23456789abcd', 'Wine Tasting Night', 'An evening exploring fine wines.', 'Zmaj Jovina 7', 'Novi Sad', '2025-06-15', '18:00', 50, false, 45.2561, 19.8462, '15c1de85-50a4-4b60-a5c2-bb349d3173ab', '9c88f9ab-c2c9-4823-bf51-e3e263dcd5b0'),
     ('c34d5e6f-789a-bcde-f012-3456789abcde', 'Charity Fun Run', 'A community event to raise funds for a local charity.', 'Bulevar Kralja Aleksandra 84', 'Beograd', '2025-05-20', '09:00', 400, true, 44.7982, 20.4775, 'b740de8f-7a23-4fbb-a6ae-5b0e7777cd18', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
@@ -778,7 +782,21 @@ VALUES
     ('9cafdd5d-3099-4591-9187-8d7fa43e34c8', 'Niš Food Festival', 'A celebration of local and international cuisine.', 'Kopitareva 5', 'Niš', '2025-08-12', '11:00', 300, true, 43.3209, 21.8958, '15c1de85-50a4-4b60-a5c2-bb349d3173ab', '9c88f9ab-c2c9-4823-bf51-e3e263dcd5b0'),
     ('f6a6fb8b-680b-4a7c-ade2-7185c3b3c280', 'Art in the Park', 'An open-air exhibition of local art.', 'Trg Mladenaca 5', 'Novi Sad', '2025-06-30', '12:00', 200, true, 45.2671, 19.8335, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
     ('bcc16eba-53df-42e9-b3cd-5d41bf581d94', 'Book Fair 2025', 'An annual book fair with author signings.', 'Skadarlija 27', 'Beograd', '2025-10-10', '10:00', 400, true, 44.8176, 20.4569, 'b740de8f-7a23-4fbb-a6ae-5b0e7777cd18', '1d832a6e-7b3f-4cd4-bc37-fac3e0ef9236'),
-    ('379c96eb-7391-48b4-adc3-f07095576d3b', 'Tech Career Fair', 'Connecting job seekers with tech companies.', 'Kopitareva 5', 'Niš', '2025-11-05', '09:00', 250, true, 43.3209, 21.8958, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93', 'b38d716b-4d2a-4fd3-b18c-bfa128f24b99');
+    ('379c96eb-7391-48b4-adc3-f07095576d3b', 'Tech Career Fair', 'Connecting job seekers with tech companies.', 'Kopitareva 5', 'Niš', '2025-11-05', '09:00', 250, true, 43.3209, 21.8958, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93', 'b38d716b-4d2a-4fd3-b18c-bfa128f24b99'),
+    ('4d269363-f845-40d5-b1ab-608d714723f0', 'Test Event For All Criteria', 'No description', 'No address', 'Ada', '2025-12-12', '10:00', 200, true, 43.3209, 21.8958, 'd1b237e6-d7a9-4797-b39f-9c2a1fcf93c0', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
+    ('afbe10f1-1f23-4260-9db8-000000000001', 'Gala Dinner Delight 1', 'No description', 'No address', 'Novi Sad', '2025-11-12', '19:00', 150, true, 45.2671, 19.8335, 'd1b237e6-d7a9-4797-b39f-9c2a1fcf93c0', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
+    ('afbe10f1-1f23-4260-9db8-000000000002', 'Techno Bash 2', 'No description', 'No address', 'Ada', '2025-10-25', '23:00', 300, true, 45.7584, 20.1255, 'cba94c6d-ef28-4de2-bbe7-0e1a7797d941', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
+    ('afbe10f1-1f23-4260-9db8-000000000003', 'Engagement Celebration', 'No description', 'No address', 'Beograd', '2025-09-18', '17:30', 90, true, 44.7866, 20.4489, '17f2e64d-bbbe-4784-8cd9-0d98cbf95ad7', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
+    ('afbe10f1-1f23-4260-9db8-000000000004', 'Birthday Bash', 'No description', 'No address', 'Ada', '2025-08-12', '14:00', 60, true, 45.7584, 20.1255, '2a3fbe6a-d495-4090-9e2e-09e2a4043460', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
+    ('afbe10f1-1f23-4260-9db8-000000000005', 'Outdoor Nights', 'No description', 'No address', 'Novi Sad', '2025-07-20', '20:00', 120, true, 45.2671, 19.8335, '15c1de85-50a4-4b60-a5c2-bb349d3173ab', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
+    ('afbe10f1-1f23-4260-9db8-000000000006', 'Gala Dinner Delight 2', 'No description', 'No address', 'Ada', '2025-12-10', '20:00', 180, true, 44.7866, 20.4489, 'd1b237e6-d7a9-4797-b39f-9c2a1fcf93c0', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
+    ('afbe10f1-1f23-4260-9db8-000000000007', 'Techno Bash 3', 'No description', 'No address', 'Ada', '2025-12-13', '22:00', 250, true, 45.7584, 20.1255, 'cba94c6d-ef28-4de2-bbe7-0e1a7797d941', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
+    ('afbe10f1-1f23-4260-9db8-000000000008', 'Religious Gathering', 'No description', 'No address', 'Beograd', '2025-08-22', '09:00', 80, true, 44.7866, 20.4489, 'b740de8f-7a23-4fbb-a6ae-5b0e7777cd18', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
+    ('afbe10f1-1f23-4260-9db8-000000000009', 'Costume Parade', 'No description', 'No address', 'Novi Sad', '2025-11-15', '18:00', 160, true, 45.2671, 19.8335, '33a8ecb0-81a5-44a0-b07d-028b209ef4fd', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
+    ('afbe10f1-1f23-4260-9db8-000000000010', 'Corporate Talk', 'No description', 'No address', 'Ada', '2025-11-01', '11:00', 110, true, 45.7584, 20.1255, 'f726c1a3-13ea-4c5b-8dbf-30927310cb93', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f'),
+    ('afbe10f1-1f23-4260-9db8-000000000011', 'Rave Night Extreme', 'No description', 'No address', 'Ada', '2025-10-25', '23:00', 300, true, 45.7584, 20.1255, 'cba94c6d-ef28-4de2-bbe7-0e1a7797d941', '47c5fa7c-0d12-48e2-a4ed-9e4f441b383f');
+
+
 
 
 INSERT INTO event_activity (id, name, description, start_time, end_time, location, event_id)
@@ -806,8 +824,14 @@ INSERT INTO event_review (id, comment, grade, pending_status, event_id, guest_id
                                                                                       ('5d74bc91-f802-4a95-b1a9-2ac5dfac04a5', 'Exceptional experience from start to finish.', 5, 'APPROVED', 'f00de5a9-8c76-4a87-b2cb-1c0b7bc4c9c7', 'f4618423-15ac-4772-96ac-7144e240b584'),
                                                                                       ('1874a6a4-3ed2-4ebf-9ce4-0cb6b901aafa', 'Did not meet my expectations.', 2, 'APPROVED', '86ad4f02-5c5c-42e6-b789-3181fa81e8f7', '70e77225-b0a3-403c-b900-0f1788c93780'),
                                                                                       ('8419f929-e15f-49a5-86a3-4d7001f65a83', 'Great networking opportunities.', 4, 'APPROVED', '56f3c073-2fbc-463d-b3a2-bea9dc536454', 'd8413682-21f1-4e35-ba8d-276334c9ffab'),
-                                                                                      ('b49d2a56-4a4b-4019-a7a4-0ac46e055882', 'Looking forward to this next year.', 5, 'PENDING', '57787b97-680f-436f-95e4-9690357472e4', 'e078765f-21ee-49c0-90a4-1377fe1386e5');
-
+                                                                                      ('cdb562ff-70a5-4a12-85a3-dd0d109a0e4b', 'Test review 1.', 5, 'APPROVED', '4d269363-f845-40d5-b1ab-608d714723f0', 'e078765f-21ee-49c0-90a4-1377fe1386e5'),
+                                                                                      ('a92ca0d9-86ba-4397-af67-24868463265c', 'Test review 2.', 1, 'APPROVED', '4d269363-f845-40d5-b1ab-608d714723f0', 'e078765f-21ee-49c0-90a4-1377fe1386e5'),
+                                                                                      ('d17c1dfa-2bae-4b69-987e-1db42ac287bf', 'Test review 3.', 5, 'APPROVED', 'afbe10f1-1f23-4260-9db8-000000000006', 'e078765f-21ee-49c0-90a4-1377fe1386e5'),
+                                                                                      ('a2083261-8cbb-45ee-a92a-892fbf79ecf7', 'Test review 4.', 4, 'APPROVED', 'afbe10f1-1f23-4260-9db8-000000000006', 'e078765f-21ee-49c0-90a4-1377fe1386e5'),
+                                                                                      ('ccc20157-f1f9-46d0-9af3-43b5e27e5bec', 'Test review 5.', 5, 'APPROVED', '6789a1de-34bc-5f67-c890-4567e89def12', 'e078765f-21ee-49c0-90a4-1377fe1386e5'),
+                                                                                      ('624a66ca-cf5a-4b9e-b614-10bdca73d7cd', 'Test review 6.', 5, 'APPROVED', '379c96eb-7391-48b4-adc3-f07095576d3b', 'e078765f-21ee-49c0-90a4-1377fe1386e5'),
+                                                                                      ('816df08d-2e41-4869-9f15-66d3d59f87e4', 'Test review 7.', 4, 'APPROVED', 'afbe10f1-1f23-4260-9db8-000000000002', 'e078765f-21ee-49c0-90a4-1377fe1386e5'),
+                                                                                      ('532c3fb7-877b-4b9a-b2da-566b8458867c', 'Test review 8.', 4, 'APPROVED', 'afbe10f1-1f23-4260-9db8-000000000011', 'e078765f-21ee-49c0-90a4-1377fe1386e5');
 
 --GUEST LISTS
 
